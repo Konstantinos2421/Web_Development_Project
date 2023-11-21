@@ -81,6 +81,9 @@ CREATE TABLE `announcement`(
 )Engine = InnoDB;
 
 
+
+
+
 DROP TABLE IF EXISTS `cargo`;
 CREATE TABLE `cargo`(
     `vehicle_name` VARCHAR(20) NOT NULL,
