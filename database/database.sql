@@ -1,5 +1,5 @@
-DROP DATABASE IF EXISTS helpUP;
-CREATE DATABASE helpUP DEFAULT CHARSET utf16 COLLATE utf16_unicode_ci;
+DROP DATABASE IF EXISTS natural_disasters_volunteering_platform;
+CREATE DATABASE natural_disasters_volunteering_platform DEFAULT CHARSET utf16 COLLATE utf16_unicode_ci;
  USE helpUP;
 
 DROP TABLE IF EXISTS `user`;
