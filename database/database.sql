@@ -48,7 +48,6 @@ CREATE TABLE `has_category`(
     `base` VARCHAR(30) NOT NULL,
     `category` VARCHAR(30) UNIQUE NOT NULL,
     
-
     PRIMARY KEY (`base`,`category`),
     FOREIGN KEY (`base`) REFERENCES `admin` (`admin_username`) ON DELETE CASCADE ON UPDATE CASCADE  
 )Engine = InnoDB;
@@ -58,7 +57,6 @@ CREATE TABLE `category`(
     `category_name` VARCHAR(30) NOT NULL,
     `product_id` INT UNIQUE NOT NULL,
     
-
     PRIMARY KEY (`category_name`),
     FOREIGN KEY (`category_name`) REFERENCES `has_category` (`category`) ON DELETE CASCADE ON UPDATE CASCADE  
 )Engine = InnoDB;
@@ -69,7 +67,6 @@ CREATE TABLE `product`(
     `product_descr` VARCHAR(150) NOT NULL,
     `quantity` INT NOT NULL,
     
-
     PRIMARY KEY (`id`),
     FOREIGN KEY (`id`) REFERENCES `category` (`product_id`) ON DELETE CASCADE ON UPDATE CASCADE  
 )Engine = InnoDB;
@@ -79,7 +76,6 @@ CREATE TABLE `announcement`(
     `announcement_id` INT NOT NULL,
     `product_id` INT NOT NULL,
     
-
     PRIMARY KEY (`announcement_id`,`product_id`),
     FOREIGN KEY (`announcement_id`) REFERENCES `admin` (`announcements`) ON DELETE CASCADE ON UPDATE CASCADE  
 )Engine = InnoDB;
@@ -91,7 +87,6 @@ CREATE TABLE `cargo`(
     `product_id` INT NOT NULL,
     `quantity` INT NOT NULL,
     
-
     PRIMARY KEY (`vehicle_name`,`product_id`),
     FOREIGN KEY (`vehicle_name`) REFERENCES `rescuer` (`vehicle`) ON DELETE CASCADE ON UPDATE CASCADE  
 )Engine = InnoDB;
