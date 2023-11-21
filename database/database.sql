@@ -80,10 +80,6 @@ CREATE TABLE `announcement`(
     FOREIGN KEY (`announcement_id`) REFERENCES `admin` (`announcements`) ON DELETE CASCADE ON UPDATE CASCADE  
 )Engine = InnoDB;
 
-
-
-
-
 DROP TABLE IF EXISTS `cargo`;
 CREATE TABLE `cargo`(
     `vehicle_name` VARCHAR(20) NOT NULL,
