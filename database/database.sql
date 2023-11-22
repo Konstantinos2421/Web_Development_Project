@@ -32,7 +32,7 @@ CREATE TABLE `rescuer`(
     `base` VARCHAR(30) NOT NULL,
 
     PRIMARY KEY (`rescuer_username`),
-    FOREIGN KEY (`rescuer_username`) REFERENCES `user` (`username`) ON DELETE CASCADE ON UPDATE CASCADE  
+    FOREIGN KEY (`rescuer_username`) REFERENCES `user` (`username`) ON DELETE CASCADE ON UPDATE CASCADE,
     FOREIGN KEY (`base`) REFERENCES `admin` (`admin_username`) ON DELETE CASCADE ON UPDATE CASCADE  
 )Engine = InnoDB;
 
@@ -81,7 +81,8 @@ CREATE TABLE `announcement`(
     `base` VARCHAR(30) NOT NULL,
 
     PRIMARY KEY (`announcement_id`,`product_id`),
-    FOREIGN KEY (`base`) REFERENCES `admin` (`admin_username`) ON DELETE CASCADE ON UPDATE CASCADE  
+    FOREIGN KEY (`base`) REFERENCES `admin` (`admin_username`) ON DELETE CASCADE ON UPDATE CASCADE,
+    FOREIGN KEY (`product_id`) REFERENCES `product` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 )Engine = InnoDB;
 
 DROP TABLE IF EXISTS `cargo`;
@@ -91,7 +92,9 @@ CREATE TABLE `cargo`(
     `quantity` INT NOT NULL,
     
     PRIMARY KEY (`vehicle_name`,`product_id`),
-    FOREIGN KEY (`vehicle_name`) REFERENCES `rescuer` (`vehicle`) ON DELETE CASCADE ON UPDATE CASCADE  
+    FOREIGN KEY (`vehicle_name`) REFERENCES `rescuer` (`vehicle`) ON DELETE CASCADE ON UPDATE CASCADE,
+    FOREIGN KEY (`product_id`) REFERENCES `product` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+  
 )Engine = InnoDB;
 
 
@@ -103,7 +106,9 @@ CREATE TABLE `request`(
     `persons_num` INT NOT NULL,
     
     PRIMARY KEY (`request_id`),
-    FOREIGN KEY (`request_user`) REFERENCES `citizen` (`citizen_username`) ON DELETE CASCADE ON UPDATE CASCADE  
+    FOREIGN KEY (`request_user`) REFERENCES `citizen` (`citizen_username`) ON DELETE CASCADE ON UPDATE CASCADE,
+    FOREIGN KEY (`product_id`) REFERENCES `product` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+ 
 )Engine = InnoDB;
 
 
@@ -115,7 +120,9 @@ CREATE TABLE `offer`(
     `quantity` INT NOT NULL,
     
     PRIMARY KEY (`offer_id`),
-    FOREIGN KEY (`offer_user`) REFERENCES `citizen` (`citizen_username`) ON DELETE CASCADE ON UPDATE CASCADE  
+    FOREIGN KEY (`offer_user`) REFERENCES `citizen` (`citizen_username`) ON DELETE CASCADE ON UPDATE CASCADE,
+    FOREIGN KEY (`product_id`) REFERENCES `product` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+  
 )Engine = InnoDB;
 
 
@@ -143,6 +150,19 @@ CREATE TABLE `request`(
     
     PRIMARY KEY (`request_id`),
     FOREIGN KEY (`request_user`) REFERENCES `citizen` (`citizen_username`) ON DELETE CASCADE ON UPDATE CASCADE  
+)Engine = InnoDB;
+
+
+DROP TABLE IF EXISTS `base_inventory`;
+CREATE TABLE `base_inventory`(
+    `product_id` INT NOT NULL,
+    `quantity` INT NOT NULL,
+    `base` VARCHAR(30) NOT NULL,
+    
+    PRIMARY KEY (`product_id`),
+    FOREIGN KEY (`base`) REFERENCES `admin` (`admin_username`) ON DELETE CASCADE ON UPDATE CASCADE,
+    FOREIGN KEY (`product_id`) REFERENCES `product` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+   
 )Engine = InnoDB;
 
 
