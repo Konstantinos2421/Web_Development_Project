@@ -146,14 +146,3 @@ CREATE TABLE `request`(
 )Engine = InnoDB;
 
 
-DROP TABLE IF EXISTS `base_inventory`;
-CREATE TABLE `base_inventory`(
-    `product_id` INT NOT NULL,
-    `quantity` INT NOT NULL,
-    `base` VARCHAR(30) NOT NULL,
-    
-    PRIMARY KEY (`product_id`,`base`),
-    FOREIGN KEY (`base`) REFERENCES `admin` (`admin_username`) ON DELETE CASCADE ON UPDATE CASCADE  
-)Engine = InnoDB;
-
-
