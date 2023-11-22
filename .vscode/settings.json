@@ -9,7 +9,7 @@
             "server": "localhost",
             "port": 3306,
             "driver": "MySQL",
-            "name": "ceid",
+            "name": "Local instance MySQL80",
             "database": "travel_agency",
             "username": "root"
         }
