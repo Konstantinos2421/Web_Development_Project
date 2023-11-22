@@ -29,9 +29,11 @@ CREATE TABLE `rescuer`(
     `rescuer_username` VARCHAR(30) NOT NULL,
     `vehicle` VARCHAR(20) UNIQUE NOT NULL,
     `vehicle_location` POINT NOT NULL,
+    `base` VARCHAR(30) NOT NULL,
 
     PRIMARY KEY (`rescuer_username`),
     FOREIGN KEY (`rescuer_username`) REFERENCES `user` (`username`) ON DELETE CASCADE ON UPDATE CASCADE  
+    FOREIGN KEY (`base`) REFERENCES `admin` (`admin_username`) ON DELETE CASCADE ON UPDATE CASCADE  
 )Engine = InnoDB;
 
 DROP TABLE IF EXISTS `citizen`;
@@ -66,7 +68,7 @@ CREATE TABLE `product`(
     `id` INT AUTO_INCREMENT NOT NULL,
     `product_name` VARCHAR(40) NOT NULL,
     `product_descr` VARCHAR(150) NOT NULL,
-    `quantity` INT NOT NULL,
+    
     
     PRIMARY KEY (`id`),
     FOREIGN KEY (`id`) REFERENCES `category` (`product_id`) ON DELETE CASCADE ON UPDATE CASCADE  
@@ -132,5 +134,26 @@ CREATE TABLE `task`(
     FOREIGN KEY (`rescuer_took_over`) REFERENCES `rescuer` (`rescuer_username`) ON DELETE CASCADE ON UPDATE CASCADE  
 )Engine = InnoDB;
 
+DROP TABLE IF EXISTS `request`;
+CREATE TABLE `request`(
+    `request_user` VARCHAR(30) NOT NULL,
+    `request_id` INT NOT NULL,
+    `product_id` INT NOT NULL,
+    `persons_num` INT NOT NULL,
+    
+    PRIMARY KEY (`request_id`),
+    FOREIGN KEY (`request_user`) REFERENCES `citizen` (`citizen_username`) ON DELETE CASCADE ON UPDATE CASCADE  
+)Engine = InnoDB;
+
+
+DROP TABLE IF EXISTS `base_inventory`;
+CREATE TABLE `base_inventory`(
+    `product_id` INT NOT NULL,
+    `quantity` INT NOT NULL,
+    `base` VARCHAR(30) NOT NULL,
+    
+    PRIMARY KEY (`product_id`,`base`),
+    FOREIGN KEY (`base`) REFERENCES `admin` (`admin_username`) ON DELETE CASCADE ON UPDATE CASCADE  
+)Engine = InnoDB;
 
 
