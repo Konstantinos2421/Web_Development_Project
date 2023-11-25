@@ -136,17 +136,6 @@ CREATE TABLE`task`(
     FOREIGN KEY (`rescuer_took_over`) REFERENCES `rescuer` (`rescuer_username`) ON DELETE CASCADE ON UPDATE CASCADE
 ) Engine = InnoDB;
 
-DROP TABLE IF EXISTS `request`;
-CREATE TABLE`request`(
-    `request_id` INT NOT NULL,
-    `request_user` VARCHAR(30) NOT NULL,
-    `product_id` INT NOT NULL,
-    `persons_num` INT NOT NULL,
-
-    PRIMARY KEY (`request_id`),
-    FOREIGN KEY (`request_user`) REFERENCES `citizen` (`citizen_username`) ON DELETE CASCADE ON UPDATE CASCADE
-) Engine = InnoDB;
-
 DROP TABLE IF EXISTS `base_inventory`;
 CREATE TABLE`base_inventory`(
     `product_id` INT NOT NULL,
