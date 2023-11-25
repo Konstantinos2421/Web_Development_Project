@@ -16,7 +16,7 @@ INSERT INTO `rescuer` VALUES
 ('eleni', 'Ford Puma', ST_GeomFromText('POINT(37.2000 19.5874)'), 'komninos'),
 ('koutsomitr', 'Hundai', ST_GeomFromText('POINT(41.2000 20.5874)'), 'komninos');
 
-INSERT INTO citizen VALUES
+INSERT INTO `citizen` VALUES
 ('marios', ST_GeomFromText('POINT(38.3006 21.7796)')),
 ('lydia', ST_GeomFromText('POINT(38.3011 21.7821)')),
 ('artemis', ST_GeomFromText('POINT(38.2946 21.7862)'));
@@ -61,4 +61,14 @@ INSERT INTO `task` VALUES
 (NULL, 'gounaridis', 'YES', 'NO', current_timestamp(), NULL, NULL),
 (NULL, 'eleni', 'YES', 'NO', current_timestamp(), NULL, NULL),
 (NULL, 'gounaridis', 'YES', 'NO', current_timestamp(), NULL, NULL),
-(NULL, 'koutsomitr', 'YES', 'NO', current_timestamp(), NULL, NULL);
+(NULL, 'koutsomitr', 'YES', 'NO', current_timestamp(), NULL, NULL),
+(NULL, NULL, 'NO', 'NO', current_timestamp(), NULL, NULL);
+
+INSERT INTO `offer` VALUES
+(1, 'lydia', 1, 10),
+(2, 'lydia', 5, 20),
+(3, 'artemis', 3, 5);
+
+INSERT INTO `request` VALUES
+(4, 'marios', 4, 5),
+(5, 'marios', 5, 8);

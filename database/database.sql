@@ -78,7 +78,7 @@ CREATE TABLE`product`(
 
 DROP TABLE IF EXISTS `announcement`;
 CREATE TABLE`announcement`(
-    `announcement_id` INT NOT NULL,
+    `announcement_id` INT,
     `product_id` INT NOT NULL,
     `base` VARCHAR(30) NOT NULL,
 
@@ -112,8 +112,8 @@ CREATE TABLE`request`(
 
 DROP TABLE IF EXISTS `offer`;
 CREATE TABLE`offer`(
-    `offer_user` VARCHAR(30) NOT NULL,
     `offer_id` INT NOT NULL,
+    `offer_user` VARCHAR(30) NOT NULL,
     `product_id` INT NOT NULL,
     `quantity` INT NOT NULL,
 
@@ -138,8 +138,8 @@ CREATE TABLE`task`(
 
 DROP TABLE IF EXISTS `request`;
 CREATE TABLE`request`(
-    `request_user` VARCHAR(30) NOT NULL,
     `request_id` INT NOT NULL,
+    `request_user` VARCHAR(30) NOT NULL,
     `product_id` INT NOT NULL,
     `persons_num` INT NOT NULL,
 
@@ -159,49 +159,5 @@ CREATE TABLE`base_inventory`(
 ) Engine = InnoDB;
 
 
-DROP PROCEDURE IF EXISTS displayBaseInventory;
-DELIMITER $$
-CREATE PROCEDURE displayBaseInventory(adm VARCHAR(30), category INT)
-BEGIN
 
-SELECT `cargo`.`product_id`, SUM(`cargo`.`quantity`)
-FROM `rescuer`
-    JOIN `cargo` ON `rescuer`.`vehicle`=`cargo`.`vehicle_name`
-    JOIN `product` ON `cargo`.`product_id`=`product`.`id`
-WHERE `rescuer`.`base`=adm AND `product`.`category`=category
-GROUP BY `product_id`
-ORDER BY `product_id` ASC;
-
-END $$
-DELIMITER ;
-
-DROP PROCEDURE IF EXISTS maxAnnouncementId;
-DELIMITER $$
-CREATE PROCEDURE maxAnnouncementId(adm VARCHAR(30), OUT max INT)
-BEGIN
-
-SELECT `announcement_id`
-INTO max
-FROM `announcement`
-    JOIN `base` ON `announcement`.`base`=`base`.`admin_username`
-WHERE `base`=adm
-ORDER BY `announcement_id` DESC
-LIMIT 1;
-
-END $$
-DELIMITER ;
-
-DROP PROCEDURE IF EXISTS maxTasks;
-DELIMITER $$
-CREATE PROCEDURE maxTasks(resc VARCHAR(30), OUT tasks INT)
-BEGIN
-
-SELECT COUNT(*)
-INTO tasks
-FROM `rescuer`
-JOIN `task` ON `rescuer`.`rescuer_username`=`task`.`rescuer_took_over`
-WHERE `rescuer`.`rescuer_username`=resc AND `accepted`='YES' AND `completed`='NO';
-
-END $$
-DELIMITER ;
 -- SQLBook: Code
