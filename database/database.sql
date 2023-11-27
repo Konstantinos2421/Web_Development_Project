@@ -1,8 +1,6 @@
 -- SQLBook: Code
 DROP DATABASE IF EXISTS natural_disasters_volunteering_platform;
-
-CREATE DATABASE
-    natural_disasters_volunteering_platform DEFAULT CHARSET utf16 COLLATE utf16_unicode_ci;
+CREATE DATABASE natural_disasters_volunteering_platform DEFAULT CHARSET utf16 COLLATE utf16_unicode_ci;
 
 USE natural_disasters_volunteering_platform;
 
