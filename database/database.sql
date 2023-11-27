@@ -1,7 +1,6 @@
 -- SQLBook: Code
 DROP DATABASE IF EXISTS natural_disasters_volunteering_platform;
 CREATE DATABASE natural_disasters_volunteering_platform DEFAULT CHARSET utf16 COLLATE utf16_unicode_ci;
-
 USE natural_disasters_volunteering_platform;
 
 DROP TABLE IF EXISTS `user`;
@@ -98,8 +97,8 @@ CREATE TABLE`cargo`(
 
 DROP TABLE IF EXISTS `request`;
 CREATE TABLE`request`(
-    `request_user` VARCHAR(30) NOT NULL,
     `request_id` INT NOT NULL,
+    `request_user` VARCHAR(30) NOT NULL,
     `product_id` INT NOT NULL,
     `persons_num` INT NOT NULL,
 
