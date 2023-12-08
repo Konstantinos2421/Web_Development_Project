@@ -1,11 +1,10 @@
-
 <!DOCTYPE html>
 <html lang="en">
     <head>
         <meta charset="UTF-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Sample Web Site</title>
+        <title>Login</title>
         <link rel="stylesheet" href="../../bootstrap-5.3.2-dist/css/bootstrap.css">
     </head>
     
@@ -43,15 +42,15 @@
                     <form>
                         <div class="mb-4 mt-3">
                             <label for="username" class="form-label">Username:</label>
-                            <input type="text" class="form-control" placeholder="Enter Username" id="text">
+                            <input type="text" class="form-control" placeholder="Enter Username" id="username_field">
                         </div>
 
                         <div class="mb-5 mt-3">
                             <label for="password" class="form-label">Password:</label>
-                            <input type="password" class="form-control" placeholder="Enter Password">
+                            <input type="password" class="form-control" placeholder="Enter Password" id="password_field">
                         </div>
                         
-                        <div class="text-center"> <!-- Center the buttons -->
+                        <div class="text-center"> 
                             <button type="button" class="btn btn-primary mb-5 btn-lg" id="login_btn">LOG IN</button>
                             <span class="mx-4"></span>
                             <button type="button" class="btn btn-success mb-5 btn-lg" id="signup_btn">SIGN UP</button>
@@ -64,18 +63,6 @@
 
 
         <script>
-            var username=document.getElementById("text");
-
-            var textContent= username.textContent;
-
-            console.log(textContent);
-            
-            const btn=document.getElementById("login_btn");
-            btn.addEventListener("click",function(){
-                confirm("hello " + textContent);
-            })
-
-            
         </script>
     </body>
 
