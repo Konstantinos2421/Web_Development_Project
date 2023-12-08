@@ -1,0 +1,90 @@
+
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Sample Web Site</title>
+        <link rel="stylesheet" href="../../bootstrap-5.3.2-dist/css/bootstrap.css">
+    </head>
+    
+    <style>
+        html,body {
+            height:100%;
+            margin: 0;
+        }
+        
+        .bg-image {
+            background-image: url('../../imgs/img1.jpg');
+            background-size: cover;
+            height:100%;           
+            background-position: top left;
+        }
+    </style>
+
+    <body class="bg-image">
+        <div class="container">
+            <div class="row mt-5"></div>
+        </div>
+
+        <div class="container">
+            <div class="row mt-5"></div>
+        </div>
+
+        <div class="container">
+            <div class="row mt-5"></div>
+        </div>
+
+        <div class="container">
+            <div class="row mt-5"></div>
+        </div>
+
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-4 col-sm-4 bg-white rounded">
+                    <img src="../../imgs/logo.png" width="110" height="55" style="position:relative; left:50%; top:10%; transform:translate(-50%, -50%);">
+                    <form>
+                        <div class="mb-3 mt-3">
+                            <label for="username" class="form-label">Username:</label>
+                            <input type="text" class="form-control" placeholder="Enter Username" id="text">
+                        </div>
+
+                        <div class="mb-5 mt-3">
+                            <label for="password" class="form-label">Password:</label>
+                            <input type="password" class="form-control" placeholder="Enter Password">
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col">
+                                <button type="button" class="btn btn-primary mb-3 btn-lg" id="login_btn">LOG IN</button>
+                            </div>
+
+                            <div class="col">
+                                <button type="button" class="btn btn-success mb-3 btn-lg" id="signup_btn">SIGN UP</button>
+                            </div>
+                        </div>
+                    
+                    </form>
+                </div>
+            </div>
+        </div>
+
+
+        <script>
+            var username=document.getElementById("text");
+
+            var textContent= username.textContent;
+
+            console.log(textContent);
+            
+            const btn=document.getElementById("login_btn");
+            btn.addEventListener("click",function(){
+                confirm("hello " + textContent);
+            })
+
+            
+        </script>
+    </body>
+
+</html>
