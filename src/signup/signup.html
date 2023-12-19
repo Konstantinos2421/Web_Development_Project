@@ -83,13 +83,10 @@
                 .then(response => response.text())
                 .then(data => {
                     if(data=='success') {
-                        window.location.href='../login/login.html';
-                    }
-                    else{
+                        window.location.href = '../login/login.html';
+                    }else{
                         alert('Please enter your location');
                     }
-
-
                 })
                 .catch((error) => {
                     console.log('Error: ', error);
