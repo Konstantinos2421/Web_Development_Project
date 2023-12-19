@@ -69,6 +69,27 @@ app.delete('/unloadall/:user', async (req, res) => {
     res.json(result);
 });
 
+app.post('/signup/:username/:password/:firstname/:lastname/:phone/:lat/:lng', async (req, res) => {
+    const username = req.params.username;
+    const password = req.params.password;
+    const firstname = req.params.firstname;
+    const lastname = req.params.lastname;
+    const phone = req.params.phone;
+    const lat = req.params.lat;
+    const lng = req.params.lng;
+
+    await pool.query(`
+        INSERT INTO \`user\` VALUES 
+        (?, ?, ?, ?, ?) 
+    `, [username, password, firstname, lastname, phone]);
+
+    await pool.query(`
+        INSERT INTO \`citizen\` VALUES 
+        (?, ST_GeomFromText('POINT(? ?)'))
+    `, [username, lng, lat]);
+
+});
+
 app.listen(port, () => {
     console.log(`Server is running on port ${port}`);
 });

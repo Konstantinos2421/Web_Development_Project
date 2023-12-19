@@ -57,6 +57,38 @@
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
               attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
             }).addTo(map);
+
+           let marker;
+           let lat, lng; //γεωγραφικό πλάτος, μήκος
+
+           map.on('click', function(e) {
+            lat = e.latlng.lat;
+            lng = e.latlng.lng;
+
+            if (marker) {
+                map.removeLayer(marker);
+            }
+
+            marker=L.marker([lat, lng]).addTo(map);
+           });
+
+           const username = document.getElementById('username_field').value;
+           const password = document.getElementById('password_field').value;
+           const firstname = document.getElementById('first_name_field').value;
+           const lastname = document.getElementById('last_name_field').value;
+           const phone = document.getElementById('phone_num_field').value;
+
+            document.getElementById('signup_btn').addEventListener('click', function(){
+                fetch('http://localhost:3000/signup/' + username + '/' + password + '/' + firstname + '/' + lastname + '/' + phone + '/' + lat + '/' + lng, {method: 'POST'})
+                .then(response => response.text())
+                .then(data => {
+
+
+                })
+                .catch((error) => {
+                    console.log('Error: ', error);
+                })
+            });
         </script>
 
     </body>
