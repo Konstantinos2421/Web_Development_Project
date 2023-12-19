@@ -78,15 +78,21 @@ app.post('/signup/:username/:password/:firstname/:lastname/:phone/:lat/:lng', as
     const lat = req.params.lat;
     const lng = req.params.lng;
 
-    await pool.query(`
-        INSERT INTO \`user\` VALUES 
-        (?, ?, ?, ?, ?) 
-    `, [username, password, firstname, lastname, phone]);
+    if(lat===undefined || lng===undefined) {
+        res.send('fail');
+    }else{
+        await pool.query(`
+            INSERT INTO \`user\` VALUES 
+            (?, ?, ?, ?, ?) 
+        `, [username, password, firstname, lastname, phone]);
 
-    await pool.query(`
-        INSERT INTO \`citizen\` VALUES 
-        (?, ST_GeomFromText('POINT(? ?)'))
-    `, [username, lng, lat]);
+        await pool.query(`
+            INSERT INTO \`citizen\` VALUES 
+            (?, ST_GeomFromText('POINT(? ?)'))
+        `, [username, lng, lat]);
+
+        res.send('success');
+    }
 
 });
 
