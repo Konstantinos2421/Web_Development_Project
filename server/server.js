@@ -6,7 +6,11 @@ import session from 'express-session';
 const app = express();
 const port = 3000;
 
-app.use(cors());
+app.use(cors({
+    origin: 'http://localhost:5500',
+    credentials: true,
+}));
+app.use(express.static('public'));
 
 let pool = mysql.createPool({
     host: 'localhost',
@@ -70,17 +74,24 @@ app.delete('/unloadall/:user', async (req, res) => {
 });
 
 app.post('/signup/:username/:password/:firstname/:lastname/:phone/:lat/:lng', async (req, res) => {
-    const username = req.params.username;
-    const password = req.params.password;
-    const firstname = req.params.firstname;
-    const lastname = req.params.lastname;
-    const phone = req.params.phone;
-    const lat = req.params.lat;
-    const lng = req.params.lng;
+    let username = req.params.username;
+    let password = req.params.password;
+    let firstname = req.params.firstname;
+    let lastname = req.params.lastname;
+    let phone = req.params.phone;
+    let lat = req.params.lat;
+    let lng = req.params.lng;
 
-    if(lat===undefined || lng===undefined) {
-        res.send('fail');
-    }else{
+    let [result] = await pool.query(`
+        SELECT * FROM \`user\` WHERE \`username\` = ? 
+    `, [username])
+
+    if(result.length == 0) {
+        
+        phone = parseInt(phone);
+        lat = parseFloat(lat);
+        lng = parseFloat(lng);
+
         await pool.query(`
             INSERT INTO \`user\` VALUES 
             (?, ?, ?, ?, ?) 
@@ -88,10 +99,13 @@ app.post('/signup/:username/:password/:firstname/:lastname/:phone/:lat/:lng', as
 
         await pool.query(`
             INSERT INTO \`citizen\` VALUES 
-            (?, ST_GeomFromText('POINT(? ?)'))
-        `, [username, lng, lat]);
+            (?, ST_GeomFromText('POINT(${lat} ${lng})'))
+        `, [username]);
 
         res.send('success');
+        
+    }else{
+        res.send('username_already_exists');
     }
 
 });

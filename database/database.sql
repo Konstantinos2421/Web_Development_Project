@@ -9,7 +9,7 @@ CREATE TABLE`user`(
     `password` VARCHAR(30) NOT NULL,
     `first_name` VARCHAR(30) NOT NULL,
     `last_name` VARCHAR(30) NOT NULL,
-    `phone_num` INT NOT NULL,
+    `phone_num` BIGINT NOT NULL,
 
     PRIMARY KEY (`username`) 
 )Engine = InnoDB;
