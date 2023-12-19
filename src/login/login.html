@@ -62,6 +62,39 @@
 
 
         <script>
+
+            document.getElementById("login_btn").addEventListener('click', () => {
+        
+                username = document.getElementById('username_field').value;
+                password = document.getElementById('password_field').value;
+
+                fetch('http://localhost:3000/login/' + username + '/' + password, { method: 'POST' })
+                .then(response => response.text())
+                .then(data => {
+                    if(data == 'Username not found'){
+                        alert('Username not found');
+                    }else if(data == 'Wrong password'){
+                        alert('Wrong password');
+                    }else{
+                        sessionStorage.setItem('username', username);
+                        sessionStorage.setItem('userType', data);
+                        sessionStorage.setItem('loggedIn', 'yes');
+                    
+                        if(data == 'admin'){
+                            window.location.href = '../../src/admin/admin_home.html';
+                        }else if(data == 'rescuer'){
+                            window.location.href = '../../src/rescuer/rescuer_home.htm';
+                        }else if(data == 'citizen'){
+                            window.location.href = '../../src/citizen/citizen_home.html';
+                        }
+                    }
+                })
+                .catch((error) => {
+                    console.error('Error:', error);
+                });
+
+            });
+
         </script>
 
     </body>
