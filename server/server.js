@@ -27,7 +27,7 @@ app.post('/login/:username/:password', async (req, res) => {
     const password = req.params.password;
     
     let [result] = await pool.query(`SELECT * FROM user WHERE username = ?`, [user]);
-    if (result.length == 0) {
+    if(result.length == 0) {
         res.send('Username not found');
     }else{
         if(result[0].password != password){
