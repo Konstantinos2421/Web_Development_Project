@@ -1,14 +1,14 @@
 -- SQLBook: Code
 DROP PROCEDURE IF EXISTS displayBaseInventory;
 DELIMITER $$
-CREATE PROCEDURE displayBaseInventory(adm VARCHAR(30), category INT)
+CREATE PROCEDURE displayBaseInventory(base VARCHAR(30), category INT)
 BEGIN
 
 SELECT `cargo`.`product_id`, SUM(`cargo`.`quantity`)
 FROM `rescuer`
     JOIN `cargo` ON `rescuer`.`vehicle`=`cargo`.`vehicle_name`
     JOIN `product` ON `cargo`.`product_id`=`product`.`id`
-WHERE `rescuer`.`base`=adm AND `product`.`category`=category
+WHERE `rescuer`.`base`=base AND `product`.`category`=category
 GROUP BY `product_id`
 ORDER BY `product_id` ASC;
 
@@ -17,7 +17,7 @@ DELIMITER ;
 
 DROP PROCEDURE IF EXISTS addAnnouncement;
 DELIMITER $$
-CREATE PROCEDURE addAnnouncement(adm VARCHAR(30), prod INT, ann_state enum('NEW', 'LAST'))
+CREATE PROCEDURE addAnnouncement(base VARCHAR(30), prod INT, ann_state enum('NEW', 'LAST'))
 BEGIN
 
 DECLARE max_id INT;
@@ -26,22 +26,22 @@ DECLARE announcement_exists INT;
 SELECT IFNULL(`announcement_id`,0)
 INTO max_id
 FROM `announcement`
-WHERE `base`=adm
+WHERE `base`=base
 ORDER BY `announcement_id` DESC
 LIMIT 1;
 
 SELECT COUNT(*)
 INTO announcement_exists
 FROM announcement
-WHERE `announcement`.`base`=adm;
+WHERE `announcement`.`base`=base;
 
 IF announcement_exists=0 THEN
-	INSERT INTO announcement VALUES(1, prod, adm);
+	INSERT INTO announcement VALUES(1, prod, base);
 ELSE
 	IF ann_state='LAST' THEN
-		INSERT INTO `announcement` VALUES (max_id, prod, adm);
+		INSERT INTO `announcement` VALUES (max_id, prod, base);
 	ELSEIF ann_state='NEW' THEN
-		INSERT INTO `announcement` VALUES (max_id+1, prod, adm);
+		INSERT INTO `announcement` VALUES (max_id+1, prod, base);
 	END IF;
 END IF;
 
@@ -82,11 +82,17 @@ BEGIN
 DECLARE base_quantity INT;
 DECLARE products_in_base INT;
 DECLARE vehicle VARCHAR(20);
+DECLARE base VARCHAR(30);
+
+SELECT `base`
+INTO base 
+FROM `resquer` 
+WHERE `resquer_username`=resc;
 
 SELECT `quantity`
 INTO base_quantity
 FROM `base_inventory`
-WHERE `product_id`=prod;
+WHERE `product_id`=prod AND `base`=base;
 
 IF quant>base_quantity THEN
     SIGNAL SQLSTATE '45000'
@@ -162,14 +168,14 @@ ELSE
         SELECT COUNT(*)
         INTO products_in_base
         FROM `base_inventory`
-        WHERE `product_id`=prod;
+        WHERE `product_id`=prod AND `base`=base;
 
         IF products_in_base=0 THEN
             INSERT INTO `base_inventory` VALUES (prod, quant, base);
         ELSE
             UPDATE `base_inventory`
             SET `quantity`=`quantity`+quant
-            WHERE `product_id`=prod;
+            WHERE `product_id`=prod AND `base`=base;
         END IF;
 
         DELETE FROM `cargo`
@@ -293,13 +299,13 @@ DELIMITER ;
 
 DROP PROCEDURE IF EXISTS displayBaseInventory;
 DELIMITER $$
-CREATE PROCEDURE displayBaseInventory(adm VARCHAR(30), cat INT)
+CREATE PROCEDURE displayBaseInventory(base VARCHAR(30), cat INT)
 BEGIN
 
 CREATE TEMPORARY TABLE `temp1` AS
 SELECT `product`.`id` AS `product_id`, `product`.`product_name` AS `product_name`, IFNULL(`base_inventory`.`quantity`, 0) AS `base_quantity`
 FROM `product`
-	LEFT JOIN `base_inventory` ON `product`.`id`=`base_inventory`.`product_id` AND `base_inventory`.`base`=adm
+	LEFT JOIN `base_inventory` ON `product`.`id`=`base_inventory`.`product_id` AND `base_inventory`.`base`=base
 WHERE `product`.`category`=cat
 ORDER BY `product`.`id` ASC;
 
@@ -307,7 +313,7 @@ CREATE TEMPORARY TABLE `temp2` AS
 SELECT `product`.`id` AS `product_id`, `product`.`product_name` AS `product_name`, IFNULL(SUM(`cargo`.`quantity`),0) AS `rescuers_quantity`
 FROM `product`
 	LEFT JOIN `cargo` ON `cargo`.`product_id`=`product`.`id`
-    LEFT JOIN `rescuer` ON `rescuer`.`vehicle`=`cargo`.`vehicle_name` AND `rescuer`.`base`=adm
+    LEFT JOIN `rescuer` ON `rescuer`.`vehicle`=`cargo`.`vehicle_name` AND `rescuer`.`base`=base
 WHERE `product`.`category`=cat
 GROUP BY `product`.`id`
 ORDER BY `product`.`id` ASC;

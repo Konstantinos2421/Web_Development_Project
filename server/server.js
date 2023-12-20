@@ -129,13 +129,6 @@ app.post('/signup/:username/:passsword/:firstname/:lastname/:phone/:vehicle', as
     `, [username, vehicle, ])
 });
 
-
-
-
-
-
-
-
 app.listen(port, () => {
     console.log(`Server is running on port ${port}`);
 });

@@ -8,7 +8,7 @@ CREATE TABLE `base` (
     `base_name` VARCHAR(30) NOT NULL,
     `base_location` POINT NOT NULL,
 
-    PRIMARY KEY (`base_name`, `base_location`) 
+    PRIMARY KEY (`base_name`) 
 )Engine = InnoDB;
 
 DROP TABLE IF EXISTS `user`;

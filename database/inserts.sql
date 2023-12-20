@@ -1,4 +1,6 @@
--- SQLBook: Code
+INSERT INTO `base` VALUES
+('PATRA_BASE1', ST_GeomFromText('POINT(38.2904 21.7957)'));
+
 INSERT INTO `user` VALUES
 ('komninos', '123456789', 'A', 'K', 69458969),
 ('eleni', '123456789', 'E', 'S', 69857496),
@@ -9,12 +11,12 @@ INSERT INTO `user` VALUES
 ('marios', '123456789', 'M', 'R', 69758241);
 
 INSERT INTO `admin` VALUES
-('komninos', ST_GeomFromText('POINT(38.2904 21.7957)'));
+('komninos', 'PATRA_BASE1');
 
 INSERT INTO `rescuer` VALUES
-('gounaridis', 'Ferrari 420', ST_GeomFromText('POINT(40.8000 22.0000)'), 'komninos'),
-('eleni', 'Ford Puma', ST_GeomFromText('POINT(37.2000 19.5874)'), 'komninos'),
-('koutsomitr', 'Hundai', ST_GeomFromText('POINT(41.2000 20.5874)'), 'komninos');
+('gounaridis', 'Ferrari 420', ST_GeomFromText('POINT(40.8000 22.0000)'), 'PATRA_BASE1'),
+('eleni', 'Ford Puma', ST_GeomFromText('POINT(37.2000 19.5874)'), 'PATRA_BASE1'),
+('koutsomitr', 'Hundai', ST_GeomFromText('POINT(41.2000 20.5874)'), 'PATRA_BASE1');
 
 INSERT INTO `citizen` VALUES
 ('marios', ST_GeomFromText('POINT(38.3006 21.7796)')),
@@ -28,10 +30,10 @@ INSERT INTO `category` VALUES
 (NULL, 'hygiene');
 
 INSERT INTO `has_category` VALUES
-('komninos', 1),
-('komninos', 2),
-('komninos', 3),
-('komninos', 4);
+('PATRA_BASE1', 1),
+('PATRA_BASE1', 2),
+('PATRA_BASE1', 3),
+('PATRA_BASE1', 4);
 
 INSERT INTO `product` VALUES
 (NULL, 'beef', '', 1),
@@ -52,10 +54,10 @@ INSERT INTO `cargo` VALUES
 ('Hundai', 4, 500);
 
 INSERT INTO `base_inventory` VALUES
-(1, 10, 'komninos'),
-(2, 20, 'komninos'),
-(3, 80, 'komninos'),
-(4, 65, 'komninos');
+(1, 10, 'PATRA_BASE1'),
+(2, 20, 'PATRA_BASE1'),
+(3, 80, 'PATRA_BASE1'),
+(4, 65, 'PATRA_BASE1');
 
 INSERT INTO `task` VALUES
 (NULL, 'gounaridis', 'YES', 'NO', current_timestamp(), NULL, NULL),
