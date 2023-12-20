@@ -110,7 +110,7 @@ app.post('/signup/citizen/:username/:password/:firstname/:lastname/:phone/:lat/:
 
 });
 
-app.post('/signup/rescuer/:admin/:username/:passsword/:firstname/:lastname/:phone/:vehicle', async (req, res) => {
+app.post('/signup/rescuer/:admin/:username/:password/:firstname/:lastname/:phone/:vehicle', async (req, res) => {
     let username = req.params.username;
     let password = req.params.password;
     let firstname = req.params.firstname;
@@ -125,7 +125,7 @@ app.post('/signup/rescuer/:admin/:username/:passsword/:firstname/:lastname/:phon
 
     if(result.length == 0){
         await pool.query(`
-            CALL newResquer(?, ?, ?, ?, ?, ?, ?)
+            CALL newRescuer(?, ?, ?, ?, ?, ?, ?)
         `, [username, password, firstname, lastname, phone, vehicle, admin]);
 
         res.send('success');
