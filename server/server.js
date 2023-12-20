@@ -110,6 +110,32 @@ app.post('/signup/:username/:password/:firstname/:lastname/:phone/:lat/:lng', as
 
 });
 
+app.post('/signup/:username/:passsword/:firstname/:lastname/:phone/:vehicle', async (req, res) => {
+    let username = req.params.username;
+    let password = req.params.password;
+    let firstname = req.params.firstname;
+    let lastname = req.params.lastname;
+    let phone = req.params.phone;
+    let vehicle = req.params.vehicle;
+
+
+
+    await pool.query(`
+        INSERT INTO \`user\` VALUES (?, ?, ?, ?, ?) 
+    `, [username, password, firstname, lastname, phone])
+
+    await pool.query(`
+        INSERT INTO \`resquer\` VALUES (?, ?, null, null) 
+    `, [username, vehicle, ])
+});
+
+
+
+
+
+
+
+
 app.listen(port, () => {
     console.log(`Server is running on port ${port}`);
 });

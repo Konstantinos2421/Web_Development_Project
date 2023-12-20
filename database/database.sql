@@ -3,6 +3,14 @@ DROP DATABASE IF EXISTS natural_disasters_volunteering_platform;
 CREATE DATABASE natural_disasters_volunteering_platform DEFAULT CHARSET utf16 COLLATE utf16_unicode_ci;
 USE natural_disasters_volunteering_platform;
 
+DROP TABLE IF EXISTS `base`;
+CREATE TABLE `base` (
+    `base_name` VARCHAR(30) NOT NULL,
+    `base_location` POINT NOT NULL,
+
+    PRIMARY KEY (`base_name`, `base_location`) 
+)Engine = InnoDB;
+
 DROP TABLE IF EXISTS `user`;
 CREATE TABLE`user`(
     `username` VARCHAR(30) NOT NULL,
@@ -17,10 +25,10 @@ CREATE TABLE`user`(
 DROP TABLE IF EXISTS `admin`;
 CREATE TABLE`admin`(
     `admin_username` VARCHAR(30) NOT NULL,
-    `base_location` POINT NOT NULL,
+    `base` VARCHAR(30) NOT NULL,
 
     PRIMARY KEY (`admin_username`),
-    FOREIGN KEY (`admin_username`) REFERENCES `user` (`username`) ON DELETE CASCADE ON UPDATE CASCADE
+    FOREIGN KEY (`base`) REFERENCES `base` (`base_name`) ON DELETE CASCADE ON UPDATE CASCADE
 ) Engine = InnoDB;
 
 DROP TABLE IF EXISTS `rescuer`;
@@ -32,7 +40,7 @@ CREATE TABLE`rescuer`(
 
     PRIMARY KEY (`rescuer_username`),
     FOREIGN KEY (`rescuer_username`) REFERENCES `user` (`username`) ON DELETE CASCADE ON UPDATE CASCADE,
-    FOREIGN KEY (`base`) REFERENCES `admin` (`admin_username`) ON DELETE CASCADE ON UPDATE CASCADE
+    FOREIGN KEY (`base`) REFERENCES `base` (`base_name`) ON DELETE CASCADE ON UPDATE CASCADE
 ) Engine = InnoDB;
 
 DROP TABLE IF EXISTS `citizen`;
@@ -58,7 +66,7 @@ CREATE TABLE`has_category`(
     `category` INT UNIQUE NOT NULL,
 
     PRIMARY KEY (`base`, `category`),
-    FOREIGN KEY (`base`) REFERENCES `admin` (`admin_username`) ON DELETE CASCADE ON UPDATE CASCADE,
+    FOREIGN KEY (`base`) REFERENCES `base` (`base_name`) ON DELETE CASCADE ON UPDATE CASCADE,
     FOREIGN KEY (`category`) REFERENCES `category` (`category_id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) Engine = InnoDB;
 
@@ -80,7 +88,7 @@ CREATE TABLE`announcement`(
     `base` VARCHAR(30) NOT NULL,
 
     PRIMARY KEY (`announcement_id`,`product_id`),
-    FOREIGN KEY (`base`) REFERENCES `admin` (`admin_username`) ON DELETE CASCADE ON UPDATE CASCADE,
+    FOREIGN KEY (`base`) REFERENCES `base` (`base_name`) ON DELETE CASCADE ON UPDATE CASCADE,
     FOREIGN KEY (`product_id`) REFERENCES `product` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) Engine = InnoDB;
 
@@ -140,10 +148,8 @@ CREATE TABLE`base_inventory`(
     `base` VARCHAR(30) NOT NULL,
 
     PRIMARY KEY (`product_id`),
-    FOREIGN KEY (`base`) REFERENCES `admin` (`admin_username`) ON DELETE CASCADE ON UPDATE CASCADE,
+    FOREIGN KEY (`base`) REFERENCES `base` (`base_name`) ON DELETE CASCADE ON UPDATE CASCADE,
     FOREIGN KEY (`product_id`) REFERENCES `product` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) Engine = InnoDB;
 
 
-
--- SQLBook: Code
