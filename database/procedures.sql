@@ -328,3 +328,29 @@ DROP TABLE `temp1`, `temp2`;
 
 END $$
 DELIMITER ;
+
+DROP PROCEDURE IF EXISTS newResquer;
+DELIMITER $$
+CREATE PROCEDURE newResquer(usr VARCHAR(30), pswd VARCHAR(30), fname VARCHAR(30), lname VARCHAR(30), tel BIGINT, vehc VARCHAR(20), adm VARCHAR(30))
+BEGIN
+    DECLARE base VARCHAR(30);
+    DECLARE base_loc POINT;
+
+    SELECT `base`
+    INTO base
+    FROM `admin`
+    WHERE `admin_username`=adm;
+
+    SELECT `base_location`
+    INTO base_loc
+    FROM `base`
+    WHERE `base_name`=base;
+
+    INSERT INTO `user` VALUES
+    (usr, pswd, fname, lname, tel);
+
+    INSERT INTO `resquer` VALUES
+    (usr, vehc, base_loc, base);
+
+END $$
+DELIMITER ;

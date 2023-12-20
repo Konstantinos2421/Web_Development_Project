@@ -84,7 +84,7 @@
                     return;
                 }
 
-                fetch('http://localhost:3000/signup/' + username + '/' + password + '/' + firstname + '/' + lastname + '/' + phone + '/' + lat + '/' + lng, {method: 'POST'})
+                fetch('http://localhost:3000/signup/citizen/' + username + '/' + password + '/' + firstname + '/' + lastname + '/' + phone + '/' + lat + '/' + lng, {method: 'POST'})
                 .then(response => response.text())
                 .then(data => {
                     if(data == 'success') {

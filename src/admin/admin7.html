@@ -87,7 +87,36 @@
         </div>
 
         <script>
-            
+            document.getElementById('submit_btn').addEventListener('click', ()=> {
+                let username = document.getElementById('username_field');
+                let password = document.getElementById('password_field');
+                let firstname = document.getElementById('first_name_field');
+                let lastname = document.getElementById('last_name_field');
+                let phone = document.getElementById('phone_num_field');
+                let vehicle = document.getElementById('vehicle_field');
+                let admin = sessionStorage.getItem('username');
+
+                if(username == '' || password == '' || firstname == '' || lastname == '' || phone == '' || vehicle == '') {
+                    alert('All fields are required!');
+                    return;
+                }
+
+                fetch('http://localhost:3000/signup/resquer/' + admin + '/' + username + '/' + password + '/' + firstname + '/' + lastname + '/' + phone + '/' + vehicle , {method:'POST'})
+                .then(response => response.text())
+                .then(data => {
+                    if (data == 'success') {
+                        alert('The account was created successfully!');
+                        window.location.href = '/admin_home.html';
+                    }
+                    else {
+                        alert('Username already exists!');
+                    }
+                })
+                .catch((error) => {
+                    console.log('Error:', error)
+                });
+
+            });
 
         </script>
 

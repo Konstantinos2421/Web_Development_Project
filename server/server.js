@@ -73,7 +73,7 @@ app.delete('/unloadall/:user', async (req, res) => {
     res.json(result);
 });
 
-app.post('/signup/:username/:password/:firstname/:lastname/:phone/:lat/:lng', async (req, res) => {
+app.post('/signup/citizen/:username/:password/:firstname/:lastname/:phone/:lat/:lng', async (req, res) => {
     let username = req.params.username;
     let password = req.params.password;
     let firstname = req.params.firstname;
@@ -110,23 +110,29 @@ app.post('/signup/:username/:password/:firstname/:lastname/:phone/:lat/:lng', as
 
 });
 
-app.post('/signup/:username/:passsword/:firstname/:lastname/:phone/:vehicle', async (req, res) => {
+app.post('/signup/rescuer/:admin/:username/:passsword/:firstname/:lastname/:phone/:vehicle', async (req, res) => {
     let username = req.params.username;
     let password = req.params.password;
     let firstname = req.params.firstname;
     let lastname = req.params.lastname;
     let phone = req.params.phone;
     let vehicle = req.params.vehicle;
+    let admin = req.params.admin;
 
+    let [result] = await pool.query(`
+        SELECT * FROM \`user\` WHERE \`username\` = ? 
+    `, [username])
 
+    if(result.length == 0){
+        await pool.query(`
+            CALL newResquer(?, ?, ?, ?, ?, ?, ?)
+        `, [username, password, firstname, lastname, phone, vehicle, admin]);
 
-    await pool.query(`
-        INSERT INTO \`user\` VALUES (?, ?, ?, ?, ?) 
-    `, [username, password, firstname, lastname, phone])
+        res.send('success');
+    }else {
+        res.send('fail');
+    }
 
-    await pool.query(`
-        INSERT INTO \`resquer\` VALUES (?, ?, null, null) 
-    `, [username, vehicle, ])
 });
 
 app.listen(port, () => {
