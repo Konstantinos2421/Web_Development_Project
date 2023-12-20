@@ -55,10 +55,10 @@ app.post('/login/:username/:password', async (req, res) => {
 app.get('/cargo/:user', async (req, res) => {
     const user = req.params.user;
     const [result] = await pool.query(`
-        SELECT * FROM cargo
-            JOIN product ON cargo.product_id = product.id
-            JOIN rescuer ON cargo.vehicle_name = rescuer.vehicle
-        WHERE rescuer.rescuer_username = ?
+        SELECT * FROM \`cargo\`
+            JOIN \`product\` ON \`cargo\`.\`product_id\` = \`product\`.\`id\`
+            JOIN \`rescuer\` ON \`cargo\`.\`vehicle_name\` = \`rescuer\`.\`vehicle\`
+        WHERE \`rescuer\`.\`rescuer_username\` = ?
     `, [user]);
 
     res.json(result);
