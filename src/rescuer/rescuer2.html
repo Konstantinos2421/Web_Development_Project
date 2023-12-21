@@ -141,18 +141,22 @@
             fetch('http://localhost:3000/base_inventory/rescuer/gounaridis')
             .then(response => response.json())
             .then(data => {
+                let dataContainer = document.getElementById('base_inventory');
+
                 data.forEach(item => {
                     const listItem = document.createElement('li');
                     listItem.className = 'list-group-item d-flex justify-content-center align-items-center';
                     listItem.textContent = item.product_name;
+
+                    dataContainer.appendChild(listItem);
                 });
 
             })
             .catch(error => console.error('Error fetching data:', error));
         }
 
-        unloadCargo();
         loadCargo();
+        unloadCargo();
 
     </script>
 

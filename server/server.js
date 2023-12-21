@@ -11,7 +11,7 @@ app.use(cors());
 let pool = mysql.createPool({
     host: 'localhost',
     user: 'root',
-    password: 'password',
+    password: '1532001p',
     database: 'natural_disasters_volunteering_platform'
 }).promise();
 
