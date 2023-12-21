@@ -78,6 +78,8 @@
     <script>
 
         function updateUI() {
+            let user = sessionStorage.getItem('username');
+
             fetch('http://localhost:3000/cargo/gounaridis')
             .then(response => response.json())
             .then(data => {
@@ -90,7 +92,7 @@
                         listItem.textContent = item.product_name;
                         
                         const badge = document.createElement('span');
-                        badge.className = 'badge bg-info rounded-pill';
+                        badge.className = 'badge bg-secondary rounded-pill';
                         badge.textContent = item.quantity;
 
                         dataContainer.appendChild(listItem).appendChild(badge);

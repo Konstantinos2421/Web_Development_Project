@@ -6,11 +6,7 @@ import session from 'express-session';
 const app = express();
 const port = 3000;
 
-app.use(cors({
-    origin: 'http://localhost:5500',
-    credentials: true,
-}));
-app.use(express.static('public'));
+app.use(cors());
 
 let pool = mysql.createPool({
     host: 'localhost',
@@ -22,7 +18,7 @@ let pool = mysql.createPool({
 app.use(session({
     secret: 'secret-key',
     resave: false,
-    saveUninitialized: true,
+    saveUninitialized: false,
     cookie: { secure: false }
 }));
 
