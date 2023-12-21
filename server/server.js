@@ -11,7 +11,7 @@ app.use(cors());
 let pool = mysql.createPool({
     host: 'localhost',
     user: 'root',
-    password: 'password',
+    password: '1532001p',
     database: 'natural_disasters_volunteering_platform'
 }).promise();
 
@@ -129,6 +129,26 @@ app.post('/signup/rescuer/:admin/:username/:password/:firstname/:lastname/:phone
         res.send('fail');
     }
 
+});
+
+app.get('/base_inventory/rescuer/:user', async (req, res) => {
+    let user = req.params.user;
+
+    let [result] = await pool.query(`
+        SELECT * FROM \`rescuer\` 
+        WHERE \`rescuer_username\` = ?
+    `, [user]);
+
+    let base = result[0].base;
+
+    [result] = await pool.query(`
+        SELECT \`product\`.\`product_name\` AS product_name, \`base_inventory\`.\`quantity\` AS quantity  
+        FROM \`base_inventory\`
+            JOIN \`product\` ON \`base_inventory\`.\`product_id\` = \`product\`.\`id\`
+        WHERE \`base_inventory\`.\`base\` = ?  
+    `, [base]);
+
+    res.json(result);
 });
 
 app.listen(port, () => {

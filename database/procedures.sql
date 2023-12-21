@@ -1,20 +1,4 @@
 -- SQLBook: Code
-DROP PROCEDURE IF EXISTS displayBaseInventory;
-DELIMITER $$
-CREATE PROCEDURE displayBaseInventory(base VARCHAR(30), category INT)
-BEGIN
-
-SELECT `cargo`.`product_id`, SUM(`cargo`.`quantity`)
-FROM `rescuer`
-    JOIN `cargo` ON `rescuer`.`vehicle`=`cargo`.`vehicle_name`
-    JOIN `product` ON `cargo`.`product_id`=`product`.`id`
-WHERE `rescuer`.`base`=base AND `product`.`category`=category
-GROUP BY `product_id`
-ORDER BY `product_id` ASC;
-
-END $$
-DELIMITER ;
-
 DROP PROCEDURE IF EXISTS addAnnouncement;
 DELIMITER $$
 CREATE PROCEDURE addAnnouncement(base VARCHAR(30), prod INT, ann_state enum('NEW', 'LAST'))

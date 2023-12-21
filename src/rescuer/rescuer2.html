@@ -69,7 +69,9 @@
             </div>
             
             <div class="tab-pane container fade" id="load_cargo">
+                <ul class="list-group" id="base_inventory">
 
+                </ul>
             </div>
         </div>
     
@@ -77,7 +79,7 @@
 
     <script>
 
-        function updateUI() {
+        function unloadCargo() {
             let user = sessionStorage.getItem('username');
 
             fetch('http://localhost:3000/cargo/gounaridis')
@@ -109,7 +111,7 @@
                         fetch('http://localhost:3000/unloadall/gounaridis', {method: 'DELETE'})
                         .then(response => response.json())
                         .then(data => {
-                            updateUI();
+                            unloadCargo();
                             alert('Cargo unloaded successfully!');
                         })
                         .catch((error) => {
@@ -133,7 +135,23 @@
             .catch(error => console.error('Error fetching data:', error));
         }
 
-        updateUI();
+        function loadCargo() {
+            let user = sessionStorage('username');
+
+            fetch('http://localhost:3000/base_inventory/rescuer/gounaridis')
+            .then(response => response.json())
+            .then(data => {
+                data.forEach(item => {
+                    const listItem = document.createElement('li');
+                    listItem.className = 'list-group-item d-flex justify-content-center align-items-center';
+                    listItem.textContent = item.product_name;
+                });
+
+            })
+            .catch(error => console.error('Error fetching data:', error));
+        }
+
+        unloadCargo();
 
     </script>
 
