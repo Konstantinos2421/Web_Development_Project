@@ -68,7 +68,7 @@
                 </ul>
             </div>
             
-            <div class="tab-pane container fade" id="load_cargo">
+            <div class="tab-pane container fade mt-4" id="load_cargo">
                 <ul class="list-group" id="base_inventory">
 
                 </ul>
@@ -136,7 +136,7 @@
         }
 
         function loadCargo() {
-            let user = sessionStorage('username');
+            let user = sessionStorage.getItem('username');
 
             fetch('http://localhost:3000/base_inventory/rescuer/gounaridis')
             .then(response => response.json())
@@ -145,18 +145,41 @@
 
                 data.forEach(item => {
                     const listItem = document.createElement('li');
-                    listItem.className = 'list-group-item d-flex justify-content-center align-items-center';
+                    listItem.className = 'list-group-item d-flex justify-content-between align-items-center';
                     listItem.textContent = item.product_name;
 
+                    const badge = document.createElement('span');
+                    badge.className = 'badge bg-secondary rounded-pill';
+                    badge.textContent = item.quantity;
+
+                    const spinnerContainer = document.createElement('div');
+                    spinnerContainer.className = 'd-flex align-items-right';
+
+                    const spinner = document.createElement('input');
+                    spinner.className = 'form-control ml-auto justify-content-center';
+                    spinner.type = 'number';
+                    spinner.value = '0';
+                    spinner.min = '0';
+                    spinner.max = item.quantity;
+
+                    spinner.addEventListener('input', function() {
+                        if (parseInt(spinner.value) > parseInt(spinner.max)){
+                            spinner.value = spinner.max;
+                        }else if(parseInt(spinner.value) < parseInt(spinner.min)){
+                            spinner.value = spinner.min;
+                        }
+                    });
+                    
+                    listItem.appendChild(badge);
+                    listItem.appendChild(spinnerContainer).appendChild(spinner);
                     dataContainer.appendChild(listItem);
                 });
-
             })
             .catch(error => console.error('Error fetching data:', error));
         }
 
-        loadCargo();
         unloadCargo();
+        loadCargo();
 
     </script>
 
