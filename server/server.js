@@ -2,9 +2,12 @@ import express from 'express';
 import mysql from 'mysql2';
 import cors from 'cors';
 import session from 'express-session';
+import bodyParser from 'body-parser';
 
 const app = express();
 const port = 3000;
+
+app.use(bodyParser.json());
 
 app.use(cors());
 
@@ -60,13 +63,13 @@ app.get('/cargo/:user', async (req, res) => {
     res.json(result);
 });
 
-app.delete('/unloadall/:user', async (req, res) => {
+app.post('/unloadall/:user', async (req, res) => {
     const user = req.params.user;
-    const [result] = await pool.query(`
+    await pool.query(`
         CALL rescuerUnloadCargoToBase(?)
     `, [user]);
 
-    res.json(result);
+    res.send('success');
 });
 
 app.post('/signup/citizen/:username/:password/:firstname/:lastname/:phone/:lat/:lng', async (req, res) => {
@@ -142,10 +145,139 @@ app.get('/base_inventory/rescuer/:user', async (req, res) => {
     let base = result[0].base;
 
     [result] = await pool.query(`
-        SELECT \`product\`.\`product_name\` AS product_name, \`base_inventory\`.\`quantity\` AS quantity  
+        SELECT \`product\`.\`product_name\` AS product_name, \`base_inventory\`.\`quantity\` AS quantity, \`product\`.\`id\` AS product_id
         FROM \`base_inventory\`
             JOIN \`product\` ON \`base_inventory\`.\`product_id\` = \`product\`.\`id\`
         WHERE \`base_inventory\`.\`base\` = ?  
+        ORDER BY \`product\`.\`product_name\`
+    `, [base]);
+
+    res.json(result);
+});
+
+app.post('/loadFromBase/:user', (req, res) => {
+    let user = req.params.user;
+    const receivedData = req.body;
+
+    receivedData.forEach(async item => {
+        await pool.query(`
+            CALL rescuerLoadCargoFromBase(?, ?, ?)
+        `, [user, item.product_id, item.quantity]);
+    });
+
+    res.send('success');
+});
+
+app.get('/base_location/:admin', async (req, res) => {
+    let admin = req.params.admin;
+
+    let [result] = await pool.query(`
+        SELECT * 
+        FROM \`admin\` 
+            JOIN \`base\` ON \`admin\`.\`base\` = \`base\`.\`base_name\`
+        WHERE \`admin_username\` = ?
+    `, [admin]);
+
+    let base = result[0].base_location;
+    res.json(base);
+})
+
+app.get('/accepted/requests', async (req, res) => {
+    
+    let [result] = await pool.query(`
+        SELECT *
+        FROM \`task\`
+            JOIN \`request\` ON \`task\`.\`task_id\` = \`request\`.\`request_id\`
+            JOIN \`citizen\` ON \`request\`.\`request_user\` = \`citizen\`.\`citizen_username\`
+            JOIN \`user\` ON \`citizen\`.\`citizen_username\` = \`user\`.\`username\`
+        WHERE \`task\`.\`accepted\` = 'YES' AND \`task\`.\`completed\` = 'NO'
+    `);
+
+    res.json(result);
+});
+
+app.get('/unaccepted/requests', async (req, res) => {
+
+    let [result] = await pool.query(`
+        SELECT *
+        FROM \`task\`
+            JOIN \`request\` ON \`task\`.\`task_id\` = \`request\`.\`request_id\`
+            JOIN \`citizen\` ON \`request\`.\`request_user\` = \`citizen\`.\`citizen_username\`
+            JOIN \`user\` ON \`citizen\`.\`citizen_username\` = \`user\`.\`username\`
+        WHERE \`task\`.\`accepted\` = 'NO' AND \`task\`.\`completed\` = 'NO'
+    `);
+
+    res.json(result);
+});
+
+app.get('/accepted/offers', async (req, res) => {
+
+    let [result] = await pool.query(`
+        SELECT *
+        FROM \`task\`
+            JOIN \`offer\` ON \`task\`.\`task_id\` = \`offer\`.\`offer_id\`
+            JOIN \`citizen\` ON \`offer\`.\`offer_user\` = \`citizen\`.\`citizen_username\`
+            JOIN \`user\` ON \`citizen\`.\`citizen_username\` = \`user\`.\`username\`
+        WHERE \`task\`.\`accepted\` = 'YES' AND \`task\`.\`completed\` = 'NO'
+    `);
+
+    res.json(result);
+});
+
+app.get('/unaccepted/offers', async (req, res) => {
+
+    let [result] = await pool.query(`
+        SELECT *
+        FROM \`task\`
+            JOIN \`offer\` ON \`task\`.\`task_id\` = \`offer\`.\`offer_id\`
+            JOIN \`citizen\` ON \`offer\`.\`offer_user\` = \`citizen\`.\`citizen_username\`
+            JOIN \`user\` ON \`citizen\`.\`citizen_username\` = \`user\`.\`username\`
+        WHERE \`task\`.\`accepted\` = 'NO' AND \`task\`.\`completed\` = 'NO'
+    `);
+
+    res.json(result);
+});
+
+app.get('/vehicles/active_tasks/:admin', async (req, res) => {
+    let admin = req.params.admin;
+
+    let [result] = await pool.query(`
+        SELECT * 
+        FROM \`admin\` 
+            JOIN \`base\` ON \`admin\`.\`base\` = \`base\`.\`base_name\`
+        WHERE \`admin_username\` = ?
+    `, [admin]);
+
+    let base = result[0].base;
+
+    [result] = await pool.query(`
+        SELECT *
+        FROM \`task\`
+            JOIN \`rescuer\` ON \`task\`.\`task_vehicle\` = \`rescuer\`.\`vehicle\`
+            JOIN \`user\` ON \`rescuer\`.\`rescuer_username\` = \`user\`.\`username\`
+        WHERE \`task\`.\`completed\` = 'NO'
+    `);
+
+    res.json(result);
+});
+
+app.get('/vehicles/no_active_tasks/:admin', async (req, res) => {
+    let admin = req.params.admin;
+
+    let [result] = await pool.query(`
+        SELECT * 
+        FROM \`admin\` 
+            JOIN \`base\` ON \`admin\`.\`base\` = \`base\`.\`base_name\`
+        WHERE \`admin_username\` = ?
+    `, [admin]);
+
+    let base = result[0].base;
+
+    [result] = await pool.query(`
+        SELECT \`rescuer_username\`, \`vehicle\`, \`vehicle_location\`, \`base\`
+        FROM \`rescuer\`
+            LEFT JOIN \`task\` ON \`rescuer\`.\`rescuer_username\` = \`task\`.\`rescuer_took_over\` 
+        WHERE \`rescuer\`.\`base\` = ? AND \`task\`.\`task_id\` IS NULL
     `, [base]);
 
     res.json(result);

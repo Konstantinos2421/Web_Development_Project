@@ -15,7 +15,7 @@ INSERT INTO `admin` VALUES
 
 INSERT INTO `rescuer` VALUES
 ('gounaridis', 'Ferrari 420', ST_GeomFromText('POINT(40.8000 22.0000)'), 'PATRA_BASE1'),
-('eleni', 'Ford Puma', ST_GeomFromText('POINT(37.2000 19.5874)'), 'PATRA_BASE1'),
+('eleni', 'Ford Puma', ST_GeomFromText('POINT(38.2815 21.7895)'), 'PATRA_BASE1'),
 ('koutsomitr', 'Hundai', ST_GeomFromText('POINT(41.2000 20.5874)'), 'PATRA_BASE1');
 
 INSERT INTO `citizen` VALUES

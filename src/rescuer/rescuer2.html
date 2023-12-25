@@ -108,10 +108,15 @@
                     dataContainer.appendChild(button);
 
                     document.getElementById('unload_cargo_btn').addEventListener('click', () => {
-                        fetch('http://localhost:3000/unloadall/gounaridis', {method: 'DELETE'})
-                        .then(response => response.json())
+                        fetch('http://localhost:3000/unloadall/gounaridis', {method: 'POST'})
+                        .then(response => response.text())
                         .then(data => {
                             unloadCargo();
+
+                            document.getElementById('base_inventory').innerHTML = '';
+                            document.getElementById('load_cargo').removeChild(document.getElementById('load_cargo_btn'));
+                            loadCargo();
+
                             alert('Cargo unloaded successfully!');
                         })
                         .catch((error) => {
@@ -135,6 +140,7 @@
             .catch(error => console.error('Error fetching data:', error));
         }
 
+
         function loadCargo() {
             let user = sessionStorage.getItem('username');
 
@@ -146,6 +152,7 @@
                 data.forEach(item => {
                     const listItem = document.createElement('li');
                     listItem.className = 'list-group-item d-flex justify-content-between align-items-center';
+                    listItem.id = item.product_id;
                     listItem.textContent = item.product_name;
 
                     const badge = document.createElement('span');
@@ -156,7 +163,7 @@
                     spinnerContainer.className = 'd-flex align-items-right';
 
                     const spinner = document.createElement('input');
-                    spinner.className = 'form-control ml-auto justify-content-center';
+                    spinner.className = 'form-control ml-auto';
                     spinner.type = 'number';
                     spinner.value = '0';
                     spinner.min = '0';
@@ -173,6 +180,62 @@
                     listItem.appendChild(badge);
                     listItem.appendChild(spinnerContainer).appendChild(spinner);
                     dataContainer.appendChild(listItem);
+                });
+
+                dataContainer = document.getElementById('load_cargo');
+                const button = document.createElement('button');
+                button.className = 'btn btn-primary mt-4 mx-auto d-block';
+                button.textContent = 'Load';
+                button.id = 'load_cargo_btn';
+                dataContainer.appendChild(button);
+
+                document.getElementById('load_cargo_btn').addEventListener('click', () => {
+                    
+                    let data = [];
+                    let listItems = document.getElementById('base_inventory').getElementsByTagName('li');
+                    for (let i = 0; i < listItems.length; i++) {
+                        let item = listItems[i];
+                        let quantity = item.getElementsByTagName('input')[0].value;
+                        let id = item.id;
+                        if (quantity > 0) {
+                            data.push({
+                                product_name: item.textContent,
+                                quantity: quantity,
+                                product_id: id
+                            });
+                        }
+                    }
+
+                    if (data.length == 0) {
+                        alert('You chose no products!');
+                    }else{
+                        fetch('http://localhost:3000/loadFromBase/gounaridis', {
+                            method: 'POST', 
+                            body: JSON.stringify(data),
+                            headers: {
+                                "Content-Type": "application/json"
+                            } 
+                        })
+                        .then(response => response.text())
+                        .then(data => {
+                            document.getElementById('current_cargo').innerHTML = '';
+                            document.getElementById('base_inventory').innerHTML = '';
+                            
+                            if (document.getElementById('unload_cargo_btn')) {
+                                document.getElementById('unload_cargo').removeChild(document.getElementById('unload_cargo_btn'));
+                            }
+                            document.getElementById('load_cargo').removeChild(document.getElementById('load_cargo_btn'));
+                            
+                            unloadCargo();
+                            loadCargo();
+
+                            alert('Cargo loaded successfully!');
+                        })
+                        .catch((error) => {
+                            console.error('Error:', error);
+                        });
+                    }
+
                 });
             })
             .catch(error => console.error('Error fetching data:', error));
