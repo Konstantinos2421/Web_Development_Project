@@ -1,27 +1,39 @@
 INSERT INTO `base` VALUES
-('PATRA_BASE1', ST_GeomFromText('POINT(38.2904 21.7957)'));
+('PATRA_BASE1', ST_GeomFromText('POINT(38.2441 21.7346)'));
 
 INSERT INTO `user` VALUES
-('komninos', '123456789', 'A', 'K', 69458969),
-('eleni', '123456789', 'E', 'S', 69857496),
-('gounaridis', '123456789', 'T', 'G', 6945285),
-('koutsomitr', '123456789', 'V', 'K', 69896547),
-('lydia', '123456789', 'L', 'D', 69896471),
-('artemis', '123456789', 'A', 'P', 69857412),
-('marios', '123456789', 'M', 'R', 69758241);
+('stavros_paraskevopoulos', '123456789', 'Stavros', 'Paraskevopoulos', 6945896985),
+('natassa_politi', '123456789', 'Natassa', 'Politi', 6996851234),
+('foivos_rigopoulos', '123456789', 'Foivos', 'Rigopoulos', 6987962153),
+('niki_petratou', '123456789', 'Niki', 'Petratou', 6974125637),
+('sotiris_pavlopoulos', '123456789', 'Sotiris', 'Pavlopoulos', 6996453207),
+('antonis_sarafis', '123456789', 'Antonis', 'Sarafis', 6901025698),
+('marios_raftopoulos', '123456789', 'Marios', 'Raftopoulos', 6990304058),
+('vasia_alexiou', '123456789', 'Vasia', 'Alexiou', 6945805123),
+('lydia_loukakou', '123456789', 'Lydia', 'Loukakou', 6975960148),
+('nikos_kalogeropoulos', '123456789', 'Nikos', 'Kalogeropoulos', 6996453218),
+('alexandros_apostolou', '123456789', 'Alexandros', 'Apostolou', 6985843201),
+('thanos_kostopoulos', '123456789', 'Thanos', 'Kostopoulos', 6996430188),
+('panagiota_milona', '123456789', 'Panagiota', 'Milona', 6996323544);
 
 INSERT INTO `admin` VALUES
-('komninos', 'PATRA_BASE1');
+('stavros_paraskevopoulos', 'PATRA_BASE1');
 
 INSERT INTO `rescuer` VALUES
-('gounaridis', 'Ferrari 420', ST_GeomFromText('POINT(40.8000 22.0000)'), 'PATRA_BASE1'),
-('eleni', 'Ford Puma', ST_GeomFromText('POINT(38.2815 21.7895)'), 'PATRA_BASE1'),
-('koutsomitr', 'Hundai', ST_GeomFromText('POINT(41.2000 20.5874)'), 'PATRA_BASE1');
+('natassa_politi', 'AXY8965', ST_GeomFromText('POINT(38.2496 21.7415)'), 'PATRA_BASE1'),
+('foivos_rigopoulos', 'KTL8963', ST_GeomFromText('POINT(38.2474 21.7406)'), 'PATRA_BASE1'),
+('niki_petratou', 'RTK7541', ST_GeomFromText('POINT(38.2555 21.7438)'), 'PATRA_BASE1'),
+('sotiris_pavlopoulos', 'GTD8563', ST_GeomFromText('POINT(38.2416 21.7356)'), 'PATRA_BASE1'),
+('antonis_sarafis', 'PLE8456', ST_GeomFromText('POINT(38.2401 21.7292)'), 'PATRA_BASE1');
 
 INSERT INTO `citizen` VALUES
-('marios', ST_GeomFromText('POINT(38.3006 21.7796)')),
-('lydia', ST_GeomFromText('POINT(38.3011 21.7821)')),
-('artemis', ST_GeomFromText('POINT(38.2946 21.7862)'));
+('marios_raftopoulos', ST_GeomFromText('POINT(38.2516 21.7422)')),
+('vasia_alexiou', ST_GeomFromText('POINT(38.2549 21.7404)')),
+('lydia_loukakou', ST_GeomFromText('POINT(38.2403 21.1361)')),
+('nikos_kalogeropoulos', ST_GeomFromText('POINT(38.2432 21.7282)')),
+('alexandros_apostolou', ST_GeomFromText('POINT(38.2418 21.7435)')),
+('thanos_kostopoulos', ST_GeomFromText('POINT(38.2569 21.7451)')),
+('panagiota_milona', ST_GeomFromText('POINT(38.2497 21.7373)'));
 
 INSERT INTO `category` VALUES
 (NULL, 'meat'),
@@ -43,15 +55,19 @@ INSERT INTO `product` VALUES
 (NULL, 'kfc', '', 1);
 
 INSERT INTO `cargo` VALUES
-('Ferrari 420', 1, 10),
-('Ferrari 420', 3, 5),
-('Ferrari 420', 2, 15),
-('Ferrari 420', 5, 20),
-('Ford Puma', 1, 6),
-('Ford Puma', 4, 18),
-('Ford Puma', 5, 5),
-('Hundai', 3, 25),
-('Hundai', 4, 500);
+('AXY8965', 1, 10),
+('AXY8965', 3, 5),
+('AXY8965', 2, 15),
+('KTL8963', 5, 20),
+('KTL8963', 1, 6),
+('RTK7541', 4, 18),
+('RTK7541', 5, 5),
+('RTK7541', 3, 25),
+('RTK7541', 2, 15),
+('GTD8563', 1, 20),
+('GTD8563', 4, 25),
+('PLE8456', 2, 10),
+('PLE8456', 3, 5);
 
 INSERT INTO `base_inventory` VALUES
 (1, 10, 'PATRA_BASE1'),
@@ -60,17 +76,26 @@ INSERT INTO `base_inventory` VALUES
 (4, 65, 'PATRA_BASE1');
 
 INSERT INTO `task` VALUES
-(NULL, 'gounaridis', 'YES', 'NO', current_timestamp(), NULL, NULL),
-(NULL, 'eleni', 'YES', 'NO', current_timestamp(), NULL, NULL),
-(NULL, 'gounaridis', 'YES', 'NO', current_timestamp(), NULL, NULL),
-(NULL, 'koutsomitr', 'YES', 'NO', current_timestamp(), NULL, NULL),
+(NULL, NULL, 'NO', 'NO', current_timestamp(), NULL, NULL),
+(NULL, 'natassa_politi', 'YES', 'NO', current_timestamp(), current_timestamp(), NULL),
+(NULL, NULL, 'NO', 'NO', current_timestamp(), NULL, NULL),
+(NULL, 'foivos_rigopoulos', 'YES', 'NO', current_timestamp(), current_timestamp(), NULL),
+(NULL, NULL, 'NO', 'NO', current_timestamp(), NULL, NULL),
+
+(NULL, 'niki_petratou', 'YES', 'NO', current_timestamp(), current_timestamp(), NULL),
+(NULL, NULL, 'NO', 'NO', current_timestamp(), NULL, NULL),
+(NULL, NULL, 'NO', 'NO', current_timestamp(), NULL, NULL),
 (NULL, NULL, 'NO', 'NO', current_timestamp(), NULL, NULL);
 
-INSERT INTO `offer` VALUES
-(1, 'lydia', 1, 10),
-(2, 'lydia', 5, 20),
-(3, 'artemis', 3, 5);
-
 INSERT INTO `request` VALUES
-(4, 'marios', 4, 5),
-(5, 'marios', 5, 8);
+(1, 'marios_raftopoulos', 1, 5),
+(2, 'marios_raftopoulos', 5, 10),
+(3, 'vasia_alexiou', 2, 3),
+(4, 'lydia_loukakou', 3, 15),
+(5, 'nikos_kalogeropoulos', 4, 5);
+
+INSERT INTO `offer` VALUES
+(6, 'alexandros_apostolou', 1, 10),
+(7, 'alexandros_apostolou', 2, 20),
+(8, 'thanos_kostopoulos', 3, 20),
+(9, 'panagiota_milona', 4, 25);

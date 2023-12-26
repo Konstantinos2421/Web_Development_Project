@@ -82,7 +82,7 @@
         function unloadCargo() {
             let user = sessionStorage.getItem('username');
 
-            fetch('http://localhost:3000/cargo/gounaridis')
+            fetch('http://localhost:3000/cargo/natassa_politi')
             .then(response => response.json())
             .then(data => {
                 let dataContainer = document.getElementById('current_cargo');
@@ -108,7 +108,7 @@
                     dataContainer.appendChild(button);
 
                     document.getElementById('unload_cargo_btn').addEventListener('click', () => {
-                        fetch('http://localhost:3000/unloadall/gounaridis', {method: 'POST'})
+                        fetch('http://localhost:3000/unloadall/natassa_politi', {method: 'POST'})
                         .then(response => response.text())
                         .then(data => {
                             unloadCargo();
@@ -144,7 +144,7 @@
         function loadCargo() {
             let user = sessionStorage.getItem('username');
 
-            fetch('http://localhost:3000/base_inventory/rescuer/gounaridis')
+            fetch('http://localhost:3000/base_inventory/rescuer/natassa_politi')
             .then(response => response.json())
             .then(data => {
                 let dataContainer = document.getElementById('base_inventory');
@@ -209,7 +209,7 @@
                     if (data.length == 0) {
                         alert('You chose no products!');
                     }else{
-                        fetch('http://localhost:3000/loadFromBase/gounaridis', {
+                        fetch('http://localhost:3000/loadFromBase/natassa_politi', {
                             method: 'POST', 
                             body: JSON.stringify(data),
                             headers: {

@@ -8,7 +8,7 @@ const app = express();
 const port = 3000;
 
 app.use(bodyParser.json());
-
+app.use(express.static('server'));
 app.use(cors());
 
 let pool = mysql.createPool({
@@ -190,6 +190,8 @@ app.get('/accepted/requests', async (req, res) => {
             JOIN \`request\` ON \`task\`.\`task_id\` = \`request\`.\`request_id\`
             JOIN \`citizen\` ON \`request\`.\`request_user\` = \`citizen\`.\`citizen_username\`
             JOIN \`user\` ON \`citizen\`.\`citizen_username\` = \`user\`.\`username\`
+            JOIN \`product\` ON \`request\`.\`product_id\` = \`product\`.\`id\`
+            JOIN \`rescuer\` ON \`task\`.\`rescuer_took_over\` = \`rescuer\`.\`rescuer_username\`
         WHERE \`task\`.\`accepted\` = 'YES' AND \`task\`.\`completed\` = 'NO'
     `);
 
@@ -204,6 +206,7 @@ app.get('/unaccepted/requests', async (req, res) => {
             JOIN \`request\` ON \`task\`.\`task_id\` = \`request\`.\`request_id\`
             JOIN \`citizen\` ON \`request\`.\`request_user\` = \`citizen\`.\`citizen_username\`
             JOIN \`user\` ON \`citizen\`.\`citizen_username\` = \`user\`.\`username\`
+            JOIN \`product\` ON \`request\`.\`product_id\` = \`product\`.\`id\`
         WHERE \`task\`.\`accepted\` = 'NO' AND \`task\`.\`completed\` = 'NO'
     `);
 
@@ -218,6 +221,8 @@ app.get('/accepted/offers', async (req, res) => {
             JOIN \`offer\` ON \`task\`.\`task_id\` = \`offer\`.\`offer_id\`
             JOIN \`citizen\` ON \`offer\`.\`offer_user\` = \`citizen\`.\`citizen_username\`
             JOIN \`user\` ON \`citizen\`.\`citizen_username\` = \`user\`.\`username\`
+            JOIN \`product\` ON \`offer\`.\`product_id\` = \`product\`.\`id\`
+            JOIN \`rescuer\` ON \`task\`.\`rescuer_took_over\` = \`rescuer\`.\`rescuer_username\`
         WHERE \`task\`.\`accepted\` = 'YES' AND \`task\`.\`completed\` = 'NO'
     `);
 
@@ -232,6 +237,7 @@ app.get('/unaccepted/offers', async (req, res) => {
             JOIN \`offer\` ON \`task\`.\`task_id\` = \`offer\`.\`offer_id\`
             JOIN \`citizen\` ON \`offer\`.\`offer_user\` = \`citizen\`.\`citizen_username\`
             JOIN \`user\` ON \`citizen\`.\`citizen_username\` = \`user\`.\`username\`
+            JOIN \`product\` ON \`offer\`.\`product_id\` = \`product\`.\`id\`
         WHERE \`task\`.\`accepted\` = 'NO' AND \`task\`.\`completed\` = 'NO'
     `);
 
@@ -252,11 +258,10 @@ app.get('/vehicles/active_tasks/:admin', async (req, res) => {
 
     [result] = await pool.query(`
         SELECT *
-        FROM \`task\`
-            JOIN \`rescuer\` ON \`task\`.\`task_vehicle\` = \`rescuer\`.\`vehicle\`
-            JOIN \`user\` ON \`rescuer\`.\`rescuer_username\` = \`user\`.\`username\`
-        WHERE \`task\`.\`completed\` = 'NO'
-    `);
+        FROM \`rescuer\`
+            JOIN \`task\` ON \`rescuer\`.\`rescuer_username\` = \`task\`.\`rescuer_took_over\` 
+        WHERE \`rescuer\`.\`base\` = ? AND \`task\`.\`completed\`= 'NO'
+    `, [base]);
 
     res.json(result);
 });
