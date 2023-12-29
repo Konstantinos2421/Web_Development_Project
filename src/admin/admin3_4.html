@@ -313,11 +313,12 @@
                         vehiclesWithActiveTasksLayer.addLayer(marker);
                         marker.bindPopup(`
                             <div class="text-center">
-                                <b class="font-weight-bold">Offer</b>
+                                <b class="font-weight-bold">Vehicle</b>
                             </div>
                             
                             <p><b>Name: </b>${item.first_name} ${item.last_name}</p>
                             <p><b>Phone: </b>${item.phone_num}</p>
+                            <p><b>Vehicle Username: </b>${item.vehicle}</p>
                         `);
                     });
 
@@ -352,14 +353,17 @@
                             })
                         }).addTo(map);
 
+                        console.log(item);
+
                         vehiclesWithNoActiveTasksLayer.addLayer(marker);
                         marker.bindPopup(`
                             <div class="text-center">
-                                <b class="font-weight-bold">Offer</b>
+                                <b class="font-weight-bold">Vehicle</b>
                             </div>
                             
                             <p><b>Name: </b>${item.first_name} ${item.last_name}</p>
                             <p><b>Phone: </b>${item.phone_num}</p>
+                            <p><b>Vehicle Username: </b>${item.vehicle}</p>
                         `);
                     });
 

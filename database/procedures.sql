@@ -338,3 +338,50 @@ BEGIN
 
 END $$
 DELIMITER ;
+
+
+DROP PROCEDURE IF EXISTS newCategory;
+DELIMITER $$
+CREATE PROCEDURE newCategory(cat VARCHAR(30), base VARCHAR(30))
+BEGIN
+    DECLARE element_count INT;
+    DECLARE id INT;
+
+    SELECT COUNT(*)
+    INTO element_count
+    FROM `category`
+    WHERE `category_name`=cat;
+
+    IF element_count = 0 THEN
+        INSERT INTO `category` VALUES
+        (NULL, cat);
+
+        SELECT `category_id`
+        INTO id
+        FROM `category`
+        WHERE `category_name`=cat;
+
+        INSERT INTO `has_category` VALUES
+        (base, id);
+    ELSE
+        SELECT `category_id`
+        INTO id
+        FROM `category`
+        WHERE `category_name`=cat;
+
+        SELECT COUNT(*)
+        INTO element_count
+        FROM `has_category`
+        WHERE `has_category`.`base`=base AND `has_category`.`category`=id;
+
+        IF element_count = 0 THEN
+            INSERT INTO `has_category` VALUES
+            (base, id);
+        ELSE
+            SIGNAL SQLSTATE '45000'
+                SET MESSAGE_TEXT = 'Category already exists';
+        END IF;
+    END IF;
+
+END $$
+DELIMITER ;
