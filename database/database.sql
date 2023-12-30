@@ -74,7 +74,7 @@ DROP TABLE IF EXISTS `product`;
 CREATE TABLE`product`(
     `id` INT AUTO_INCREMENT NOT NULL,
     `product_name` VARCHAR(40) NOT NULL,
-    `product_descr` VARCHAR(150) NOT NULL,
+    `product_descr` TEXT NOT NULL,
     `category` INT NOT NULL,
 
     PRIMARY KEY (`id`),

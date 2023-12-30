@@ -143,7 +143,7 @@
 
               <label for="json_file" class="form-label mt-4">JSON File:</label>
               <div class="input-group mb-3">
-                <input type="file" class="form-control" placeholder="Enter File" name="json_file">
+                <input type="file" class="form-control" id="json_file_field" placeholder="Enter File" name="json_file">
                 <button class="btn btn-primary" type="button" id="load_btn2">Load</button>
               </div>
 
@@ -293,19 +293,51 @@
 
     document.getElementById('load_btn1').addEventListener('click', () => {
       let url = document.getElementById('json_url_field').value;
+      if (url == '') {
+        alert('Please enter a URL');
+        return;
+      }
 
       fetch(url)
       .then(response => response.json())
       .then(data => {
         data.categories.forEach(item => {
-          fetch('http://localhost:3000/new_category/stavros_paraskevopoulos' + item.category_name, { method: 'POST' })
+          fetch('http://localhost:3000/new_category/stavros_paraskevopoulos/' + item.category_name, {method: 'POST'})
           .then(response => response.text())
           .then(data => {
-            /*if(data == 'success'){
-              alert('Product added successfully');
-            }else{
-              alert('Product already exists!');
-            }*/
+            if(data == 'fail'){
+              alert('Category ' + item.category_name + ' already exists!');
+            }
+          })
+          .catch(error => console.error('Error fetching data:', error));
+        });
+
+        data.items.forEach(item => {
+          let product_name = item.name;
+          let product_category = parseInt(item.category);
+          let product_description = '';
+          item.details.forEach(detail => {
+            product_description = product_description + detail.detail_name + ': ' + detail.detail_value + '\n';
+          });
+
+          let obj = {
+            "product_name": product_name,
+            "product_category": product_category,
+            "product_description": product_description
+          };
+
+          fetch('http://localhost:3000/new_product', { 
+            method: 'POST',
+            body: JSON.stringify(obj),
+            headers: {
+              "Content-Type": "application/json"
+            }
+          })
+          .then(response => response.text())
+          .then(data => {
+            if(data == 'fail'){
+              alert('Product ' + item.name + ' already exists!');
+            }
           })
           .catch(error => console.error('Error fetching data:', error));
         });
@@ -315,7 +347,26 @@
 
 
     document.getElementById('load_btn2').addEventListener('click', () => {
-      
+      let file = document.getElementById('json_file_field').fileInput.files[0];
+
+      if (!file) {
+        alert('No file selected!');
+        return;
+      }
+
+      let reader = new FileReader();
+      reader.onload = function(e) {
+        var jsonData = JSON.parse(e.target.result);
+
+        if (Array.isArray(jsonData)) {
+          jsonData.forEach(function(item) {
+            console.log(item);
+          });
+        } else {
+          alert('Invalid JSON!');
+        }
+      };
+      reader.readAsText(file);
     });
 
 
