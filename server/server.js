@@ -400,6 +400,17 @@ app.post('/update_inventory/:admin', async (req, res) => {
     res.send('success');
 });
 
+app.get('/displayBaseInventory/admin/:admin/:category', async (req, res)=> {
+    let admin= req.params.admin;
+    let category= req.params.category;
+
+    let [result] = await pool.query(`
+        CALL displayBaseInventory('?', '?');
+    `, [admin, category]);
+
+    res.json(result);
+});
+
 app.listen(port, () => {
     console.log(`Server is running on port ${port}`);
 });
