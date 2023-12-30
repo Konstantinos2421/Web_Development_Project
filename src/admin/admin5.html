@@ -43,14 +43,17 @@
                 <div class="col-lg-3">
                     <form class="border border-3 rounded-4 ps-4 pt-4" id="categoriesCheckboxes">
                         <p class="h3 text-center mb-4">Categories</p>
-
-                        
-
                     </form>
+                </div>
+
+                <div class="col-lg-6" id="categories_tables">
+
                 </div>
 
             </div>
         </div>
+
+
     
     </body>
 
@@ -68,7 +71,7 @@
                 const input = document.createElement('input');
                 input.type = "checkbox";
                 input.className = "form-check-input";
-                input.id = item.category_id;
+                
                 
                 const label = document.createElement('label');
                 label.className = "form-check-label";
@@ -79,8 +82,22 @@
 
                 document.getElementById("categoriesCheckboxes").appendChild(div);
 
+                input.addEventListener('change', function () {
+                    if (input.checked) {
+                        fetch('http://localhost:3000/displayBaseInventory/admin/stavros_paraskevopoulos/' + item.category_id)
 
-            });
+                    }
+                    else {
+
+                    }
+                    
+
+
+                });
+
+
+            })
+            .catch(error => console.error('Error fetching data:', error));
 
         });
 

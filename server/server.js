@@ -400,9 +400,9 @@ app.post('/update_inventory/:admin', async (req, res) => {
     res.send('success');
 });
 
-app.get('/displayBaseInventory/admin/:admin/:category', async (req, res)=> {
+app.get('/displayBaseInventory/admin/:admin/:category_id', async (req, res)=> {
     let admin= req.params.admin;
-    let category= req.params.category;
+    let category= req.params.category_id;
 
     let [result] = await pool.query(`
         CALL displayBaseInventory('?', '?');
