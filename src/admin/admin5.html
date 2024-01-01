@@ -22,7 +22,7 @@
               <div class="col-lg-2 mt-4">
                 <div class="btn-group">
                   <button type="button" class="btn btn-link">
-                    <img src="../../imgs/home.png" class="img-thumbnail" width="45" height="45">
+                    <img alt src="../../imgs/home.png" class="img-thumbnail" width="45" height="45">
                   </button>
       
                   <button type="button" class="btn btn-link">
@@ -30,7 +30,7 @@
                   </button>
       
                   <button type="button" class="btn btn-link">
-                    <img src="../../imgs/power.png" class="img-thumbnail" width="45" height="45">
+                    <img alt src="../../imgs/power.png" class="img-thumbnail" width="45" height="45">
                   </button> 
                 </div>  
               </div>
@@ -52,7 +52,6 @@
 
             </div>
         </div>
-
 
     
     </body>
@@ -85,7 +84,63 @@
                 input.addEventListener('change', function () {
                     if (input.checked) {
                         fetch('http://localhost:3000/displayBaseInventory/admin/stavros_paraskevopoulos/' + item.category_id)
+                        .then(response => response.json())
+                        .then(data => {
+                 
+                          const table = document.createElement('table');
+                          table.className = "table table-bordered";
+                          table.id = item.category_id;
 
+                          const theads = document.createElement('theads');
+
+                          const tr0 = document.createElement('tr');
+
+                          const th1 = document.createElement('th');
+                          th1.textContent = 'Product id';
+                            
+                          const th2 = document.createElement('th');
+                          th2.textContent = 'Product Name';
+                            
+                          const th3 = document.createElement('th');
+                          th3.textContent = 'Quantity';
+
+                          const tbody = document.createElement('tbody');
+
+                          table.appendChild(theads);
+                          theads.appendChild(tr0);
+                          tr0.appendChild(th1);
+                          tr0.appendChild(th2);
+                          tr0.appendChild(th3);
+
+                          data.forEach(item => {
+                            const tr = document.createElement('tr');
+
+                            const td1 = document.createElement('td');
+                            td1.textContent = item.product_id;
+
+                            const td2 = document.createElement('td');
+                            td2.textContent = item.product_name;
+
+                            const td3 = document.createElement('td');
+                            td3.textContent = item.quantity;
+
+                            tr.appendChild(td1);
+                            tr.appendChild(td2);
+                            tr.appendChild(td3);
+                            tbody.appendChild(tr);
+
+                          });
+
+                          document.getElementById("categories_tables").appendChild(table);
+                          table.appendChild(tbody);
+
+                          
+                          
+                        })
+                        .catch(error => console.error('Error fetching category data:', error));
+                        
+
+                          
                     }
                     else {
 
@@ -94,6 +149,7 @@
 
 
                 });
+                
 
 
             })

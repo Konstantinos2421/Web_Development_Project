@@ -405,7 +405,7 @@ app.get('/displayBaseInventory/admin/:admin/:category_id', async (req, res)=> {
     let category= req.params.category_id;
 
     let [result] = await pool.query(`
-        CALL displayBaseInventory('?', '?');
+        CALL displayBaseInventory(?, ?);
     `, [admin, category]);
 
     res.json(result);
