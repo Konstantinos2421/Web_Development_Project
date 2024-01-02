@@ -189,18 +189,42 @@ app.post('/loadFromBase/:user', (req, res) => {
     res.send('success');
 });
 
-app.get('/base_location/:admin', async (req, res) => {
+app.get('/base_location/admin/:admin', async (req, res) => {
     let admin = req.params.admin;
 
     let [result] = await pool.query(`
-        SELECT * 
-        FROM \`admin\` 
-            JOIN \`base\` ON \`admin\`.\`base\` = \`base\`.\`base_name\`
+        SELECT *
+        FROM \`base\` 
+            JOIN \`admin\` ON \`admin\`.\`base\` = \`base\`.\`base_name\`
         WHERE \`admin_username\` = ?
     `, [admin]);
 
-    let base = result[0].base_location;
-    res.json(base);
+    res.json(result[0]);
+})
+
+app.get('/base_location/rescuer/:rescuer', async (req, res) => {
+    let rescuer = req.params.rescuer;
+
+    let [result] = await pool.query(`
+        SELECT *
+        FROM \`base\` 
+            JOIN \`rescuer\` ON \`rescuer\`.\`base\` = \`base\`.\`base_name\`
+        WHERE \`rescuer_username\` = ?
+    `, [rescuer]);
+
+    res.json(result[0]);
+})
+
+app.get('/rescuer_location/:rescuer', async (req, res) => {
+    let rescuer = req.params.rescuer;
+
+    let [result] = await pool.query(`
+        SELECT *
+        FROM \`rescuer\`
+        WHERE \`rescuer_username\` = ?
+    `, [rescuer]);
+
+    res.json(result[0]);
 })
 
 app.get('/accepted/requests', async (req, res) => {
