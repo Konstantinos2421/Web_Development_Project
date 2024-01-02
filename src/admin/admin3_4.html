@@ -4,7 +4,7 @@
         <meta charset="UTF-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Cargo Management</title>
+        <title>Map</title>
         <link rel="stylesheet" href="../../bootstrap-5.3.2-dist/css/bootstrap.css">
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
         <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
@@ -77,7 +77,16 @@
                             <input type="checkbox" class="form-check-input" id="check6" name="option6" value="something">
                             <label class="form-check-label" for="check6">Vehicles Without Active Tasks</label>
                         </div>
+
+                        <div class="form-check mb-3">
+                            <input type="checkbox" class="form-check-input" id="check7" name="option7" value="something">
+                            <label class="form-check-label" for="check7">Lines</label>
+                        </div>
                     </form>
+
+                    <div class="mt-5 text-center">
+                        <button type="button" class="btn btn-outline-primary" id="new_location_btn" disabled>Change Base Location</button>
+                    </div>
                 </div>
 
                 <div class="col-lg-9">
@@ -96,24 +105,62 @@
             attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         }).addTo(map);
 
-        fetch('http://localhost:3000/base_location/stavros_paraskevopoulos')
+        fetch('http://localhost:3000/base_location/admin/stavros_paraskevopoulos')
         .then(response => response.json())
         .then(data => {
-            let lat = data.x;
-            let lng = data.y;
+            let lat = data.base_location.x;
+            let lng = data.base_location.y;
 
             map.setView([lat, lng], 14);
 
-            L.marker([lat, lng],{
+            let marker = L.marker([lat, lng],{
                 icon: L.icon({
                     iconUrl: '../../imgs/pins/marker-icon-2x-black.png',
                     iconSize: [25, 41],
                     iconAnchor: [12, 41],
                     popupAnchor: [1, -34]
                 })
-            }).addTo(map);
+            });
+
+            marker.addTo(map);
+            marker.bindPopup(`
+                <div class="text-center">
+                    <b class="font-weight-bold">Base</b>
+                </div>
+
+                <p><b>Base Name: </b>${data.base_name}</p>
+                <p><b>Location: </b>${lat.toFixed(4)} ${lng.toFixed(4)}</p>
+            `);
         })
         .catch(error => console.error('Error fetching data:', error));
+
+        let new_base_marker;
+        let new_base_lat, new_base_lng;
+        map.on('click', function(e) {
+            new_base_lat = e.latlng.lat;
+            new_base_lng = e.latlng.lng;
+
+            if (new_base_marker) {
+                map.removeLayer(new_base_marker);
+            }
+
+            new_base_marker = L.marker([new_base_lat, new_base_lng]).addTo(map);
+            document.getElementById('new_location_btn').disabled = false;
+        });
+
+
+        document.getElementById('new_location_btn').addEventListener('click', function(){
+            fetch('http://localhost:3000/change_base_location/' + new_base_lat + '/' + new_base_lng + '/stavros_paraskevopoulos', {method: 'POST'})
+            .then(response => response.text())
+            .then(data => {
+                if(data == 'success') {
+                    alert('Base location changed successfully!');
+                    window.location.href = 'admin3_4.html';
+                }
+            })
+            .catch(error => console.error('Error fetching data:', error));
+        });
+
 
         let acceptedRequestsLayer = L.layerGroup();
         document.getElementById('check1').addEventListener('change', function(){
@@ -133,7 +180,7 @@
                                 iconAnchor: [12, 41],
                                 popupAnchor: [1, -34]
                             })
-                        }).addTo(map);
+                        });
 
                         acceptedRequestsLayer.addLayer(marker);
                         marker.bindPopup(`
@@ -152,6 +199,7 @@
                     });
 
                     map.addLayer(acceptedRequestsLayer);
+
                 })
                 .catch(error => console.error('Error fetching data:', error));
             }
@@ -178,7 +226,7 @@
                                 iconAnchor: [12, 41],
                                 popupAnchor: [1, -34]
                             })
-                        }).addTo(map);
+                        });
 
                         unacceptedRequestsLayer.addLayer(marker);
                         marker.bindPopup(`
@@ -220,7 +268,7 @@
                                 iconAnchor: [12, 41],
                                 popupAnchor: [1, -34]
                             })
-                        }).addTo(map);
+                        });
 
                         acceptedOffersLayer.addLayer(marker);
                         marker.bindPopup(`
@@ -264,7 +312,7 @@
                                 iconAnchor: [12, 41],
                                 popupAnchor: [1, -34]
                             })
-                        }).addTo(map);
+                        });
 
                         unacceptedOffersLayer.addLayer(marker);
                         marker.bindPopup(`
@@ -308,7 +356,7 @@
                                 iconAnchor: [12, 41],
                                 popupAnchor: [1, -34]
                             })
-                        }).addTo(map);
+                        });
 
                         vehiclesWithActiveTasksLayer.addLayer(marker);
                         marker.bindPopup(`
@@ -351,9 +399,7 @@
                                 iconAnchor: [12, 41],
                                 popupAnchor: [1, -34]
                             })
-                        }).addTo(map);
-
-                        console.log(item);
+                        });
 
                         vehiclesWithNoActiveTasksLayer.addLayer(marker);
                         marker.bindPopup(`
@@ -373,6 +419,32 @@
             }
             else{
                 vehiclesWithNoActiveTasksLayer.clearLayers();
+            }
+        });
+
+
+        let linesLayer = L.layerGroup();
+        document.getElementById('check7').addEventListener('change', function(){
+            if(document.getElementById('check7').checked){
+                fetch('http://localhost:3000/coordinates_for_map_lines/stavros_paraskevopoulos')
+                .then(response => response.json())
+                .then(data => {
+                    data.forEach(item => {
+                        let citizen_lat = item.citizen_location.x;
+                        let citizen_lng = item.citizen_location.y;
+
+                        let rescuer_lat = item.rescuer_location.x;
+                        let rescuer_lng = item.rescuer_location.y;
+
+                        let line = L.polyline([L.latLng(citizen_lat, citizen_lng), L.latLng(rescuer_lat, rescuer_lng)], {color: 'black'});
+                        linesLayer.addLayer(line);
+                    });
+                    map.addLayer(linesLayer);
+                })
+                .catch(error => console.error('Error fetching data:', error));
+            }
+            else{
+                linesLayer.clearLayers();
             }
         });
 

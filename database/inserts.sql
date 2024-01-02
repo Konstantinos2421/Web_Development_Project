@@ -29,7 +29,7 @@ INSERT INTO `rescuer` VALUES
 INSERT INTO `citizen` VALUES
 ('marios_raftopoulos', ST_GeomFromText('POINT(38.2516 21.7422)')),
 ('vasia_alexiou', ST_GeomFromText('POINT(38.2549 21.7404)')),
-('lydia_loukakou', ST_GeomFromText('POINT(38.2403 21.1361)')),
+('lydia_loukakou', ST_GeomFromText('POINT(38.2397 21.7402)')),
 ('nikos_kalogeropoulos', ST_GeomFromText('POINT(38.2432 21.7282)')),
 ('alexandros_apostolou', ST_GeomFromText('POINT(38.2418 21.7435)')),
 ('thanos_kostopoulos', ST_GeomFromText('POINT(38.2569 21.7451)')),
@@ -81,7 +81,6 @@ INSERT INTO `task` VALUES
 (NULL, NULL, 'NO', 'NO', current_timestamp(), NULL, NULL),
 (NULL, 'foivos_rigopoulos', 'YES', 'NO', current_timestamp(), current_timestamp(), NULL),
 (NULL, NULL, 'NO', 'NO', current_timestamp(), NULL, NULL),
-
 (NULL, 'niki_petratou', 'YES', 'NO', current_timestamp(), current_timestamp(), NULL),
 (NULL, NULL, 'NO', 'NO', current_timestamp(), NULL, NULL),
 (NULL, NULL, 'NO', 'NO', current_timestamp(), NULL, NULL),

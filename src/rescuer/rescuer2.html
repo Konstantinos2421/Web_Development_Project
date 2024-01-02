@@ -7,6 +7,8 @@
         <title>Cargo Management</title>
         <link rel="stylesheet" href="../../bootstrap-5.3.2-dist/css/bootstrap.css">
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+        <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
+        <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
     </head>
 
     <style>
@@ -107,7 +109,33 @@
                     button.id = 'unload_cargo_btn';
                     dataContainer.appendChild(button);
 
-                    document.getElementById('unload_cargo_btn').addEventListener('click', () => {
+                    document.getElementById('unload_cargo_btn').addEventListener('click', async () => {
+                        let base_lat, base_lng, rescuer_lat, rescuer_lng;
+
+                        await fetch('http://localhost:3000/base_location/rescuer/natassa_politi')
+                        .then(response => response.json())
+                        .then(data => {
+                            base_lat = data.base_location.x;
+                            base_lng = data.base_location.y;
+                        })
+                        .catch(error => console.error('Error fetching data:', error));
+
+                        await fetch('http://localhost:3000/rescuer_location/natassa_politi')
+                        .then(response => response.json())
+                        .then(data => {
+                            rescuer_lat = data.vehicle_location.x;
+                            rescuer_lng = data.vehicle_location.y;
+
+                        })
+                        .catch(error => console.error('Error fetching data:', error));
+
+                        let distance = L.latLng(base_lat, base_lng).distanceTo(L.latLng(rescuer_lat, rescuer_lng));
+                        if (distance > 100) {
+                            alert('You are too far away from the base!');
+                            return;
+                        }
+
+
                         fetch('http://localhost:3000/unloadall/natassa_politi', {method: 'POST'})
                         .then(response => response.text())
                         .then(data => {
@@ -123,6 +151,7 @@
                             console.error('Error:', error);
                         });
                     });
+
                 }else{
                     if (document.getElementById('unload_cargo_btn')) {
                         document.getElementById('unload_cargo').removeChild(document.getElementById('unload_cargo_btn'));
@@ -189,7 +218,30 @@
                 button.id = 'load_cargo_btn';
                 dataContainer.appendChild(button);
 
-                document.getElementById('load_cargo_btn').addEventListener('click', () => {
+                document.getElementById('load_cargo_btn').addEventListener('click', async () => {
+                    let base_lat, base_lng, rescuer_lat, rescuer_lng;
+
+                    await fetch('http://localhost:3000/base_location/rescuer/natassa_politi')
+                    .then(response => response.json())
+                    .then(data => {
+                        base_lat = data.base_location.x;
+                        base_lng = data.base_location.y;
+                    })
+                    .catch(error => console.error('Error fetching data:', error));
+
+                    await fetch('http://localhost:3000/rescuer_location/natassa_politi')
+                    .then(response => response.json())
+                    .then(data => {
+                        rescuer_lat = data.vehicle_location.x;
+                        rescuer_lng = data.vehicle_location.y;
+                    })
+                    .catch(error => console.error('Error fetching data:', error));
+
+                    let distance = L.latLng(base_lat, base_lng).distanceTo(L.latLng(rescuer_lat, rescuer_lng));
+                    if (distance > 100) {
+                        alert('You are too far away from the base!');
+                        return;
+                    }
                     
                     let data = [];
                     let listItems = document.getElementById('base_inventory').getElementsByTagName('li');
