@@ -57,109 +57,96 @@
     </body>
 
     <script>
-         let admin = sessionStorage.getItem("username");
+      let admin = sessionStorage.getItem("username");
 
-         fetch('http://localhost:3000/base/categories/stavros_paraskevopoulos')
-         .then(response => response.json())
-         .then(data => {
+      fetch('http://localhost:3000/base/categories/stavros_paraskevopoulos')
+      .then(response => response.json())
+      .then(data1 => {
 
-            data.forEach(item => {
-                const div = document.createElement('div');
-                div.className = "form-check mb-3";
-                
-                const input = document.createElement('input');
-                input.type = "checkbox";
-                input.className = "form-check-input";
-                
-                
-                const label = document.createElement('label');
-                label.className = "form-check-label";
-                label.textContent = item.category_name;
-                
-                div.appendChild(input);
-                div.appendChild(label);
+        data1.forEach(category => {
+          const div = document.createElement('div');
+          div.className = "form-check mb-3";
+          
+          const input = document.createElement('input');
+          input.type = "checkbox";
+          input.className = "form-check-input";
+          
+          
+          const label = document.createElement('label');
+          label.className = "form-check-label";
+          label.textContent = category.category_name;
+          
+          div.appendChild(input);
+          div.appendChild(label);
 
-                document.getElementById("categoriesCheckboxes").appendChild(div);
+          document.getElementById("categoriesCheckboxes").appendChild(div);
 
-                input.addEventListener('change', function () {
-                    if (input.checked) {
-                        fetch('http://localhost:3000/displayBaseInventory/admin/stavros_paraskevopoulos/' + item.category_id)
-                        .then(response => response.json())
-                        .then(data => {
-                 
-                          const table = document.createElement('table');
-                          table.className = "table table-bordered";
-                          table.id = item.category_id;
+          input.addEventListener('change', function () {
+            if (input.checked) {
+              fetch('http://localhost:3000/displayBaseInventory/admin/stavros_paraskevopoulos/' + category.category_id)
+              .then(response => response.json())
+              .then(data2 => {
+          
+                const table = document.createElement('table');
+                table.className = "table table-bordered";
+                table.id = category.category_id;
 
-                          const theads = document.createElement('theads');
+                const thead = document.createElement('thead');
 
-                          const tr0 = document.createElement('tr');
+                const tr0 = document.createElement('tr');
 
-                          const th1 = document.createElement('th');
-                          th1.textContent = 'Product id';
-                            
-                          const th2 = document.createElement('th');
-                          th2.textContent = 'Product Name';
-                            
-                          const th3 = document.createElement('th');
-                          th3.textContent = 'Quantity';
-
-                          const tbody = document.createElement('tbody');
-
-                          table.appendChild(theads);
-                          theads.appendChild(tr0);
-                          tr0.appendChild(th1);
-                          tr0.appendChild(th2);
-                          tr0.appendChild(th3);
-
-                          data.forEach(item => {
-                            const tr = document.createElement('tr');
-
-                            const td1 = document.createElement('td');
-                            td1.textContent = item.product_id;
-
-                            const td2 = document.createElement('td');
-                            td2.textContent = item.product_name;
-
-                            const td3 = document.createElement('td');
-                            td3.textContent = item.total_quantity;
-
-                            tr.appendChild(td1);
-                            tr.appendChild(td2);
-                            tr.appendChild(td3);
-                            tbody.appendChild(tr);
-
-                          });
-
-                          document.getElementById("categories_tables").appendChild(table);
-                          table.appendChild(tbody);
-
-                          
-                          
-                        })
-                        .catch(error => console.error('Error fetching category data:', error));
-                        
-
-                          
-                    }
-                    else {
-                      const tableToRemove = document.getElementById(item.category_id);
-                      if (tableToRemove) {
-                        tableToRemove.parentNode.removeChild(tableToRemove);
-                      }
-
-                    }
+                const th1 = document.createElement('th');
+                th1.textContent = 'Product id';
                     
+                const th2 = document.createElement('th');
+                th2.textContent = 'Product Name';
+                    
+                const th3 = document.createElement('th');
+                th3.textContent = 'Quantity';
 
+                const tbody = document.createElement('tbody');
+
+                table.appendChild(thead);
+                thead.appendChild(tr0);
+                tr0.appendChild(th1);
+                tr0.appendChild(th2);
+                tr0.appendChild(th3);
+                table.appendChild(tbody);
+
+                data2.forEach(item => {
+                  const tr = document.createElement('tr');
+
+                  const td1 = document.createElement('td');
+                  td1.textContent = item.product_id;
+
+                  const td2 = document.createElement('td');
+                  td2.textContent = item.product_name;
+
+                  const td3 = document.createElement('td');
+                  td3.textContent = item.total_quantity;
+
+                  tr.appendChild(td1);
+                  tr.appendChild(td2);
+                  tr.appendChild(td3);
+                  tbody.appendChild(tr);
 
                 });
-                
 
+                  document.getElementById("categories_tables").appendChild(table);
+              })
+              .catch(error => console.error('Error fetching category data:', error));  
+            }
+            else {
+              const tableToRemove = document.getElementById(category.category_id);
+              if (tableToRemove) {
+                tableToRemove.parentNode.removeChild(tableToRemove);
+              }
+            }
+        });    
+      })
+      .catch(error => console.error('Error fetching data:', error));
 
-            })
-            .catch(error => console.error('Error fetching data:', error));
-
-        });
+    });
 
 
     </script>

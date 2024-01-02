@@ -446,9 +446,10 @@ app.get('/displayBaseInventory/admin/:admin/:category_id', async (req, res) => {
 
 app.get('/citizen/announcements', async (req, res) => {
     const [result] = await pool.query(`
-        SELECT \`product\`.\`product_name\` 
-        FROM \`product\`
-        JOIN \`announcment\` ON \`announcment\`.\`product_id\` = \`product\`.\`id\`
+        SELECT *
+        FROM \`announcement\`
+            JOIN \`product\` ON \`announcment\`.\`product_id\` = \`product\`.\`id\`
+        ORDER BY \`announcment\`.\`announcment_id\`
     `);
 
     res.json(result);
