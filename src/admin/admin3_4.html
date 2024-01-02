@@ -182,7 +182,7 @@
                             })
                         });
 
-                        acceptedRequestsLayer.addLayer(marker);
+                        marker.addTo(acceptedRequestsLayer);
                         marker.bindPopup(`
                             <div class="text-center">
                                 <b class="font-weight-bold">Request</b>
@@ -228,7 +228,7 @@
                             })
                         });
 
-                        unacceptedRequestsLayer.addLayer(marker);
+                        marker.addTo(unacceptedRequestsLayer);
                         marker.bindPopup(`
                             <div class="text-center">
                                 <b class="font-weight-bold">Request</b>
@@ -270,7 +270,7 @@
                             })
                         });
 
-                        acceptedOffersLayer.addLayer(marker);
+                        marker.addTo(acceptedOffersLayer);
                         marker.bindPopup(`
                             <div class="text-center">
                                 <b class="font-weight-bold">Offer</b>
@@ -314,7 +314,7 @@
                             })
                         });
 
-                        unacceptedOffersLayer.addLayer(marker);
+                        marker.addTo(unacceptedOffersLayer);
                         marker.bindPopup(`
                             <div class="text-center">
                                 <b class="font-weight-bold">Offer</b>
@@ -358,7 +358,7 @@
                             })
                         });
 
-                        vehiclesWithActiveTasksLayer.addLayer(marker);
+                        marker.addTo(vehiclesWithActiveTasksLayer);
                         marker.bindPopup(`
                             <div class="text-center">
                                 <b class="font-weight-bold">Vehicle</b>
@@ -401,7 +401,7 @@
                             })
                         });
 
-                        vehiclesWithNoActiveTasksLayer.addLayer(marker);
+                        marker.addTo(vehiclesWithNoActiveTasksLayer);
                         marker.bindPopup(`
                             <div class="text-center">
                                 <b class="font-weight-bold">Vehicle</b>
@@ -437,7 +437,7 @@
                         let rescuer_lng = item.rescuer_location.y;
 
                         let line = L.polyline([L.latLng(citizen_lat, citizen_lng), L.latLng(rescuer_lat, rescuer_lng)], {color: 'black'});
-                        linesLayer.addLayer(line);
+                        line.addTo(linesLayer);
                     });
                     map.addLayer(linesLayer);
                 })

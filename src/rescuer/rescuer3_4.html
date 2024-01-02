@@ -198,7 +198,8 @@
                             })
                         });
 
-                        unacceptedRequestsLayer.addLayer(marker);
+                        //unacceptedRequestsLayer.addLayer(marker);
+                        marker.addTo(unacceptedRequestsLayer);
                         marker.bindPopup(`
                             <div class="text-center">
                                 <b class="font-weight-bold">Request</b>
@@ -215,17 +216,19 @@
                             </div>
                         `);
 
-                        document.getElementById(item.task_id).addEventListener('click', function(){
+                        /*document.getElementById(item.task_id).addEventListener('click', function(){
                             fetch('http://localhost:3000/accept_task/' + item.task_id + '/natassa_politi', {method: 'POST'})
                             .then(response => response.text())
                             .then(data => {
                                 if(data == 'success') {
-                                    alert('Request accepted successfully!');
+                                    alert('Request has been accepted!');
                                     window.location.href = 'rescuer3_4.html';
+                                }else{
+                                    alert('You cannot take more than 4 tasks!');
                                 }
                             })
                             .catch(error => console.error('Error fetching data:', error));
-                        });
+                        });*/
                     });
                     map.addLayer(unacceptedRequestsLayer);
                 })

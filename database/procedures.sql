@@ -302,7 +302,7 @@ WHERE `product`.`category`=cat
 GROUP BY `product`.`id`
 ORDER BY `product`.`id` ASC;
 
-SELECT `temp1`.`product_id` AS product_id, `temp1`.`product_name` AS product_name, `temp1`.`base_quantity` + `temp2`.`rescuers_quantity` AS total_quantity
+SELECT `temp1`.`product_id` AS product_id, `temp1`.`product_name` AS product_name, (`temp1`.`base_quantity` + `temp2`.`rescuers_quantity`) AS quantity
 FROM `temp1`
 	JOIN `temp2` ON `temp1`.`product_id`=`temp2`.`product_id`
 ORDER BY `temp1`.`product_id` ASC;

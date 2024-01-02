@@ -1,155 +1,159 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta http-equiv="X-UA-Compatible" content="IE=edge">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Display Inventory Status</title>
-        <link rel="stylesheet" href="../../bootstrap-5.3.2-dist/css/bootstrap.css">
-    </head>
+  <head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Base Warehouse Inventory</title>
+    <link rel="stylesheet" href="../../bootstrap-5.3.2-dist/css/bootstrap.css">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  </head>
 
-    <body>
-        <div class="container-fluid">
-            <div class="row" style="background-color:rgb(80, 102, 80)">
-              <div class="col-lg-5"></div>
-      
-              <div class="col-lg-2 mb-4">
-                <img src="../../imgs/logo.png" class="img-thumbnail mt-4 mx-auto d-block" height="45" width="170">
-              </div>
-      
-              <div class="col-lg-3"></div>
-      
-              <div class="col-lg-2 mt-4">
-                <div class="btn-group">
-                  <button type="button" class="btn btn-link">
-                    <img alt src="../../imgs/home.png" class="img-thumbnail" width="45" height="45">
-                  </button>
-      
-                  <button type="button" class="btn btn-link">
-                    <img src="../../imgs/user.png" class="img-thumbnail" width="45" height="45">
-                  </button>
-      
-                  <button type="button" class="btn btn-link">
-                    <img alt src="../../imgs/power.png" class="img-thumbnail" width="45" height="45">
-                  </button> 
-                </div>  
-              </div>
-            </div>
+  <body>
+    <div class="container-fluid">
+      <div class="row" style="background-color:rgb(80, 102, 80)">
+        <div class="col-lg-5"></div>
+
+        <div class="col-lg-2 mb-4">
+          <img src="../../imgs/logo.png" class="img-thumbnail mt-4 mx-auto d-block" height="45" width="170">
         </div>
 
-        <div class="container-fluid mt-4">
-            <div class="row">
+        <div class="col-lg-3"></div>
 
-                <div class="col-lg-3">
-                    <form class="border border-3 rounded-4 ps-4 pt-4" id="categoriesCheckboxes">
-                        <p class="h3 text-center mb-4">Categories</p>
-                    </form>
-                </div>
+        <div class="col-lg-2 mt-4">
+          <div class="btn-group">
+            <button type="button" class="btn btn-link">
+              <img alt src="../../imgs/home.png" class="img-thumbnail" width="45" height="45">
+            </button>
 
-                <div class="col-lg-6" id="categories_tables">
+            <button type="button" class="btn btn-link">
+              <img src="../../imgs/user.png" class="img-thumbnail" width="45" height="45">
+            </button>
 
-                </div>
+            <button type="button" class="btn btn-link">
+              <img alt src="../../imgs/power.png" class="img-thumbnail" width="45" height="45">
+            </button> 
+          </div>  
+        </div>
+      </div>
+    </div>
 
-            </div>
+    <div class="container-fluid mt-4">
+      <div class="row">
+
+        <div class="col-lg-3">
+            <form class="border border-3 rounded-4 ps-4 pt-4" id="categoriesCheckboxes">
+              <p class="h3 text-center mb-4">Categories</p>
+            </form>
         </div>
 
-    
-    </body>
+        <div class="col-lg-6" id="categories_tables">
 
-    <script>
-      let admin = sessionStorage.getItem("username");
+        </div>
 
-      fetch('http://localhost:3000/base/categories/stavros_paraskevopoulos')
-      .then(response => response.json())
-      .then(data1 => {
+      </div>
+    </div>
 
-        data1.forEach(category => {
-          const div = document.createElement('div');
-          div.className = "form-check mb-3";
-          
-          const input = document.createElement('input');
-          input.type = "checkbox";
-          input.className = "form-check-input";
-          
-          
-          const label = document.createElement('label');
-          label.className = "form-check-label";
-          label.textContent = category.category_name;
-          
-          div.appendChild(input);
-          div.appendChild(label);
+  </body>
 
-          document.getElementById("categoriesCheckboxes").appendChild(div);
+  <script>
+    let admin = sessionStorage.getItem("username");
 
-          input.addEventListener('change', function () {
-            if (input.checked) {
-              fetch('http://localhost:3000/displayBaseInventory/admin/stavros_paraskevopoulos/' + category.category_id)
-              .then(response => response.json())
-              .then(data2 => {
-          
-                const table = document.createElement('table');
-                table.className = "table table-bordered";
-                table.id = category.category_id;
+    fetch('http://localhost:3000/base/categories/stavros_paraskevopoulos')
+    .then(response => response.json())
+    .then(data1 => {
 
-                const thead = document.createElement('thead');
+      data1.forEach(category => {
+        let div = document.createElement('div');
+        div.className = "form-check mb-4";
+        
+        let input = document.createElement('input');
+        input.type = "checkbox";
+        input.className = "form-check-input";
+        
+        let label = document.createElement('label');
+        label.className = "form-check-label";
+        label.textContent = category.category_name;
+        
+        div.appendChild(input);
+        div.appendChild(label);
 
-                const tr0 = document.createElement('tr');
+        document.getElementById("categoriesCheckboxes").appendChild(div);
 
-                const th1 = document.createElement('th');
-                th1.textContent = 'Product id';
-                    
-                const th2 = document.createElement('th');
-                th2.textContent = 'Product Name';
-                    
-                const th3 = document.createElement('th');
-                th3.textContent = 'Quantity';
+        input.addEventListener('change', function () {
+          if (input.checked) {
+            fetch('http://localhost:3000/displayBaseInventory/admin/stavros_paraskevopoulos/' + category.category_id)
+            .then(response => response.json())
+            .then(data2 => {
+              let p = document.createElement('p');
+              p.className = "h5 mb-2";
+              p.id = category.category_name;
+              p.textContent = category.category_name;
 
-                const tbody = document.createElement('tbody');
+              let table = document.createElement('table');
+              table.className = "table table-bordered mb-4";
+              table.id = category.category_id;
 
-                table.appendChild(thead);
-                thead.appendChild(tr0);
-                tr0.appendChild(th1);
-                tr0.appendChild(th2);
-                tr0.appendChild(th3);
-                table.appendChild(tbody);
+              let thead = document.createElement('thead');
+              thead.className = "table-success";
 
-                data2.forEach(item => {
-                  const tr = document.createElement('tr');
+              let tr0 = document.createElement('tr');
 
-                  const td1 = document.createElement('td');
-                  td1.textContent = item.product_id;
+              let th1 = document.createElement('th');
+              th1.textContent = 'Product id';
+                  
+              let th2 = document.createElement('th');
+              th2.textContent = 'Product Name';
+                  
+              let th3 = document.createElement('th');
+              th3.textContent = 'Quantity';
 
-                  const td2 = document.createElement('td');
-                  td2.textContent = item.product_name;
+              let tbody = document.createElement('tbody');
 
-                  const td3 = document.createElement('td');
-                  td3.textContent = item.total_quantity;
+              tr0.appendChild(th1);
+              tr0.appendChild(th2);
+              tr0.appendChild(th3);
+              thead.appendChild(tr0);
+              table.appendChild(thead);
+              table.appendChild(tbody);
+              
+              data2.forEach(item => {
+                let tr = document.createElement('tr');
 
-                  tr.appendChild(td1);
-                  tr.appendChild(td2);
-                  tr.appendChild(td3);
-                  tbody.appendChild(tr);
+                let td1 = document.createElement('td');
+                td1.textContent = item.product_id;
 
-                });
+                let td2 = document.createElement('td');
+                td2.textContent = item.product_name;
 
-                  document.getElementById("categories_tables").appendChild(table);
-              })
-              .catch(error => console.error('Error fetching category data:', error));  
-            }
-            else {
-              const tableToRemove = document.getElementById(category.category_id);
-              if (tableToRemove) {
-                tableToRemove.parentNode.removeChild(tableToRemove);
-              }
-            }
+                let td3 = document.createElement('td');
+                td3.textContent = item.quantity;
+
+                tr.appendChild(td1);
+                tr.appendChild(td2);
+                tr.appendChild(td3);
+                tbody.appendChild(tr);
+              });
+
+              document.getElementById("categories_tables").appendChild(p);
+              document.getElementById("categories_tables").appendChild(table);
+            })
+            .catch(error => console.error('Error fetching category data:', error));  
+
+          }else {
+            const tableToRemove = document.getElementById(category.category_id);
+            tableToRemove.parentNode.removeChild(tableToRemove);
+
+            const pToRemove = document.getElementById(category.category_name);
+            pToRemove.parentNode.removeChild(pToRemove);
+          }
         });    
-      })
-      .catch(error => console.error('Error fetching data:', error));
+      });
+    })
+    .catch(error => console.error('Error fetching categories data:', error));
 
-    });
 
-
-    </script>
+  </script>
 
 
 </html>

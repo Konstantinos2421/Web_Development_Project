@@ -425,7 +425,6 @@ app.post('/update_inventory/:admin', async (req, res) => {
 });
 
 app.get('/displayBaseInventory/admin/:admin/:category_id', async (req, res) => {
-    
     let admin = req.params.admin;
     let category = req.params.category_id;
 
@@ -438,10 +437,9 @@ app.get('/displayBaseInventory/admin/:admin/:category_id', async (req, res) => {
 
     let base = result[0].base;
 
-    [result] = await pool.query(`CALL displayBaseInventory(?, ?)`, [base, category]);
-
-    res.json(result);
+    result = await pool.query(`CALL displayBaseInventory(?, ?)`, [base, category]);
     
+    res.json(result);
 });
 
 app.get('/citizen/announcements', async (req, res) => {
@@ -454,6 +452,130 @@ app.get('/citizen/announcements', async (req, res) => {
 
     res.json(result);
 });
+
+//New routers
+app.post('/change_base_location/:lat/:lng/:admin', async (req, res) => {
+    let admin = req.params.admin;
+    let lat = parseFloat(req.params.lat);
+    let lng = parseFloat(req.params.lng);
+
+    let [result] = await pool.query(`
+        SELECT * 
+        FROM \`admin\` 
+            JOIN \`base\` ON \`admin\`.\`base\` = \`base\`.\`base_name\`
+        WHERE \`admin_username\` = ?
+    `, [admin]);
+
+    let base = result[0].base;
+
+    await pool.query(`
+        UPDATE \`base\`
+        SET \`base_location\` = ST_GeomFromText('POINT(${lat} ${lng})')
+        WHERE \`base_name\` = ?
+    `, [base]);
+
+    res.send('success');
+});
+
+app.post('/new_announcement/:admin', async (req, res) => {
+    let admin = req.params.admin;
+    let receivedData = req.body;
+
+    let [result] = await pool.query(`
+        SELECT * 
+        FROM \`admin\` 
+            JOIN \`base\` ON \`admin\`.\`base\` = \`base\`.\`base_name\`
+        WHERE \`admin_username\` = ?
+    `, [admin]);
+
+    let base = result[0].base;
+
+    await pool.query(`
+        CALL addAnnouncement(?, ?, 'NEW')
+    `, [base, receivedData[0]]);
+
+    receivedData = receivedData.slice(1);
+    if(receivedData.length > 0){
+        receivedData.forEach(async item => {
+            await pool.query(`
+                CALL addAnnouncement(?, ?, 'LAST')
+            `, [base, item]);
+        });
+        res.send('success');
+    }else{
+        res.send('success');
+    }
+});
+
+app.get('/coordinates_for_map_lines/:admin', async (req, res) => {
+    let admin = req.params.admin;
+
+    let [result] = await pool.query(`
+        SELECT * 
+        FROM \`admin\` 
+            JOIN \`base\` ON \`admin\`.\`base\` = \`base\`.\`base_name\`
+        WHERE \`admin_username\` = ?
+    `, [admin]);
+
+    let base = result[0].base;
+
+    [result] = await pool.query(`
+        SELECT \`rescuer\`.\`vehicle_location\` AS rescuer_location, \`citizen\`.\`citizen_location\` AS citizen_location
+        FROM \`rescuer\`
+            JOIN \`task\` ON \`rescuer\`.\`rescuer_username\` = \`task\`.\`rescuer_took_over\`
+            JOIN \`request\` ON \`task\`.\`task_id\` = \`request\`.\`request_id\`
+            JOIN \`citizen\` ON \`citizen\`.\`citizen_username\` = \`request\`.\`request_user\`
+        WHERE \`rescuer\`.\`base\` = 'PATRA_BASE1'
+        UNION
+        SELECT \`rescuer\`.\`vehicle_location\` AS rescuer_location, \`citizen\`.\`citizen_location\` AS citizen_location
+        FROM \`rescuer\`
+            JOIN \`task\` ON \`rescuer\`.\`rescuer_username\` = \`task\`.\`rescuer_took_over\`
+            JOIN \`offer\` ON \`task\`.\`task_id\` = \`offer\`.\`offer_id\`
+            JOIN \`citizen\` ON \`citizen\`.\`citizen_username\` = \`offer\`.\`offer_user\`
+        WHERE \`rescuer\`.\`base\` = 'PATRA_BASE1'
+    `, [base]);
+
+    res.json(result);
+})
+
+app.post('/change_rescuer_location/:lat/:lng/:rescuer', async (req, res) => {
+    let rescuer = req.params.rescuer;
+    let lat = parseFloat(req.params.lat);
+    let lng = parseFloat(req.params.lng);
+
+    let [result] = await pool.query(`
+        SELECT *
+        FROM \`base\` 
+            JOIN \`rescuer\` ON \`rescuer\`.\`base\` = \`base\`.\`base_name\`
+        WHERE \`rescuer_username\` = ?
+    `, [rescuer]);
+
+    let base = result[0].base;
+
+    await pool.query(`
+        UPDATE \`rescuer\`
+        SET \`vehicle_location\` = ST_GeomFromText('POINT(${lat} ${lng})')
+        WHERE \`rescuer_username\` = ?
+    `, [rescuer]);
+
+    res.send('success');
+});
+
+app.post('/accept_task/:task/:rescuer', async (req, res) => {
+    let rescuer = req.params.rescuer;
+    let task = req.params.task;
+
+    try{
+        await pool.query(`
+            CALL rescuerAcceptTask(?, ?)
+        `, [rescuer, task]);
+
+        res.send('success');
+    }catch(err){
+        res.send('fail');
+    }
+});
+
 
 app.listen(port, () => {
     console.log(`Server is running on port ${port}`);
