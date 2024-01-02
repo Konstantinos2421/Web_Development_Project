@@ -122,7 +122,7 @@
                             td2.textContent = item.product_name;
 
                             const td3 = document.createElement('td');
-                            td3.textContent = item.quantity;
+                            td3.textContent = item.total_quantity;
 
                             tr.appendChild(td1);
                             tr.appendChild(td2);
@@ -143,6 +143,10 @@
                           
                     }
                     else {
+                      const tableToRemove = document.getElementById(item.category_id);
+                      if (tableToRemove) {
+                        tableToRemove.parentNode.removeChild(tableToRemove);
+                      }
 
                     }
                     

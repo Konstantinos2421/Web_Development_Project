@@ -400,13 +400,32 @@ app.post('/update_inventory/:admin', async (req, res) => {
     res.send('success');
 });
 
-app.get('/displayBaseInventory/admin/:admin/:category_id', async (req, res)=> {
-    let admin= req.params.admin;
-    let category= req.params.category_id;
+app.get('/displayBaseInventory/admin/:admin/:category_id', async (req, res) => {
+    
+    let admin = req.params.admin;
+    let category = req.params.category_id;
 
     let [result] = await pool.query(`
-        CALL displayBaseInventory(?, ?);
-    `, [admin, category]);
+    SELECT * 
+    FROM \`admin\` 
+        JOIN \`base\` ON \`admin\`.\`base\` = \`base\`.\`base_name\`
+    WHERE \`admin_username\` = ?
+    `, [admin]);
+
+    let base = result[0].base;
+
+    [result] = await pool.query(`CALL displayBaseInventory(?, ?)`, [base, category]);
+
+    res.json(result);
+    
+});
+
+app.get('/citizen/announcements', async (req, res) => {
+    const [result] = await pool.query(`
+        SELECT \`product\`.\`product_name\` 
+        FROM \`product\`
+        JOIN \`announcment\` ON \`announcment\`.\`product_id\` = \`product\`.\`id\`
+    `);
 
     res.json(result);
 });
