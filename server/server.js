@@ -437,9 +437,9 @@ app.get('/displayBaseInventory/admin/:admin/:category_id', async (req, res) => {
 
     let base = result[0].base;
 
-    result = await pool.query(`CALL displayBaseInventory(?, ?)`, [base, category]);
+    [result] = await pool.query(`CALL displayBaseInventory(?, ?)`, [base, category]);
     
-    res.json(result);
+    res.json(result[0]);
 });
 
 app.get('/citizen/announcements', async (req, res) => {
@@ -453,7 +453,6 @@ app.get('/citizen/announcements', async (req, res) => {
     res.json(result);
 });
 
-//New routers
 app.post('/change_base_location/:lat/:lng/:admin', async (req, res) => {
     let admin = req.params.admin;
     let lat = parseFloat(req.params.lat);
@@ -576,6 +575,80 @@ app.post('/accept_task/:task/:rescuer', async (req, res) => {
     }
 });
 
+app.get('/rescuer_active_tasks/requests/:rescuer', async (req, res) => {
+    let rescuer = req.params.rescuer;
+
+    let [result] = await pool.query(`
+        SELECT *
+        FROM \`rescuer\`
+            JOIN \`task\` ON \`rescuer\`.\`rescuer_username\` = \`task\`.\`rescuer_took_over\`
+            JOIN \`request\` ON \`task\`.\`task_id\` = \`request\`.\`request_id\`
+            JOIN \`product\` ON \`request\`.\`product_id\` = \`product\`.\`id\`
+            JOIN \`citizen\` ON \`request\`.\`request_user\` = \`citizen\`.\`citizen_username\`
+            JOIN \`user\` ON \`citizen\`.\`citizen_username\` = \`user\`.\`username\` 
+        WHERE \`rescuer\`.\`rescuer_username\` = ? AND \`task\`.\`completed\` = 'NO'
+    `, [rescuer]);
+
+    res.json(result);
+});
+
+app.get('/rescuer_active_tasks/offers/:rescuer', async (req, res) => {
+    let rescuer = req.params.rescuer;
+
+    let [result] = await pool.query(`
+        SELECT *
+        FROM \`rescuer\`
+            JOIN \`task\` ON \`rescuer\`.\`rescuer_username\` = \`task\`.\`rescuer_took_over\`
+            JOIN \`offer\` ON \`task\`.\`task_id\` = \`offer\`.\`offer_id\`
+            JOIN \`product\` ON \`offer\`.\`product_id\` = \`product\`.\`id\`
+            JOIN \`citizen\` ON \`offer\`.\`offer_user\` = \`citizen\`.\`citizen_username\`
+            JOIN \`user\` ON \`citizen\`.\`citizen_username\` = \`user\`.\`username\` 
+        WHERE \`rescuer\`.\`rescuer_username\` = ? AND \`task\`.\`completed\` = 'NO'
+    `, [rescuer]);
+
+    res.json(result);
+});
+
+
+app.post('/cancel_task/:task/:rescuer', async (req, res) => {
+    let rescuer = req.params.rescuer;
+    let task = req.params.task;
+
+    await pool.query(`
+        CALL rescuerCancelTask(?, ?)
+    `, [rescuer, task]);
+
+    res.send('success');
+});
+
+app.get('/citizen_completed_tasks/requests/:citizen', async (req, res) => {
+    let citizen = req.params.citizen;
+
+    let [result] = await pool.query(`
+        SELECT *
+        FROM \`citizen\`
+            JOIN \`request\` ON \`citizen\`.\`citizen_username\` = \`request\`.\`request_user\`
+            JOIN \`product\` ON \`request\`.\`product_id\` = \`product\`.\`id\`
+            JOIN \`task\` ON \`request\`.\`request_id\` = \`task\`.\`task_id\`
+            JOIN \`rescuer\` ON \`task\`.\`rescuer_took_over\` = \`rescuer\`.\`rescuer_username\`
+            JOIN \`user\` ON \`rescuer\`.\`rescuer_username\` = \`user\`.\`username\`
+        WHERE \`citizen\`.\`citizen_username\` = ? AND \`task\`.\`completed\` = 'YES'
+    `, [citizen]);
+
+    res.json(result);
+});
+
+app.post('/new_request/:product/:persons/:citizen', async (req, res) => {
+    let citizen = req.params.citizen;
+    let product = req.params.product;
+    let persons = req.params.persons;
+
+    await pool.query(`
+        CALL newRequest(?, ?, ?)
+    `, [citizen, product, persons]);
+
+    res.send('success');
+});
 
 app.listen(port, () => {
     console.log(`Server is running on port ${port}`);

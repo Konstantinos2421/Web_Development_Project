@@ -103,30 +103,6 @@ CREATE TABLE`cargo`(
     FOREIGN KEY (`product_id`) REFERENCES `product` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) Engine = InnoDB;
 
-DROP TABLE IF EXISTS `request`;
-CREATE TABLE`request`(
-    `request_id` INT NOT NULL,
-    `request_user` VARCHAR(30) NOT NULL,
-    `product_id` INT NOT NULL,
-    `persons_num` INT NOT NULL,
-
-    PRIMARY KEY (`request_id`),
-    FOREIGN KEY (`request_user`) REFERENCES `citizen` (`citizen_username`) ON DELETE CASCADE ON UPDATE CASCADE,
-    FOREIGN KEY (`product_id`) REFERENCES `product` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
-) Engine = InnoDB;
-
-DROP TABLE IF EXISTS `offer`;
-CREATE TABLE`offer`(
-    `offer_id` INT NOT NULL,
-    `offer_user` VARCHAR(30) NOT NULL,
-    `product_id` INT NOT NULL,
-    `quantity` INT NOT NULL,
-
-    PRIMARY KEY (`offer_id`),
-    FOREIGN KEY (`offer_user`) REFERENCES `citizen` (`citizen_username`) ON DELETE CASCADE ON UPDATE CASCADE,
-    FOREIGN KEY (`product_id`) REFERENCES `product` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
-) Engine = InnoDB;
-
 DROP TABLE IF EXISTS `task`;
 CREATE TABLE`task`(
     `task_id` INT AUTO_INCREMENT NOT NULL,
@@ -139,6 +115,32 @@ CREATE TABLE`task`(
 
     PRIMARY KEY (`task_id`),
     FOREIGN KEY (`rescuer_took_over`) REFERENCES `rescuer` (`rescuer_username`) ON DELETE CASCADE ON UPDATE CASCADE
+) Engine = InnoDB;
+
+DROP TABLE IF EXISTS `request`;
+CREATE TABLE`request`(
+    `request_id` INT NOT NULL,
+    `request_user` VARCHAR(30) NOT NULL,
+    `product_id` INT NOT NULL,
+    `persons_num` INT NOT NULL,
+
+    PRIMARY KEY (`request_id`),
+    FOREIGN KEY (`request_id`) REFERENCES `task` (`task_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+    FOREIGN KEY (`request_user`) REFERENCES `citizen` (`citizen_username`) ON DELETE CASCADE ON UPDATE CASCADE,
+    FOREIGN KEY (`product_id`) REFERENCES `product` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) Engine = InnoDB;
+
+DROP TABLE IF EXISTS `offer`;
+CREATE TABLE`offer`(
+    `offer_id` INT NOT NULL,
+    `offer_user` VARCHAR(30) NOT NULL,
+    `product_id` INT NOT NULL,
+    `quantity` INT NOT NULL,
+
+    PRIMARY KEY (`offer_id`),
+    FOREIGN KEY (`offer_id`) REFERENCES `task` (`task_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+    FOREIGN KEY (`offer_user`) REFERENCES `citizen` (`citizen_username`) ON DELETE CASCADE ON UPDATE CASCADE,
+    FOREIGN KEY (`product_id`) REFERENCES `product` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) Engine = InnoDB;
 
 DROP TABLE IF EXISTS `base_inventory`;

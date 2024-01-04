@@ -85,6 +85,7 @@
             fetch('http://localhost:3000/displayBaseInventory/admin/stavros_paraskevopoulos/' + category.category_id)
             .then(response => response.json())
             .then(data2 => {
+              console.log(data2);
               let p = document.createElement('p');
               p.className = "h5 mb-2";
               p.id = category.category_name;

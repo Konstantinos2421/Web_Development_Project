@@ -82,6 +82,7 @@
             <button type="button" class="btn btn-outline-primary" id="new_location_btn" disabled>Change Your Location</button>
         </div>
 
+
     </body>
 
     <script>
@@ -197,8 +198,7 @@
                                 popupAnchor: [1, -34]
                             })
                         });
-
-                        //unacceptedRequestsLayer.addLayer(marker);
+                        
                         marker.addTo(unacceptedRequestsLayer);
                         marker.bindPopup(`
                             <div class="text-center">
@@ -215,20 +215,22 @@
                                 <button type="button" class="btn btn-outline-primary btn-sm" id="${item.task_id}">Accept</button>
                             </div>
                         `);
-
-                        /*document.getElementById(item.task_id).addEventListener('click', function(){
-                            fetch('http://localhost:3000/accept_task/' + item.task_id + '/natassa_politi', {method: 'POST'})
-                            .then(response => response.text())
-                            .then(data => {
-                                if(data == 'success') {
-                                    alert('Request has been accepted!');
-                                    window.location.href = 'rescuer3_4.html';
-                                }else{
-                                    alert('You cannot take more than 4 tasks!');
-                                }
-                            })
-                            .catch(error => console.error('Error fetching data:', error));
-                        });*/
+                        
+                        marker.on('popupopen', function() {
+                            document.getElementById(item.task_id).addEventListener('click', function(){
+                                fetch('http://localhost:3000/accept_task/' + item.task_id + '/natassa_politi', {method: 'POST'})
+                                .then(response => response.text())
+                                .then(data => {
+                                    if(data == 'success') {
+                                        alert('Request has been accepted!');
+                                        window.location.href = 'rescuer3_4.html';
+                                    }else{
+                                        alert('You cannot take more than 4 tasks!');
+                                    }
+                                })
+                                .catch(error => console.error('Error fetching data:', error));
+                            });
+                        })
                     });
                     map.addLayer(unacceptedRequestsLayer);
                 })
@@ -259,7 +261,7 @@
                             })
                         });
 
-                        unacceptedOffersLayer.addLayer(marker);
+                        marker.addTo(unacceptedOffersLayer);
                         marker.bindPopup(`
                             <div class="text-center">
                                 <b class="font-weight-bold">Offer</b>
@@ -272,9 +274,25 @@
                             <p><b>Registration Date: </b>${item.reg_date.replace('T','  ').slice(0, -4)}</p>
 
                             <div class="mt-2 mb-3 text-center">
-                                <button type="button" class="btn btn-outline-primary btn-sm" id="accept_offer_btn">Accept</button>
+                                <button type="button" class="btn btn-outline-primary btn-sm" id="${item.task_id}">Accept</button>
                             </div>
                         `);
+
+                        marker.on('popupopen', function() {
+                            document.getElementById(item.task_id).addEventListener('click', function(){
+                                fetch('http://localhost:3000/accept_task/' + item.task_id + '/natassa_politi', {method: 'POST'})
+                                .then(response => response.text())
+                                .then(data => {
+                                    if(data == 'success') {
+                                        alert('Offer has been accepted!');
+                                        window.location.href = 'rescuer3_4.html';
+                                    }else{
+                                        alert('You cannot take more than 4 tasks!');
+                                    }
+                                })
+                                .catch(error => console.error('Error fetching data:', error));
+                            });
+                        })
                     });
                     map.addLayer(unacceptedOffersLayer);
                 })
@@ -286,11 +304,135 @@
         });
 
 
+        let activeRequestsLayer = L.layerGroup(); 
+        let activeOffersLayer = L.layerGroup();
+        let linesLayer = L.layerGroup();
         document.getElementById('check3').addEventListener('change', function() {
             if(document.getElementById('check3').checked){
+                fetch('http://localhost:3000/rescuer_active_tasks/requests/natassa_politi')
+                .then(response => response.json())
+                .then(data => {
+                    data.forEach(item => {
+                        let citizen_lat = item.citizen_location.x;
+                        let citizen_lng = item.citizen_location.y;
+                        
+                        let marker = L.marker([citizen_lat, citizen_lng],{
+                            icon: L.icon({
+                                iconUrl: '../../imgs/pins/marker-icon-2x-green.png',
+                                iconSize: [25, 41],
+                                iconAnchor: [12, 41],
+                                popupAnchor: [1, -34]
+                            })
+                        });
 
+                        marker.addTo(activeRequestsLayer);
+                        marker.bindPopup(`
+                            <div class="text-center">
+                                <b class="font-weight-bold">Request</b>
+                            </div>
+                            
+                            <p><b>Name: </b>${item.first_name} ${item.last_name}</p>
+                            <p><b>Phone: </b>${item.phone_num}</p>
+                            <p><b>Product: </b>${item.product_name}</p>
+                            <p><b>Persons: </b>${item.persons_num}</p>
+                            <p><b>Registration Date: </b>${item.reg_date.replace('T','  ').slice(0, -4)}</p>
+                            <p><b>Takeover Date: </b>${item.accept_date.replace('T','  ').slice(0, -4)}</p>
+                            <p><b>Vehicle: </b>${item.vehicle}</p>
+
+                            <div class="mt-2 mb-3 text-center">
+                                <button type="button" class="btn btn-outline-danger btn-sm" id="${item.task_id}">Cancel</button>
+                            </div>
+                        `);
+
+                        marker.on('popupopen', function() {
+                            document.getElementById(item.task_id).addEventListener('click', function(){
+                                fetch('http://localhost:3000/cancel_task/' + item.task_id + '/natassa_politi', {method: 'POST'})
+                                .then(response => response.text())
+                                .then(data => {
+                                    if(data == 'success') {
+                                        alert('Task has been canceled!');
+                                        window.location.href = 'rescuer3_4.html';
+                                    }
+                                })
+                                .catch(error => console.error('Error fetching data:', error));
+                            });
+                        })
+
+                        let rescuer_lat = item.vehicle_location.x;
+                        let rescuer_lng = item.vehicle_location.y;
+
+                        let line = L.polyline([L.latLng(citizen_lat, citizen_lng), L.latLng(rescuer_lat, rescuer_lng)], {color: 'black'});
+                        line.addTo(linesLayer);
+                    });
+                })
+                .catch(error => console.error('Error fetching data:', error));
+
+
+                fetch('http://localhost:3000/rescuer_active_tasks/offers/natassa_politi')
+                .then(response => response.json())
+                .then(data => {
+                    data.forEach(item => {
+                        let citizen_lat = item.citizen_location.x;
+                        let citizen_lng = item.citizen_location.y;
+                        
+                        let marker = L.marker([citizen_lat, citizen_lng],{
+                            icon: L.icon({
+                                iconUrl: '../../imgs/pins/marker-icon-2x-green.png',
+                                iconSize: [25, 41],
+                                iconAnchor: [12, 41],
+                                popupAnchor: [1, -34]
+                            })
+                        });
+
+                        marker.addTo(activeOffersLayer);
+                        marker.bindPopup(`
+                            <div class="text-center">
+                                <b class="font-weight-bold">Offer</b>
+                            </div>
+                            
+                            <p><b>Name: </b>${item.first_name} ${item.last_name}</p>
+                            <p><b>Phone: </b>${item.phone_num}</p>
+                            <p><b>Product: </b>${item.product_name}</p>
+                            <p><b>Quantity: </b>${item.quantity}</p>
+                            <p><b>Registration Date: </b>${item.reg_date.replace('T','  ').slice(0, -4)}</p>
+                            <p><b>Takeover Date: </b>${item.accept_date.replace('T','  ').slice(0, -4)}</p>
+                            <p><b>Vehicle: </b>${item.vehicle}</p>
+
+                            <div class="mt-2 mb-3 text-center">
+                                <button type="button" class="btn btn-outline-danger btn-sm" id="${item.task_id}">Cancel</button>
+                            </div>
+                        `);
+
+                        marker.on('popupopen', function() {
+                            document.getElementById(item.task_id).addEventListener('click', function(){
+                                fetch('http://localhost:3000/cancel_task/' + item.task_id + '/natassa_politi', {method: 'POST'})
+                                .then(response => response.text())
+                                .then(data => {
+                                    if(data == 'success') {
+                                        alert('Task has been canceled!');
+                                        window.location.href = 'rescuer3_4.html';
+                                    }
+                                })
+                                .catch(error => console.error('Error fetching data:', error));
+                            });
+                        })
+
+                        let rescuer_lat = item.vehicle_location.x;
+                        let rescuer_lng = item.vehicle_location.y;
+
+                        let line = L.polyline([L.latLng(citizen_lat, citizen_lng), L.latLng(rescuer_lat, rescuer_lng)], {color: 'black'});
+                        line.addTo(linesLayer);
+                    });
+                })
+                .catch(error => console.error('Error fetching data:', error));
+
+                map.addLayer(activeRequestsLayer);
+                map.addLayer(activeOffersLayer);
+                map.addLayer(linesLayer);
             }else{
-                
+                activeRequestsLayer.clearLayers();
+                activeOffersLayer.clearLayers();
+                linesLayer.clearLayers();
             }
 
         })
