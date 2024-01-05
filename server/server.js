@@ -650,6 +650,58 @@ app.post('/new_request/:product/:persons/:citizen', async (req, res) => {
     res.send('success');
 });
 
+app.post('/complete_task/request/:task/:quantity/:rescuer', async (req, res) => {
+    let rescuer = req.params.rescuer;
+    let task = req.params.task;
+    let quantity = req.params.quantity;
+
+    await pool.query(`
+        CALL rescuerUnloadCargoToCitizen(?, ?, ?)
+    `, [rescuer, quantity, task]);
+
+    res.send('success');
+});
+
+app.post('/complete_task/offer/:task/:rescuer', async (req, res) => {
+    let rescuer = req.params.rescuer;
+    let task = req.params.task;
+
+    await pool.query(`
+        CALL rescuerLoadCargoFromCitizen(?, ?)
+    `, [rescuer, task]);
+
+    res.send('success');
+});
+
+app.get('/citizen_active_tasks/requests/:citizen', async (req, res) => {
+    let citizen = req.params.citizen;
+
+    let [result] = await pool.query(`
+        SELECT *
+        FROM \`citizen\`
+            JOIN \`request\` ON \`citizen\`.\`citizen_username\` = \`request\`.\`request_user\`
+            JOIN \`product\` ON \`request\`.\`product_id\` = \`product\`.\`id\`
+            JOIN \`task\` ON \`request\`.\`request_id\` = \`task\`.\`task_id\`
+            JOIN \`rescuer\` ON \`task\`.\`rescuer_took_over\` = \`rescuer\`.\`rescuer_username\`
+            JOIN \`user\` ON \`rescuer\`.\`rescuer_username\` = \`user\`.\`username\`
+        WHERE \`citizen\`.\`citizen_username\` = ? AND \`task\`.\`completed\` = 'NO'
+    `, [citizen]);
+
+    res.json(result);
+});
+
+app.get('/citizen_location/:citizen', async (req, res) => {
+    let citizen = req.params.citizen;
+
+    let [result] = await pool.query(`
+        SELECT *
+        FROM \`citizen\`
+        WHERE \`citizen_username\` = ?
+    `, [citizen]);
+
+    res.json(result[0]);
+});
+
 app.listen(port, () => {
     console.log(`Server is running on port ${port}`);
 });

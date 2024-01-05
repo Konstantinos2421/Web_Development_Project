@@ -4,7 +4,7 @@
         <meta charset="UTF-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Map</title>
+        <title>Requests Management</title>
         <link rel="stylesheet" href="../../bootstrap-5.3.2-dist/css/bootstrap.css">
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
         <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
@@ -60,15 +60,15 @@
         <div class="container">
             <ul class="nav flex-column text-center nav-pills justify-content-center mt-4" role="tablist">
                 <li class="nav-item">
-                <a class="nav-link active" data-bs-toggle="pill" href="#new_request">New Request</a>
+                    <a class="nav-link active" data-bs-toggle="pill" href="#new_request">New Request</a>
                 </li>
         
                 <li class="nav-item">
-                <a class="nav-link" data-bs-toggle="pill" href="#active_requests">Active Requests</a>
+                    <a class="nav-link" data-bs-toggle="pill" href="#active_requests">Active Requests</a>
                 </li>
         
                 <li class="nav-item">
-                <a class="nav-link" data-bs-toggle="pill" href="#completed_requests">Completed Requests</a>
+                    <a class="nav-link" data-bs-toggle="pill" href="#completed_requests">Completed Requests</a>
                 </li>
             </ul>
         </div>
@@ -126,10 +126,73 @@
     </body>
 
     <script>
-        fetch('http://localhost:3000/categories')
+        fetch('http://localhost:3000/citizen_completed_tasks/requests/marios_raftopoulos')
+        .then(response => response.json())
+        .then(data => {
+
+            data.forEach(item => {
+                let container = document.createElement('div');
+                container.className = 'container mt-4';
+
+                let card = document.createElement('div');
+                card.className = 'card';
+
+                let header = document.createElement('div');
+                header.className = 'card-header';
+                header.textContent = 'Task ID: ' + item.task_id;
+
+                let body = document.createElement('div');
+                body.className = 'card-body';
+                body.innerHTML = `
+                    <p><b>Product: </b>${item.product_name}</p>
+                    <p><b>Quantity: </b>${item.persons_num}</p>
+                    <p><b>Rescuer: </b>${item.username}</p>
+                    <p><b>Registration Date: </b>${item.reg_date.replace('T','  ').slice(0, -5)}</p>
+                    <p><b>Accept Date: </b>${item.accept_date.replace('T','  ').slice(0, -5)}</p>
+                    <p><b>Complete Date: </b>${item.complete_date.replace('T','  ').slice(0, -5)}</p>
+                `;
+
+                card.appendChild(header);
+                card.appendChild(body);
+                container.appendChild(card);
+                document.getElementById('completed_requests').appendChild(container);
+            })
+
+        })
+        .catch(error => console.error('Error fetching data:', error));
+
+
+        fetch('http://localhost:3000/citizen_active_tasks/requests/marios_raftopoulos')
         .then(response => response.json())
         .then(data => {
             
+            data.forEach(item => {
+                let container = document.createElement('div');
+                container.className = 'container mt-4';
+
+                let card = document.createElement('div');
+                card.className = 'card';
+
+                let header = document.createElement('div');
+                header.className = 'card-header';
+                header.textContent = 'Task ID: ' + item.task_id;
+
+                let body = document.createElement('div');
+                body.className = 'card-body';
+                body.innerHTML = `
+                    <p><b>Product: </b>${item.product_name}</p>
+                    <p><b>Quantity: </b>${item.persons_num}</p>
+                    <p><b>Rescuer: </b>${item.username}</p>
+                    <p><b>Registration Date: </b>${item.reg_date.replace('T','  ').slice(0, -5)}</p>
+                    <p><b>Accept Date: </b>${item.accept_date.replace('T','  ').slice(0, -5)}</p>
+                    <p><b>Complete Date: </b>${item.complete_date.replace('T','  ').slice(0, -5)}</p>
+                `;
+
+                card.appendChild(header);
+                card.appendChild(body);
+                container.appendChild(card);
+                document.getElementById('completed_requests').appendChild(container);
+            })
 
         })
         .catch(error => console.error('Error fetching data:', error));
@@ -162,14 +225,6 @@
                 });
             }
         });
-
-
-        fetch('http://localhost:3000/citizen_completed_tasks/requests/marios_raftopoulos')
-        .then(response => response.json())
-        .then(data => {
-            
-        })
-        .catch(error => console.error('Error fetching data:', error));
 
     </script>
 
