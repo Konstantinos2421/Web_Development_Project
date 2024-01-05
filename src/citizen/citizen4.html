@@ -54,7 +54,7 @@
 
     <ul class="nav nav-pills justify-content-center" role="tablist">
         <li class="nav-item">
-            <a class="nav-link active" data-bs-toggle="pill" href="#announcments">Announcments</a>
+            <a class="nav-link active" data-bs-toggle="pill" href="#announcements">Announcements</a>
         </li>
 
         <li class="nav-item">
@@ -66,11 +66,47 @@
         </li>
     </ul>
 
+    <div class="tab-content">
+        <div class="tab-pane container active mt-4" id="announcements">
+            <div class="card" id="announcements_list">
+
+            <div>
+        </div>
+        
+        <div class="tab-pane container fade mt-4" id="past_offers">
+            <ul class="list-group" id="past_offers_list">
+
+            </ul>
+        </div>
+
+        <div class="tab-pane container fade mt-4" id="current_offers">
+            <ul class="list-group" id="current_offers_list">
+
+            </ul>
+        </div>
+    </div>
+
     
 
   </body>
 
   <script>
+    function Announcments() {
+        let user = sessionStorage.getItem('username');
+
+        fetch('http://localhost:3000/citizen/announcments')
+        .then(response => response.json())
+        .then(data => {
+            let dataContainer = document.getElementById('announcement_list');
+
+            data.forEach(item => {
+                const cardItem = document.createElement('div');
+                cardItem.className = 'card-body';
+                cardItem.id = item.announcement_id;
+                cardItem.textContent = item.product_id+ ' '+ item.product_name;
+            })
+        })
+    }
 
   </script>
 
