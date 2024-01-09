@@ -126,6 +126,18 @@
                         </div>
                     `;
 
+                    document.getElementById('offer_btn_' + item.id).addEventListener('click', function(){
+                        let quantity = document.getElementById('spinner_' + item.id).value;
+                        fetch('http://localhost:3000/new_offer/' + item.id + '/' + quantity + '/panagiota_milona', {method: 'POST'})
+                        .then(response => response.text())
+                        .then(data => {
+                            if(data == 'success'){
+                                alert('Offer submitted successfully!');
+                            }
+                        })
+                        .catch(error => console.error('Error fetching data:', error));
+                    });
+
                     modal_dialog.appendChild(modal_content);
                     modal.appendChild(modal_dialog);
                     document.getElementById('announcements_list').appendChild(modal);
@@ -146,20 +158,9 @@
                     body.innerHTML = `
                         <div class="container d-flex justify-content-between">
                             <p><b>Product: </b>${item.product_name}</p>
-                            <button type="button" class="btn btn-primary" id="butt_${item.id}" data-bs-toggle="modal" data-bs-target="#modal_${item.id}">Offer</button>
+                            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modal_${item.id}">Offer</button>
                         </div>
                     `;
-
-
-                    document.getElementById('offer_btn_' + item.id).addEventListener('click', function(){
-                        fetch('http://localhost:3000/new_offer/:product/:quantity/:citizen')
-                        .then(response => response.text())
-                        .then(data => {
-
-                        })
-                        .catch(error => console.error('Error fetching data:', error));
-                    });
-                    
                     
                     cardItem.appendChild(header);
                     cardItem.appendChild(body);

@@ -431,7 +431,7 @@ BEGIN
     
     SELECT LAST_INSERT_ID() INTO new_id;
     
-    INSERT INTO `request` VALUES
+    INSERT INTO `offer` VALUES
     (new_id, citizen, product, quant);
 
 END $$
