@@ -91,10 +91,10 @@
   </body>
 
   <script>
-    function Announcments() {
+    function Announcements() {
         let user = sessionStorage.getItem('username');
 
-        fetch('http://localhost:3000/citizen/announcments')
+        fetch('http://localhost:3000/citizen/announcements')
         .then(response => response.json())
         .then(data => {
             let dataContainer = document.getElementById('announcement_list');
@@ -104,9 +104,21 @@
                 cardItem.className = 'card-body';
                 cardItem.id = item.announcement_id;
                 cardItem.textContent = item.product_id+ ' '+ item.product_name;
-            })
+
+                const button = document.createElement('button');
+                button.textContent = 'Offer';  
+                button.className = 'btn btn-primary';
+                button.id= 'add_offer';  
+
+                
+                cardItem.appendChild(button);
+                dataContainer.appendChild(cardItem);
+            });
         })
+        .catch(error => console.error('Error fetching data:', error));
     }
+
+    Announcements();
 
   </script>
 
