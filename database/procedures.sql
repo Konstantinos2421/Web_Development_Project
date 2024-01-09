@@ -418,3 +418,21 @@ BEGIN
 
 END $$
 DELIMITER ;
+
+
+DROP PROCEDURE IF EXISTS newOffer;
+DELIMITER $$
+CREATE PROCEDURE newOffer(citizen VARCHAR(30), product INT, quant INT)
+BEGIN
+	DECLARE new_id INT;
+	
+	INSERT INTO `task` VALUES
+    (NULL, NULL, 'NO', 'NO', current_timestamp(), NULL, NULL);
+    
+    SELECT LAST_INSERT_ID() INTO new_id;
+    
+    INSERT INTO `request` VALUES
+    (new_id, citizen, product, quant);
+
+END $$
+DELIMITER ;
