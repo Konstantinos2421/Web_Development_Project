@@ -124,7 +124,42 @@
                         </div>
                     `;
 
-                    <div class="modal" id="modal">
+                    let modal = document.createElement('div');
+                    modal.className = 'modal';
+                    modal.id = 'modal_' + item.id;
+
+                    let modal_dialog = document.createElement('div');
+                    modal_dialog.className = 'modal-dialog';
+
+                    let modal_content = document.createElement('div');
+                    modal_content.className = 'modal-content';
+
+                    let modal_header = document.createElement('div');
+                    modal_header.className = 'modal-header';
+                    modal_header.innerHTML = `
+                        <h4 class="modal-title">Product quantity</h4>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    `;
+
+                    let modal_body = document.createElement('div');
+                    modal_body.className = 'modal-body';
+                    modal_body.innerHTML = `
+                        <input type="number" class="form-control">
+                    `;
+
+                    let modal_footer = document.createElement('div');
+                    modal_footer.className = 'modal-footer';
+                    modal_footer.innerHTML = `
+                        <button type="button" class="btn btn-primary" data-bs-dismiss="modal" id="offer_btn">Offer</button>
+                    `;
+
+                    modal_content.appendChild(modal_header);
+                    modal_content.appendChild(modal_body);
+                    modal_content.appendChild(modal_footer);
+                    modal_dialog.appendChild(modal_content);
+                    modal.appendChild(modal_dialog);
+
+                    /*<div class="modal" id="modal">
                         <div class="modal-dialog">
                             <div class="modal-content">
                        
@@ -143,21 +178,16 @@
                 
                             </div>
                         </div>
-                    </div>
+                    </div>*/
 
-                    document.getElementById('butt_' + item.id).addEventListener('click', function(){
-                        document.getElementById('offer_btn').addEventListener('click', function(){
-                            let product = item.id;
-                            
+                    /*document.getElementById('offer_btn').addEventListener('click', function(){
+                        fetch('http://localhost:3000/new_offer/:product/:quantity/:citizen')
+                        .then(response => response.text())
+                        .then(data => {
 
-                            fetch('http://localhost:3000/new_offer/:product/:quantity/:citizen')
-                            .then(response => response.text())
-                            .then(data => {
-
-                            })
-                            .catch(error => console.error('Error fetching data:', error));
-                        });
-                    });
+                        })
+                        .catch(error => console.error('Error fetching data:', error));
+                    });*/
                     
                     
                     cardItem.appendChild(header);
