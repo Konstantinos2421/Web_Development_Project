@@ -68,7 +68,30 @@
 
     <div class="tab-content">
         <div class="tab-pane container active mt-4" id="announcements">
-            <div class="card" id="announcements_list">
+
+            <div class="modal" id="modal">
+                <div class="modal-dialog">
+                  <div class="modal-content">
+              
+                    
+                    <div class="modal-header">
+                      <h4 class="modal-title">Product quantity</h4>
+                      <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+              
+                    <div class="modal-body">
+                      <input type="number" class="form-control">
+                    </div>
+              
+                    <div class="modal-footer">
+                      <button type="button" class="btn btn-primary" data-bs-dismiss="modal" id="offer_btn">Offer</button>
+                    </div>
+              
+                  </div>
+                </div>
+            </div>
+
+            <div class="container" id="announcements_list">
 
             <div>
         </div>
@@ -91,28 +114,60 @@
   </body>
 
   <script>
+
+
     function Announcements() {
         let user = sessionStorage.getItem('username');
 
         fetch('http://localhost:3000/citizen/announcements')
         .then(response => response.json())
         .then(data => {
-            let dataContainer = document.getElementById('announcement_list');
+            let dataContainer = document.getElementById('announcements_list');
 
             data.forEach(item => {
-                const cardItem = document.createElement('div');
-                cardItem.className = 'card-body';
-                cardItem.id = item.announcement_id;
-                cardItem.textContent = item.product_id+ ' '+ item.product_name;
+                if (!document.getElementById(item.announcement_id)){
+                    let container = document.createElement('div');
+                    container.className = 'container mt-4';
 
-                const button = document.createElement('button');
-                button.textContent = 'Offer';  
-                button.className = 'btn btn-primary';
-                button.id= 'add_offer';  
+                    let cardItem = document.createElement('div');
+                    cardItem.className = 'card';
+                    cardItem.id = 'ann_' + item.announcement_id;
+                    
+                    let header = document.createElement('div');
+                    header.className = 'card-header';
+                    header.textContent = 'Announcement ID: ' + item.announcement_id;
 
-                
-                cardItem.appendChild(button);
-                dataContainer.appendChild(cardItem);
+                    let body = document.createElement('div');
+                    body.className = 'card-body';
+                    body.innerHTML = `
+                        <div class="container d-flex justify-content-between">
+                            <p><b>Product: </b>${item.product_name}</p>
+                            <button type="button" class="btn btn-primary" id="butt_${item.id}" data-bs-toggle="modal" data-bs-target="#modal">Offer</button>
+                        </div>
+                    `;
+
+                    document.getElementById('butt_' + item.id).addEventListener('click', function(){
+                        document.getElementById('offer_btn').addEventListener('click', function(){
+                            let product = item.id;
+                            
+
+                            fetch('http://localhost:3000/new_offer/:product/:quantity/:citizen')
+                            .then(response => response.text())
+                            .then(data => {
+
+                            })
+                            .catch(error => console.error('Error fetching data:', error));
+                        });
+                    });
+                    
+                    
+                    cardItem.appendChild(header);
+                    cardItem.appendChild(body);
+                    container.appendChild(cardItem);
+                    dataContainer.appendChild(container);
+                }else{
+
+                }
             });
         })
         .catch(error => console.error('Error fetching data:', error));

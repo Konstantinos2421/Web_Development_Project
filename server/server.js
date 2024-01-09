@@ -446,8 +446,8 @@ app.get('/citizen/announcements', async (req, res) => {
     const [result] = await pool.query(`
         SELECT *
         FROM \`announcement\`
-            JOIN \`product\` ON \`announcment\`.\`product_id\` = \`product\`.\`id\`
-        ORDER BY \`announcment\`.\`announcment_id\`
+            JOIN \`product\` ON \`announcement\`.\`product_id\` = \`product\`.\`id\`
+        ORDER BY \`announcement\`.\`announcement_id\`
     `);
 
     res.json(result);
@@ -790,6 +790,18 @@ app.get('/base_products/:base/:category', async (req, res) => {
 
     res.json(result);
 
+});
+
+app.post('/new_offer/:product/:quantity/:citizen', async (req, res) => {
+    let citizen = req.params.citizen;
+    let product = req.params.product;
+    let quantity = req.params.quantity;
+
+    await pool.query(`
+        CALL newOffer(?, ?, ?)
+    `, [citizen, product, quantity]);
+
+    res.send('success');
 });
 
 app.listen(port, () => {
