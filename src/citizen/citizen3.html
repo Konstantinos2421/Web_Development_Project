@@ -84,17 +84,17 @@
                         <form class="p-3">
                             <div class="mb-3 mt-3">
                                 <label for="category" class="form-label">Category:</label>
-                                <input class="form-control" list="categories" name="category" id="categories_select_menu">
-                                <datalist id="categories">
-                                    <option>Select Category<option>
-                                </datalist> 
+                                <select class="form-select" id="categories_select_menu">
+                                    <option>Select Category</option>
+                                </select>
                             </div>
 
                             <div class="mb-4 mt-4">
                                 <label for="product" class="form-label">Product:</label>
-                                <select class="form-select" id="product_select_menu">
-                                    <option id="-2">Choose Product</option>
-                                </select>
+                                <input class="form-control" list="products" name="category" id="products_select_menu" placeholder="Select Product" autocomplete="off">
+                                <datalist id="products">
+    
+                                </datalist> 
                             </div>
 
                             <div class="mb-4 mt-4">
@@ -126,73 +126,169 @@
     </body>
 
     <script>
-        fetch('http://localhost:3000/citizen_completed_tasks/requests/marios_raftopoulos')
+        let minDistanceBase;
+
+        fetch('http://localhost:3000/citizen_info/marios_raftopoulos')
         .then(response => response.json())
-        .then(data => {
+        .then(async data1 => {
+            let citizen_lat = data1.citizen_location.x;
+            let citizen_lng = data1.citizen_location.y;
 
-            data.forEach(item => {
-                let container = document.createElement('div');
-                container.className = 'container mt-4';
+            let bases = [];
+            bases.push({base_name: '', distance: Infinity});
 
-                let card = document.createElement('div');
-                card.className = 'card';
+            await fetch('http://localhost:3000/bases_info')
+            .then(response => response.json())
+            .then(data2 => {
+                data2.forEach(item => {
+                    let base_lat = item.base_location.x;
+                    let base_lng = item.base_location.y;
 
-                let header = document.createElement('div');
-                header.className = 'card-header';
-                header.textContent = 'Task ID: ' + item.task_id;
-
-                let body = document.createElement('div');
-                body.className = 'card-body';
-                body.innerHTML = `
-                    <p><b>Product: </b>${item.product_name}</p>
-                    <p><b>Quantity: </b>${item.persons_num}</p>
-                    <p><b>Rescuer: </b>${item.username}</p>
-                    <p><b>Registration Date: </b>${item.reg_date.replace('T','  ').slice(0, -5)}</p>
-                    <p><b>Accept Date: </b>${item.accept_date.replace('T','  ').slice(0, -5)}</p>
-                    <p><b>Complete Date: </b>${item.complete_date.replace('T','  ').slice(0, -5)}</p>
-                `;
-
-                card.appendChild(header);
-                card.appendChild(body);
-                container.appendChild(card);
-                document.getElementById('completed_requests').appendChild(container);
+                    let distance = L.latLng(citizen_lat, citizen_lng).distanceTo(L.latLng(base_lat, base_lng));
+                    bases.push({
+                        base_name: item.base_name, 
+                        distance: distance
+                    });
+                })
             })
+            .catch(error => console.error('Error fetching data:', error));
 
+            minDistanceBase = bases.reduce((min, current) => 
+                current['distance'] < min['distance'] ? current : min
+            );
+
+            fetch('http://localhost:3000/base_categories/' + minDistanceBase.base_name)
+            .then(response => response.json())
+            .then(data => {
+                data.forEach(item => {
+                    let option = document.createElement('option');
+                    option.textContent = item.category_name;
+                    option.id = item.category_id;
+                    document.getElementById('categories_select_menu').appendChild(option);
+                })
+            })
+            .catch(error => console.error('Error fetching data:', error));
+
+            fetch('http://localhost:3000/base_products/' + minDistanceBase.base_name)
+            .then(response => response.json())
+            .then(data => {
+                data.forEach(item => {
+                    let option = document.createElement('option');
+                    option.textContent = item.product_name;
+                    option.id = item.id;
+                    document.getElementById('products').appendChild(option);
+                })
+            })
+            .catch(error => console.error('Error fetching data:', error));
         })
         .catch(error => console.error('Error fetching data:', error));
-
+        
 
         fetch('http://localhost:3000/citizen_active_tasks/requests/marios_raftopoulos')
         .then(response => response.json())
         .then(data => {
             
-            data.forEach(item => {
-                let container = document.createElement('div');
-                container.className = 'container mt-4';
+            if(Object.keys(data).length > 0){
+                data.forEach(item => {
+                    let container = document.createElement('div');
+                    container.className = 'container mt-4';
 
-                let card = document.createElement('div');
-                card.className = 'card';
+                    let card = document.createElement('div');
+                    card.className = 'card';
 
-                let header = document.createElement('div');
-                header.className = 'card-header';
-                header.textContent = 'Task ID: ' + item.task_id;
+                    let header = document.createElement('div');
+                    header.className = 'card-header';
+                    header.textContent = 'Task ID: ' + item.task_id;
 
-                let body = document.createElement('div');
-                body.className = 'card-body';
-                body.innerHTML = `
-                    <p><b>Product: </b>${item.product_name}</p>
-                    <p><b>Quantity: </b>${item.persons_num}</p>
-                    <p><b>Rescuer: </b>${item.username}</p>
-                    <p><b>Registration Date: </b>${item.reg_date.replace('T','  ').slice(0, -5)}</p>
-                    <p><b>Accept Date: </b>${item.accept_date.replace('T','  ').slice(0, -5)}</p>
-                    <p><b>Complete Date: </b>${item.complete_date.replace('T','  ').slice(0, -5)}</p>
-                `;
+                    let body = document.createElement('div');
+                    body.className = 'card-body';
+                    body.innerHTML = `
+                        <p><b>Product: </b>${item.product_name}</p>
+                        <p><b>Quantity: </b>${item.persons_num}</p>
+                        <p><b>Rescuer: </b>${item.username}</p>
+                        <p><b>Registration Date: </b>${item.reg_date.replace('T','  ').slice(0, -5)}</p>
+                        <p><b>Accept Date: </b>${item.accept_date.replace('T','  ').slice(0, -5)}</p>
 
-                card.appendChild(header);
-                card.appendChild(body);
-                container.appendChild(card);
-                document.getElementById('completed_requests').appendChild(container);
-            })
+                        <div class="mb-1 mt-3 text-center">
+                            <button type="button" class="btn btn-outline-danger mt-3" id="${item.task_id}">Cancel Request</button>
+                        </div>
+                    `;
+
+                    card.appendChild(header);
+                    card.appendChild(body);
+                    container.appendChild(card);
+                    document.getElementById('active_requests').appendChild(container);
+
+                    document.getElementById(item.task_id).addEventListener('click', function() {  
+                        fetch('http://localhost:3000/cancel_request/' + item.task_id + '/' + 'marios_raftopoulos', { method: 'POST' })
+                        .then(response => response.text())
+                        .then(data => {
+                            if (data.status == "success"){
+                                alert("Request canceled successfully");
+                            }
+                        })
+                        .catch(error => console.error('Error fetching data:', error));
+                    });
+                })
+            }else{
+                let listGroup = document.createElement('ul');
+                listGroup.className = 'list-group';
+
+                let listItem = document.createElement('li');
+                listItem.className = 'list-group-item d-flex justify-content-center align-items-center';
+                listItem.textContent = 'No active requests';
+
+                listGroup.appendChild(listItem);
+                document.getElementById('active_requests').appendChild(listGroup);
+            }
+
+        })
+        .catch(error => console.error('Error fetching data:', error));
+
+
+        fetch('http://localhost:3000/citizen_completed_tasks/requests/marios_raftopoulos')
+        .then(response => response.json())
+        .then(data => {
+
+            if(Object.keys(data).length > 0){
+                data.forEach(item => {
+                    let container = document.createElement('div');
+                    container.className = 'container mt-4';
+
+                    let card = document.createElement('div');
+                    card.className = 'card';
+
+                    let header = document.createElement('div');
+                    header.className = 'card-header';
+                    header.textContent = 'Task ID: ' + item.task_id;
+
+                    let body = document.createElement('div');
+                    body.className = 'card-body';
+                    body.innerHTML = `
+                        <p><b>Product: </b>${item.product_name}</p>
+                        <p><b>Quantity: </b>${item.persons_num}</p>
+                        <p><b>Rescuer: </b>${item.username}</p>
+                        <p><b>Registration Date: </b>${item.reg_date.replace('T','  ').slice(0, -5)}</p>
+                        <p><b>Accept Date: </b>${item.accept_date.replace('T','  ').slice(0, -5)}</p>
+                        <p><b>Complete Date: </b>${item.complete_date.replace('T','  ').slice(0, -5)}</p>
+                    `;
+
+                    card.appendChild(header);
+                    card.appendChild(body);
+                    container.appendChild(card);
+                    document.getElementById('completed_requests').appendChild(container);
+                })
+            }else{
+                let listGroup = document.createElement('ul');
+                listGroup.className = 'list-group';
+
+                let listItem = document.createElement('li');
+                listItem.className = 'list-group-item d-flex justify-content-center align-items-center';
+                listItem.textContent = 'No completed requests';
+
+                listGroup.appendChild(listItem);
+                document.getElementById('completed_requests').appendChild(listGroup);
+            }
 
         })
         .catch(error => console.error('Error fetching data:', error));
@@ -205,15 +301,50 @@
         });
 
 
+        document.getElementById('categories_select_menu').addEventListener('change', function(){
+            let selectedOption = document.getElementById('categories_select_menu').options[document.getElementById('categories_select_menu').selectedIndex];
+
+            if(this.value == 'Select Category'){
+                fetch('http://localhost:3000/base_products/' + minDistanceBase.base_name)
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('products').innerHTML = '';
+                    data.forEach(item => {
+                        let option = document.createElement('option');
+                        option.textContent = item.product_name;
+                        option.id = item.id;
+                        document.getElementById('products').appendChild(option);
+                    })
+                })
+                .catch(error => console.error('Error fetching data:', error));
+            }else{
+                fetch('http://localhost:3000/base_products/' + minDistanceBase.base_name + '/' + selectedOption.id)
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('products').innerHTML = '';
+                    data.forEach(item => {
+                        let option = document.createElement('option');
+                        option.textContent = item.product_name;
+                        option.id = item.id;
+                        document.getElementById('products').appendChild(option);
+                    })
+                })
+                .catch(error => console.error('Error fetching data:', error));
+            }
+        });
+
+
         document.getElementById('add_request_btn').addEventListener('click', function() {  
-            let product = document.getElementById('product_select_menu').value;
+            let product = document.getElementById('products_select_menu').value;
+            let product_id = document.getElementById('products').options[document.getElementById('products').selectedIndex];
             let persons = document.getElementById('spinner').value;
 
-            if (product == -2 || persons_number == 0){
+            console.log(product_id);
+            /*if (product == undefined || persons == 0){
                 alert('Product or persons number is not valid!');
             }
             else{
-                fetch('http://localhost:3000//new_request/' + product + '/' + persons + '/marios_raftopoulos', { method: 'POST' })
+                fetch('http://localhost:3000/new_request/' + product_id + '/' + persons + '/marios_raftopoulos', { method: 'POST' })
                 .then(response => response.test())
                 .then(data => {
                     if (data.status == "success"){
@@ -223,7 +354,7 @@
                 .catch((error) => {
                     console.error('Error:', error);
                 });
-            }
+            }*/
         });
 
     </script>

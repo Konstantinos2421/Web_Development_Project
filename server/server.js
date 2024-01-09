@@ -5,7 +5,7 @@ import session from 'express-session';
 import bodyParser from 'body-parser';
 
 const app = express();
-const port = 3001;
+const port = 3000;
 
 app.use(bodyParser.json());
 app.use(express.static('server'));
@@ -700,6 +700,96 @@ app.get('/citizen_location/:citizen', async (req, res) => {
     `, [citizen]);
 
     res.json(result[0]);
+});
+
+app.post('/cancel_request/:request/:citizen', async (req, res) => {
+    let citizen = req.params.citizen;
+    let request = req.params.request;
+
+    await pool.query(`
+        CALL citizenCancelRequest(?, ?)
+    `, [citizen, request]);
+
+    res.send('success');
+});
+
+app.post('/cancel_offer/:offer/:citizen', async (req, res) => {
+    let citizen = req.params.citizen;
+    let offer = req.params.offer;
+
+    await pool.query(`
+        CALL citizenCancelOffer(?, ?)
+    `, [citizen, offer]);
+
+    res.send('success');
+});
+
+app.get('/bases_info', async (req, res) => {
+    let [result] = await pool.query(`
+        SELECT *
+        FROM \`base\`
+    `);
+
+    res.json(result);
+});
+
+app.get('/citizen_info/:citizen', async (req, res) => {
+    let citizen = req.params.citizen;
+
+    let [result] = await pool.query(`
+        SELECT *
+        FROM \`citizen\`
+            JOIN \`user\` ON \`citizen\`.\`citizen_username\` = \`user\`.\`username\`
+        WHERE \`citizen_username\` = ?
+    `, [citizen]);
+
+    res.json(result[0]);
+});
+
+app.get('/base_categories/:base', async (req, res) => {
+    let base = req.params.base;
+
+    let [result] = await pool.query(`
+        SELECT *
+        FROM \`has_category\`
+            JOIN \`category\` ON \`has_category\`.\`category\` = \`category\`.\`category_id\`
+        WHERE \`has_category\`.\`base\` = ?
+        ORDER BY \`category\`.\`category_name\`
+    `, [base]);
+
+    res.json(result);
+});
+
+app.get('/base_products/:base', async (req, res) => {
+    let base = req.params.base;
+
+    let [result] = await pool.query(`
+        SELECT *
+        FROM \`has_category\`
+            JOIN \`category\` ON \`has_category\`.\`category\` = \`category\`.\`category_id\`
+            JOIN \`product\` ON \`category\`.\`category_id\` = \`product\`.\`category\`
+        WHERE \`has_category\`.\`base\` = ?
+        ORDER BY \`product\`.\`product_name\`
+    `, [base]);
+
+    res.json(result);
+});
+
+app.get('/base_products/:base/:category', async (req, res) => {
+    let base = req.params.base;
+    let category = req.params.category;
+
+    let [result] = await pool.query(`
+        SELECT *
+        FROM \`has_category\`
+            JOIN \`category\` ON \`has_category\`.\`category\` = \`category\`.\`category_id\`
+            JOIN \`product\` ON \`category\`.\`category_id\` = \`product\`.\`category\` 
+        WHERE \`has_category\`.\`base\` = ? AND \`product\`.\`category\` = ?
+        ORDER BY \`product\`.\`product_name\`
+    `, [base, category]);
+
+    res.json(result);
+
 });
 
 app.listen(port, () => {

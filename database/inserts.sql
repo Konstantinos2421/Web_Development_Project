@@ -77,7 +77,7 @@ INSERT INTO `base_inventory` VALUES
 
 INSERT INTO `task` VALUES
 (NULL, NULL, 'NO', 'NO', current_timestamp(), NULL, NULL),
-(NULL, 'natassa_politi', 'YES', 'NO', current_timestamp(), current_timestamp(), NULL),
+(NULL, NULL, 'NO', 'NO', current_timestamp(), NULL, NULL),
 (NULL, NULL, 'NO', 'NO', current_timestamp(), NULL, NULL),
 (NULL, 'foivos_rigopoulos', 'YES', 'NO', current_timestamp(), current_timestamp(), NULL),
 (NULL, NULL, 'NO', 'NO', current_timestamp(), NULL, NULL),

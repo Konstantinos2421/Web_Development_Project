@@ -267,6 +267,21 @@ END $$
 DELIMITER ;
 
 
+DROP PROCEDURE IF EXISTS citizenCancelRequest;
+DELIMITER $$
+CREATE PROCEDURE citizenCancelRequest(cit VARCHAR(30), task_id INT)
+BEGIN
+
+DELETE FROM `request`
+WHERE `request`.`request_id`=task_id;
+
+DELETE FROM `task`
+WHERE `task`.`task_id`=task_id;
+
+END $$
+DELIMITER ;
+
+
 DROP PROCEDURE IF EXISTS citizenCancelOffer;
 DELIMITER $$
 CREATE PROCEDURE citizenCancelOffer(cit VARCHAR(30), task_id INT)
