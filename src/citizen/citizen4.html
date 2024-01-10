@@ -104,7 +104,83 @@
 
             if(Object.keys(data).length > 0){
                 data.forEach(item => {
-                    if (!document.getElementById(item.announcement_id)){
+                    if (!document.getElementById('ann_' + item.announcement_id)){
+                        let modal = document.createElement('div');
+                        modal.className = 'modal';
+                        modal.id = 'modal_' + item.id;
+
+                        let modal_dialog = document.createElement('div');
+                        modal_dialog.className = 'modal-dialog';
+
+                        let modal_content = document.createElement('div');
+                        modal_content.className = 'modal-content';
+                        modal_content.innerHTML = `
+                            <div class="modal-header">
+                                <h4 class="modal-title">Product Quantity</h4>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                            </div>
+                    
+                            <div class="modal-body">
+                                <input type="number" value="1" min="1" class="form-control" id="spinner_${item.id}">
+                            </div>
+                    
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-primary" data-bs-dismiss="modal" id="offer_btn_${item.id}">Offer</button>
+                            </div>
+                        `;
+
+                        modal_dialog.appendChild(modal_content);
+                        modal.appendChild(modal_dialog);
+                        document.getElementById('announcements').appendChild(modal);
+
+                        let container = document.createElement('div');
+                        container.className = 'container mt-4';
+
+                        let cardItem = document.createElement('div');
+                        cardItem.className = 'card';
+                        cardItem.id = 'ann_' + item.announcement_id;
+                        
+                        let header = document.createElement('div');
+                        header.className = 'card-header';
+                        header.textContent = 'Announcement ID: ' + item.announcement_id;
+
+                        let body = document.createElement('div');
+                        body.className = 'card-body';
+                        body.id = 'body_' + item.announcement_id;
+                        body.innerHTML = `
+                            <div class="container d-flex justify-content-between align-items-center">
+                                <p class="mb-0"><b>Product: </b>${item.product_name}</p>
+                                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modal_${item.id}">Offer</button>
+                            </div>
+                        `;
+
+
+                        document.getElementById('spinner_' + item.id).addEventListener('input', function(){
+                            if (parseInt( document.getElementById('spinner_' + item.id).value) < 1){
+                                document.getElementById('spinner_' + item.id).value = 1;
+                            }
+                        });
+
+
+                        document.getElementById('offer_btn_' + item.id).addEventListener('click', function(){
+                            let quantity = document.getElementById('spinner_' + item.id).value;
+                            fetch('http://localhost:3000/new_offer/' + item.id + '/' + quantity + '/alexandros_apostolou', {method: 'POST'})
+                            .then(response => response.text())
+                            .then(data => {
+                                if(data == 'success'){
+                                    alert('Offer submitted successfully!');
+                                    document.getElementById('unaccepted_offers').innerHTML = ''
+                                    unacceptedOffers();
+                                }
+                            })
+                            .catch(error => console.error('Error fetching data:', error));
+                        });
+                        
+                        cardItem.appendChild(header);
+                        cardItem.appendChild(body);
+                        container.appendChild(cardItem);
+                        dataContainer.appendChild(container);
+                    }else{
                         let modal = document.createElement('div');
                         modal.className = 'modal';
                         modal.id = 'modal_' + item.id;
@@ -133,26 +209,12 @@
                         modal.appendChild(modal_dialog);
                         document.getElementById('announcements').appendChild(modal);
 
-                        let container = document.createElement('div');
-                        container.className = 'container mt-4';
-
-                        let cardItem = document.createElement('div');
-                        cardItem.className = 'card';
-                        cardItem.id = 'ann_' + item.announcement_id;
-                        
-                        let header = document.createElement('div');
-                        header.className = 'card-header';
-                        header.textContent = 'Announcement ID: ' + item.announcement_id;
-
-                        let body = document.createElement('div');
-                        body.className = 'card-body';
-                        body.innerHTML = `
-                            <div class="container d-flex justify-content-between align-items-center">
+                        document.getElementById('body_' + item.announcement_id).innerHTML+=`
+                            <div class="container d-flex justify-content-between align-items-center mt-3">
                                 <p class="mb-0"><b>Product: </b>${item.product_name}</p>
                                 <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modal_${item.id}">Offer</button>
                             </div>
                         `;
-
 
                         document.getElementById('offer_btn_' + item.id).addEventListener('click', function(){
                             let quantity = document.getElementById('spinner_' + item.id).value;
@@ -167,13 +229,6 @@
                             })
                             .catch(error => console.error('Error fetching data:', error));
                         });
-                        
-                        cardItem.appendChild(header);
-                        cardItem.appendChild(body);
-                        container.appendChild(cardItem);
-                        dataContainer.appendChild(container);
-                    }else{
-                        
                     }
                 });
             }else{
