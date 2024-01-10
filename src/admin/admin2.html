@@ -347,26 +347,64 @@
 
 
     document.getElementById('load_btn2').addEventListener('click', () => {
-      let file = document.getElementById('json_file_field').fileInput.files[0];
-
-      if (!file) {
+      if(document.getElementById('json_file_field').files.length <= 0){
         alert('No file selected!');
         return;
       }
 
-      let reader = new FileReader();
-      reader.onload = function(e) {
-        var jsonData = JSON.parse(e.target.result);
+      let file = document.getElementById('json_file_field').files[0];
 
-        if (Array.isArray(jsonData)) {
-          jsonData.forEach(function(item) {
-            console.log(item);
-          });
-        } else {
-          alert('Invalid JSON!');
-        }
-      };
-      reader.readAsText(file);
+      let reader = new FileReader();
+        reader.onload = function (e) {
+          try {
+            let jsonData = JSON.parse(e.target.result);
+
+            jsonData.categories.forEach(item => {
+              fetch('http://localhost:3000/new_category/stavros_paraskevopoulos/' + item.category_name, {method: 'POST'})
+              .then(response => response.text())
+              .then(data => {
+                if(data == 'fail'){
+                  alert('Category ' + item.category_name + ' already exists!');
+                }
+              })
+              .catch(error => console.error('Error fetching data:', error));
+            });
+    
+            jsonData.items.forEach(item => {
+              let product_name = item.name;
+              let product_category = parseInt(item.category);
+              let product_description = '';
+              item.details.forEach(detail => {
+                product_description = product_description + detail.detail_name + ': ' + detail.detail_value + '\n';
+              });
+    
+              let obj = {
+                "product_name": product_name,
+                "product_category": product_category,
+                "product_description": product_description
+              };
+              
+              fetch('http://localhost:3000/new_product', { 
+                method: 'POST',
+                body: JSON.stringify(obj),
+                headers: {
+                  "Content-Type": "application/json"
+                }
+              })
+              .then(response => response.text())
+              .then(data => {
+                if(data == 'fail'){
+                  alert('Product ' + item.name + ' already exists!');
+                }
+              })
+              .catch(error => console.error('Error fetching data:', error));
+            });
+
+          } catch (error) {
+            alert('File is not JSON!');
+          }
+        };
+        reader.readAsText(file);
     });
 
 

@@ -673,19 +673,33 @@ app.post('/complete_task/offer/:task/:rescuer', async (req, res) => {
     res.send('success');
 });
 
-app.get('/citizen_active_tasks/requests/:citizen', async (req, res) => {
+app.get('/citizen_active_tasks/requests/:is_accepted/:citizen', async (req, res) => {
     let citizen = req.params.citizen;
+    let is_accepted = req.params.is_accepted;
+    
+    let result;
 
-    let [result] = await pool.query(`
-        SELECT *
-        FROM \`citizen\`
-            JOIN \`request\` ON \`citizen\`.\`citizen_username\` = \`request\`.\`request_user\`
-            JOIN \`product\` ON \`request\`.\`product_id\` = \`product\`.\`id\`
-            JOIN \`task\` ON \`request\`.\`request_id\` = \`task\`.\`task_id\`
-            JOIN \`rescuer\` ON \`task\`.\`rescuer_took_over\` = \`rescuer\`.\`rescuer_username\`
-            JOIN \`user\` ON \`rescuer\`.\`rescuer_username\` = \`user\`.\`username\`
-        WHERE \`citizen\`.\`citizen_username\` = ? AND \`task\`.\`completed\` = 'NO'
-    `, [citizen]);
+    if(is_accepted == 'unaccepted'){
+        [result] = await pool.query(`
+            SELECT *
+            FROM \`citizen\`
+                JOIN \`request\` ON \`citizen\`.\`citizen_username\` = \`request\`.\`request_user\`
+                JOIN \`product\` ON \`request\`.\`product_id\` = \`product\`.\`id\`
+                JOIN \`task\` ON \`request\`.\`request_id\` = \`task\`.\`task_id\`
+            WHERE \`citizen\`.\`citizen_username\` = ? AND \`task\`.\`accepted\` = 'NO' AND \`task\`.\`completed\` = 'NO'
+        `, [citizen]);
+    }else{
+        [result] = await pool.query(`
+            SELECT *
+            FROM \`citizen\`
+                JOIN \`request\` ON \`citizen\`.\`citizen_username\` = \`request\`.\`request_user\`
+                JOIN \`product\` ON \`request\`.\`product_id\` = \`product\`.\`id\`
+                JOIN \`task\` ON \`request\`.\`request_id\` = \`task\`.\`task_id\`
+                JOIN \`rescuer\` ON \`task\`.\`rescuer_took_over\` = \`rescuer\`.\`rescuer_username\`
+                JOIN \`user\` ON \`user\`.\`username\` = \`rescuer\`.\`rescuer_username\`
+            WHERE \`citizen\`.\`citizen_username\` = ? AND \`task\`.\`accepted\` = 'YES' AND \`task\`.\`completed\` = 'NO'
+        `, [citizen]);
+    }
 
     res.json(result);
 });
@@ -802,6 +816,34 @@ app.post('/new_offer/:product/:quantity/:citizen', async (req, res) => {
     `, [citizen, product, quantity]);
 
     res.send('success');
+});
+
+app.get('/past_offers_display/:citizen', async (req, res) => {
+    let citizen = req.params.citizen;
+
+    let [result] = await pool.query(`
+        SELECT *
+        FROM \`offer\`
+            JOIN \`task\` ON \`offer\`.\`offer_id\` = \`task\`.\`task_id\`
+        WHERE \`task\`.\`accepted\` = 'YES' AND \`task\`.\`completed\` = 'YES' AND \`offer\`.\`offer_user\` = ?
+        ORDER BY \`offer\`.\`offer_id\` ASC
+    `, [citizen]);
+
+    res.json(result);
+});
+
+app.get('/current_offers_display/:citizen', async (req, res) => {
+    let citizen = req.params.citizen;
+
+    let [result] = await pool.query(`
+        SELECT *
+        FROM \`offer\`
+            JOIN \`task\` ON \`offer\`.\`offer_id\` = \`task\`.\`task_id\`
+        WHERE \`task\`.\`accepted\` = 'YES' AND \`task\`.\`completed\` = 'NO' AND \`offer\`.\`offer_user\` = ?
+        ORDER BY \`offer\`.\`offer_id\` ASC
+    `, [citizen]);
+
+    res.json(result);
 });
 
 app.listen(port, () => {

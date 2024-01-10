@@ -64,7 +64,11 @@
                 </li>
         
                 <li class="nav-item">
-                    <a class="nav-link" data-bs-toggle="pill" href="#active_requests">Active Requests</a>
+                    <a class="nav-link" data-bs-toggle="pill" href="#accepted_requests">Accepted Requests</a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link" data-bs-toggle="pill" href="#unaccepted_requests">Unaccepted Requests</a>
                 </li>
         
                 <li class="nav-item">
@@ -99,7 +103,7 @@
 
                             <div class="mb-4 mt-4">
                                 <label for="description" class="form-label">Persons Number:</label>
-                                <input type="number" value="0" min="0" class="form-control" id="spinner">
+                                <input type="number" value="1" min="1" class="form-control" id="spinner">
                             </div>
                 
                             <div class="mb-1 mt-3 text-center">
@@ -112,10 +116,13 @@
             </div>
             
 
-            <div class="tab-pane container fade mt-4" id="active_requests">
+            <div class="tab-pane container fade mt-4" id="accepted_requests">
                 
             </div>
-
+            
+            <div class="tab-pane container fade mt-4" id="unaccepted_requests">
+                
+            </div>
 
             <div class="tab-pane container fade mt-4" id="completed_requests">
             
@@ -163,7 +170,7 @@
                 data.forEach(item => {
                     let option = document.createElement('option');
                     option.textContent = item.category_name;
-                    option.id = item.category_id;
+                    option.id = 'category_' + item.category_id;
                     document.getElementById('categories_select_menu').appendChild(option);
                 })
             })
@@ -175,128 +182,199 @@
                 data.forEach(item => {
                     let option = document.createElement('option');
                     option.textContent = item.product_name;
-                    option.id = item.id;
+                    option.id = 'product_' + item.id;
                     document.getElementById('products').appendChild(option);
                 })
             })
             .catch(error => console.error('Error fetching data:', error));
         })
         .catch(error => console.error('Error fetching data:', error));
+
+
+        function acceptedRequests(){
+            fetch('http://localhost:3000/citizen_active_tasks/requests/accepted/marios_raftopoulos')
+            .then(response => response.json())
+            .then(data => {
+                
+                if(Object.keys(data).length > 0){
+                    data.forEach(item => {
+                        let container = document.createElement('div');
+                        container.className = 'container mt-4';
+
+                        let card = document.createElement('div');
+                        card.className = 'card';
+
+                        let header = document.createElement('div');
+                        header.className = 'card-header';
+                        header.textContent = 'Task ID: ' + item.task_id;
+
+                        let body = document.createElement('div');
+                        body.className = 'card-body';
+                        body.innerHTML = `
+                            <p><b>Product: </b>${item.product_name}</p>
+                            <p><b>Quantity: </b>${item.persons_num}</p>
+                            <p><b>Rescuer: </b>${item.username}</p>
+                            <p><b>Registration Date: </b>${item.reg_date.replace('T','  ').slice(0, -5)}</p>
+                            <p><b>Accept Date: </b>${item.accept_date.replace('T','  ').slice(0, -5)}</p>
+
+                            <div class="mb-1 mt-3 text-center">
+                                <button type="button" class="btn btn-outline-danger mt-3" id="${item.task_id}">Cancel Request</button>
+                            </div>
+                        `;
+
+                        card.appendChild(header);
+                        card.appendChild(body);
+                        container.appendChild(card);
+                        document.getElementById('accepted_requests').appendChild(container);
+
+                        document.getElementById(item.task_id).addEventListener('click', function() {  
+                            fetch('http://localhost:3000/cancel_request/' + item.task_id + '/' + 'marios_raftopoulos', { method: 'POST' })
+                            .then(response => response.text())
+                            .then(data => {
+                                if (data == "success"){
+                                    alert("Request canceled successfully");
+                                    document.getElementById('accepted_requests').innerHTML = '';
+                                    acceptedRequests();
+                                }
+                            })
+                            .catch(error => console.error('Error fetching data:', error));
+                        });
+                    })
+                }else{
+                    let listGroup = document.createElement('ul');
+                    listGroup.className = 'list-group';
+
+                    let listItem = document.createElement('li');
+                    listItem.className = 'list-group-item d-flex justify-content-center align-items-center';
+                    listItem.textContent = 'No accepted requests';
+
+                    listGroup.appendChild(listItem);
+                    document.getElementById('accepted_requests').appendChild(listGroup);
+                }
+
+            })
+            .catch(error => console.error('Error fetching data:', error));
+
+        }
         
 
-        fetch('http://localhost:3000/citizen_active_tasks/requests/marios_raftopoulos')
-        .then(response => response.json())
-        .then(data => {
-            
-            if(Object.keys(data).length > 0){
-                data.forEach(item => {
-                    let container = document.createElement('div');
-                    container.className = 'container mt-4';
+        function unacceptedRequests(){
+            fetch('http://localhost:3000/citizen_active_tasks/requests/unaccepted/marios_raftopoulos')
+            .then(response => response.json())
+            .then(data => {
+                
+                if(Object.keys(data).length > 0){
+                    data.forEach(item => {
+                        let container = document.createElement('div');
+                        container.className = 'container mt-4';
 
-                    let card = document.createElement('div');
-                    card.className = 'card';
+                        let card = document.createElement('div');
+                        card.className = 'card';
 
-                    let header = document.createElement('div');
-                    header.className = 'card-header';
-                    header.textContent = 'Task ID: ' + item.task_id;
+                        let header = document.createElement('div');
+                        header.className = 'card-header';
+                        header.textContent = 'Task ID: ' + item.task_id;
 
-                    let body = document.createElement('div');
-                    body.className = 'card-body';
-                    body.innerHTML = `
-                        <p><b>Product: </b>${item.product_name}</p>
-                        <p><b>Quantity: </b>${item.persons_num}</p>
-                        <p><b>Rescuer: </b>${item.username}</p>
-                        <p><b>Registration Date: </b>${item.reg_date.replace('T','  ').slice(0, -5)}</p>
-                        <p><b>Accept Date: </b>${item.accept_date.replace('T','  ').slice(0, -5)}</p>
+                        let body = document.createElement('div');
+                        body.className = 'card-body';
+                        body.innerHTML = `
+                            <p><b>Product: </b>${item.product_name}</p>
+                            <p><b>Quantity: </b>${item.persons_num}</p>
+                            <p><b>Registration Date: </b>${item.reg_date.replace('T','  ').slice(0, -5)}</p>
 
-                        <div class="mb-1 mt-3 text-center">
-                            <button type="button" class="btn btn-outline-danger mt-3" id="${item.task_id}">Cancel Request</button>
-                        </div>
-                    `;
+                            <div class="mb-1 mt-3 text-center">
+                                <button type="button" class="btn btn-outline-danger mt-3" id="${item.task_id}">Cancel Request</button>
+                            </div>
+                        `;
 
-                    card.appendChild(header);
-                    card.appendChild(body);
-                    container.appendChild(card);
-                    document.getElementById('active_requests').appendChild(container);
+                        card.appendChild(header);
+                        card.appendChild(body);
+                        container.appendChild(card);
+                        document.getElementById('unaccepted_requests').appendChild(container);
 
-                    document.getElementById(item.task_id).addEventListener('click', function() {  
-                        fetch('http://localhost:3000/cancel_request/' + item.task_id + '/' + 'marios_raftopoulos', { method: 'POST' })
-                        .then(response => response.text())
-                        .then(data => {
-                            if (data.status == "success"){
-                                alert("Request canceled successfully");
-                            }
-                        })
-                        .catch(error => console.error('Error fetching data:', error));
-                    });
-                })
-            }else{
-                let listGroup = document.createElement('ul');
-                listGroup.className = 'list-group';
+                        document.getElementById(item.task_id).addEventListener('click', function() {  
+                            fetch('http://localhost:3000/cancel_request/' + item.task_id + '/' + 'marios_raftopoulos', { method: 'POST' })
+                            .then(response => response.text())
+                            .then(data => {
+                                if (data == "success"){
+                                    alert("Request canceled successfully");
+                                    document.getElementById('unaccepted_requests').innerHTML = '';
+                                    unacceptedRequests();
+                                }
+                            })
+                            .catch(error => console.error('Error fetching data:', error));
+                        });
+                    })
+                }else{
+                    let listGroup = document.createElement('ul');
+                    listGroup.className = 'list-group';
 
-                let listItem = document.createElement('li');
-                listItem.className = 'list-group-item d-flex justify-content-center align-items-center';
-                listItem.textContent = 'No active requests';
+                    let listItem = document.createElement('li');
+                    listItem.className = 'list-group-item d-flex justify-content-center align-items-center';
+                    listItem.textContent = 'No unaccepted requests';
 
-                listGroup.appendChild(listItem);
-                document.getElementById('active_requests').appendChild(listGroup);
-            }
+                    listGroup.appendChild(listItem);
+                    document.getElementById('unaccepted_requests').appendChild(listGroup);
+                }
 
-        })
-        .catch(error => console.error('Error fetching data:', error));
+            })
+            .catch(error => console.error('Error fetching data:', error));
+        }
 
 
-        fetch('http://localhost:3000/citizen_completed_tasks/requests/marios_raftopoulos')
-        .then(response => response.json())
-        .then(data => {
+        function completedRequests(){
+            fetch('http://localhost:3000/citizen_completed_tasks/requests/marios_raftopoulos')
+            .then(response => response.json())
+            .then(data => {
 
-            if(Object.keys(data).length > 0){
-                data.forEach(item => {
-                    let container = document.createElement('div');
-                    container.className = 'container mt-4';
+                if(Object.keys(data).length > 0){
+                    data.forEach(item => {
+                        let container = document.createElement('div');
+                        container.className = 'container mt-4';
 
-                    let card = document.createElement('div');
-                    card.className = 'card';
+                        let card = document.createElement('div');
+                        card.className = 'card';
 
-                    let header = document.createElement('div');
-                    header.className = 'card-header';
-                    header.textContent = 'Task ID: ' + item.task_id;
+                        let header = document.createElement('div');
+                        header.className = 'card-header';
+                        header.textContent = 'Task ID: ' + item.task_id;
 
-                    let body = document.createElement('div');
-                    body.className = 'card-body';
-                    body.innerHTML = `
-                        <p><b>Product: </b>${item.product_name}</p>
-                        <p><b>Quantity: </b>${item.persons_num}</p>
-                        <p><b>Rescuer: </b>${item.username}</p>
-                        <p><b>Registration Date: </b>${item.reg_date.replace('T','  ').slice(0, -5)}</p>
-                        <p><b>Accept Date: </b>${item.accept_date.replace('T','  ').slice(0, -5)}</p>
-                        <p><b>Complete Date: </b>${item.complete_date.replace('T','  ').slice(0, -5)}</p>
-                    `;
+                        let body = document.createElement('div');
+                        body.className = 'card-body';
+                        body.innerHTML = `
+                            <p><b>Product: </b>${item.product_name}</p>
+                            <p><b>Quantity: </b>${item.persons_num}</p>
+                            <p><b>Rescuer: </b>${item.username}</p>
+                            <p><b>Registration Date: </b>${item.reg_date.replace('T','  ').slice(0, -5)}</p>
+                            <p><b>Accept Date: </b>${item.accept_date.replace('T','  ').slice(0, -5)}</p>
+                            <p><b>Complete Date: </b>${item.complete_date.replace('T','  ').slice(0, -5)}</p>
+                        `;
 
-                    card.appendChild(header);
-                    card.appendChild(body);
-                    container.appendChild(card);
-                    document.getElementById('completed_requests').appendChild(container);
-                })
-            }else{
-                let listGroup = document.createElement('ul');
-                listGroup.className = 'list-group';
+                        card.appendChild(header);
+                        card.appendChild(body);
+                        container.appendChild(card);
+                        document.getElementById('completed_requests').appendChild(container);
+                    })
+                }else{
+                    let listGroup = document.createElement('ul');
+                    listGroup.className = 'list-group';
 
-                let listItem = document.createElement('li');
-                listItem.className = 'list-group-item d-flex justify-content-center align-items-center';
-                listItem.textContent = 'No completed requests';
+                    let listItem = document.createElement('li');
+                    listItem.className = 'list-group-item d-flex justify-content-center align-items-center';
+                    listItem.textContent = 'No completed requests';
 
-                listGroup.appendChild(listItem);
-                document.getElementById('completed_requests').appendChild(listGroup);
-            }
+                    listGroup.appendChild(listItem);
+                    document.getElementById('completed_requests').appendChild(listGroup);
+                }
 
-        })
-        .catch(error => console.error('Error fetching data:', error));
+            })
+            .catch(error => console.error('Error fetching data:', error));
+        }
 
 
         document.getElementById('spinner').addEventListener('input', function() {
-            if (parseInt(spinner.value) < 0){
-                spinner.value = 0;
+            if (parseInt(spinner.value) < 1){
+                spinner.value = 1;
             }
         });
 
@@ -312,50 +390,65 @@
                     data.forEach(item => {
                         let option = document.createElement('option');
                         option.textContent = item.product_name;
-                        option.id = item.id;
+                        option.id = 'product_' + item.id;
                         document.getElementById('products').appendChild(option);
                     })
                 })
                 .catch(error => console.error('Error fetching data:', error));
             }else{
-                fetch('http://localhost:3000/base_products/' + minDistanceBase.base_name + '/' + selectedOption.id)
+                category = selectedOption.id.split('_')[1];
+                fetch('http://localhost:3000/base_products/' + minDistanceBase.base_name + '/' + category)
                 .then(response => response.json())
                 .then(data => {
                     document.getElementById('products').innerHTML = '';
                     data.forEach(item => {
                         let option = document.createElement('option');
                         option.textContent = item.product_name;
-                        option.id = item.id;
+                        option.id = 'product_' + item.id;
                         document.getElementById('products').appendChild(option);
                     })
                 })
                 .catch(error => console.error('Error fetching data:', error));
             }
+
         });
 
 
         document.getElementById('add_request_btn').addEventListener('click', function() {  
             let product = document.getElementById('products_select_menu').value;
-            let product_id = document.getElementById('products').options[document.getElementById('products').selectedIndex];
+            let product_id;
+
+            Array.from(document.getElementById('products').options).forEach(item => {
+                if (item.value == product){
+                    product_id = parseFloat(item.id.split('_')[1]);
+                }
+            });
+
             let persons = document.getElementById('spinner').value;
 
-            console.log(product_id);
-            /*if (product == undefined || persons == 0){
-                alert('Product or persons number is not valid!');
+            if (product == undefined){
+                alert('Product is not valid!');
             }
             else{
                 fetch('http://localhost:3000/new_request/' + product_id + '/' + persons + '/marios_raftopoulos', { method: 'POST' })
-                .then(response => response.test())
+                .then(response => response.text())
                 .then(data => {
-                    if (data.status == "success"){
+                    if (data == "success"){
                         alert("Request added successfully");
+                        document.getElementById('products_select_menu').value = '';
+                        document.getElementById('spinner').value = 1;
+                        document.getElementById('categories_select_menu').value = 'Select Category';
+                        document.getElementById('active_requests').innerHTML = '';
+                        unacceptedRequests();
                     }
                 })
-                .catch((error) => {
-                    console.error('Error:', error);
-                });
-            }*/
+                .catch(error => console.error('Error fetching data:', error));
+            }
         });
+
+        acceptedRequests();
+        unacceptedRequests();
+        completedRequests();
 
     </script>
 
