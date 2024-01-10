@@ -818,29 +818,49 @@ app.post('/new_offer/:product/:quantity/:citizen', async (req, res) => {
     res.send('success');
 });
 
-app.get('/past_offers_display/:citizen', async (req, res) => {
+app.get('/citizen_active_tasks/offers/:is_accepted/:citizen', async (req, res) => {
     let citizen = req.params.citizen;
+    let is_accepted = req.params.is_accepted;
+    
+    let result;
 
-    let [result] = await pool.query(`
+    if(is_accepted == 'unaccepted'){
+        [result] = await pool.query(`
+            SELECT *
+            FROM \`citizen\`
+                JOIN \`offer\` ON \`citizen\`.\`citizen_username\` = \`offer\`.\`offer_user\`
+                JOIN \`product\` ON \`offer\`.\`product_id\` = \`product\`.\`id\`
+                JOIN \`task\` ON \`offer\`.\`offer_id\` = \`task\`.\`task_id\`
+            WHERE \`citizen\`.\`citizen_username\` = ? AND \`task\`.\`accepted\` = 'NO' AND \`task\`.\`completed\` = 'NO'
+        `, [citizen]);
+    }else{
+        [result] = await pool.query(`
         SELECT *
-        FROM \`offer\`
+        FROM \`citizen\`
+            JOIN \`offer\` ON \`citizen\`.\`citizen_username\` = \`offer\`.\`offer_user\`
+            JOIN \`product\` ON \`offer\`.\`product_id\` = \`product\`.\`id\`
             JOIN \`task\` ON \`offer\`.\`offer_id\` = \`task\`.\`task_id\`
-        WHERE \`task\`.\`accepted\` = 'YES' AND \`task\`.\`completed\` = 'YES' AND \`offer\`.\`offer_user\` = ?
-        ORDER BY \`offer\`.\`offer_id\` ASC
-    `, [citizen]);
+            JOIN \`rescuer\` ON \`task\`.\`rescuer_took_over\` = \`rescuer\`.\`rescuer_username\`
+            JOIN \`user\` ON \`user\`.\`username\` = \`rescuer\`.\`rescuer_username\`
+        WHERE \`citizen\`.\`citizen_username\` = ? AND \`task\`.\`accepted\` = 'YES' AND \`task\`.\`completed\` = 'NO'
+        `, [citizen]);
+    }
 
     res.json(result);
 });
 
-app.get('/current_offers_display/:citizen', async (req, res) => {
+app.get('/citizen_completed_tasks/offers/:citizen', async (req, res) => {
     let citizen = req.params.citizen;
 
     let [result] = await pool.query(`
         SELECT *
-        FROM \`offer\`
+        FROM \`citizen\`
+            JOIN \`offer\` ON \`citizen\`.\`citizen_username\` = \`offer\`.\`offer_user\`
+            JOIN \`product\` ON \`offer\`.\`product_id\` = \`product\`.\`id\`
             JOIN \`task\` ON \`offer\`.\`offer_id\` = \`task\`.\`task_id\`
-        WHERE \`task\`.\`accepted\` = 'YES' AND \`task\`.\`completed\` = 'NO' AND \`offer\`.\`offer_user\` = ?
-        ORDER BY \`offer\`.\`offer_id\` ASC
+            JOIN \`rescuer\` ON \`task\`.\`rescuer_took_over\` = \`rescuer\`.\`rescuer_username\`
+            JOIN \`user\` ON \`user\`.\`username\` = \`rescuer\`.\`rescuer_username\`
+        WHERE \`citizen\`.\`citizen_username\` = ? AND \`task\`.\`accepted\` = 'YES' AND \`task\`.\`completed\` = 'YES'
     `, [citizen]);
 
     res.json(result);

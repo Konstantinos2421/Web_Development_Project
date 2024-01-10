@@ -32,7 +32,7 @@
         </div>
     </div>
 
-    <div class="container mb-4">
+    <div class="container">
         <div class="row" style="background-color:rgb(80, 102, 80)">
 
             <div class="btn-group mb-3">
@@ -52,37 +52,39 @@
         </div>
     </div>
 
-    <ul class="nav nav-pills justify-content-center" role="tablist">
+    <ul class="nav flex-column text-center nav-pills justify-content-center mt-4" role="tablist">
         <li class="nav-item">
             <a class="nav-link active" data-bs-toggle="pill" href="#announcements">Announcements</a>
         </li>
 
         <li class="nav-item">
-            <a class="nav-link" data-bs-toggle="pill" href="#pastOffers">My past offers</a>
+            <a class="nav-link" data-bs-toggle="pill" href="#accepted_offers">Accepted offers</a>
         </li>
 
         <li class="nav-item">
-            <a class="nav-link" data-bs-toggle="pill" href="#currentOffers">My current offers</a>
+            <a class="nav-link" data-bs-toggle="pill" href="#unaccepted_offers">Unaccepted offers</a>
+        </li>
+
+        <li class="nav-item">
+            <a class="nav-link" data-bs-toggle="pill" href="#completed_offers">Completed offers</a>
         </li>
     </ul>
 
-    <div class="tab-content">
-        <div class="tab-pane container active mt-4" id="announcements">
-            <div class="container" id="announcements_list">
-
-            <div>
+    <div class="tab-content mt-3 mb-2">
+        <div class="tab-pane container active" id="announcements">
+           
         </div>
         
-        <div class="tab-pane container fade mt-4" id="past_offers">
-            <ul class="list-group" id="past_offers_list">
-
-            </ul>
+        <div class="tab-pane container fade" id="accepted_offers">
+            
         </div>
 
-        <div class="tab-pane container fade mt-4" id="current_offers">
-            <ul class="list-group" id="current_offers_list">
+        <div class="tab-pane container fade" id="unaccepted_offers">
+           
+        </div>
 
-            </ul>
+        <div class="tab-pane container fade" id="completed_offers">
+            
         </div>
     </div>
 
@@ -92,161 +94,290 @@
 
   <script>
 
-    function Announcements() {
+    function announcements() {
         let user = sessionStorage.getItem('username');
 
         fetch('http://localhost:3000/citizen/announcements')
         .then(response => response.json())
         .then(data => {
-            let dataContainer = document.getElementById('announcements_list');
+            let dataContainer = document.getElementById('announcements');
 
-            data.forEach(item => {
-                if (!document.getElementById(item.announcement_id)){
-                    let modal = document.createElement('div');
-                    modal.className = 'modal';
-                    modal.id = 'modal_' + item.id;
+            if(Object.keys(data).length > 0){
+                data.forEach(item => {
+                    if (!document.getElementById(item.announcement_id)){
+                        let modal = document.createElement('div');
+                        modal.className = 'modal';
+                        modal.id = 'modal_' + item.id;
 
-                    let modal_dialog = document.createElement('div');
-                    modal_dialog.className = 'modal-dialog';
+                        let modal_dialog = document.createElement('div');
+                        modal_dialog.className = 'modal-dialog';
 
-                    let modal_content = document.createElement('div');
-                    modal_content.className = 'modal-content';
-                    modal_content.innerHTML = `
-                        <div class="modal-header">
-                            <h4 class="modal-title">Product Quantity</h4>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                        </div>
-                
-                        <div class="modal-body">
-                            <input type="number" class="form-control" id="spinner_${item.id}">
-                        </div>
-                
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-primary" data-bs-dismiss="modal" id="offer_btn_${item.id}">Offer</button>
-                        </div>
-                    `;
+                        let modal_content = document.createElement('div');
+                        modal_content.className = 'modal-content';
+                        modal_content.innerHTML = `
+                            <div class="modal-header">
+                                <h4 class="modal-title">Product Quantity</h4>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                            </div>
+                    
+                            <div class="modal-body">
+                                <input type="number" class="form-control" id="spinner_${item.id}">
+                            </div>
+                    
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-primary" data-bs-dismiss="modal" id="offer_btn_${item.id}">Offer</button>
+                            </div>
+                        `;
 
-                    modal_dialog.appendChild(modal_content);
-                    modal.appendChild(modal_dialog);
-                    document.getElementById('announcements_list').appendChild(modal);
+                        modal_dialog.appendChild(modal_content);
+                        modal.appendChild(modal_dialog);
+                        document.getElementById('announcements').appendChild(modal);
 
+                        let container = document.createElement('div');
+                        container.className = 'container mt-4';
+
+                        let cardItem = document.createElement('div');
+                        cardItem.className = 'card';
+                        cardItem.id = 'ann_' + item.announcement_id;
+                        
+                        let header = document.createElement('div');
+                        header.className = 'card-header';
+                        header.textContent = 'Announcement ID: ' + item.announcement_id;
+
+                        let body = document.createElement('div');
+                        body.className = 'card-body';
+                        body.innerHTML = `
+                            <div class="container d-flex justify-content-between align-items-center">
+                                <p class="mb-0"><b>Product: </b>${item.product_name}</p>
+                                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modal_${item.id}">Offer</button>
+                            </div>
+                        `;
+
+
+                        document.getElementById('offer_btn_' + item.id).addEventListener('click', function(){
+                            let quantity = document.getElementById('spinner_' + item.id).value;
+                            fetch('http://localhost:3000/new_offer/' + item.id + '/' + quantity + '/alexandros_apostolou', {method: 'POST'})
+                            .then(response => response.text())
+                            .then(data => {
+                                if(data == 'success'){
+                                    alert('Offer submitted successfully!');
+                                    document.getElementById('unaccepted_offers').innerHTML = ''
+                                    unacceptedOffers();
+                                }
+                            })
+                            .catch(error => console.error('Error fetching data:', error));
+                        });
+                        
+                        cardItem.appendChild(header);
+                        cardItem.appendChild(body);
+                        container.appendChild(cardItem);
+                        dataContainer.appendChild(container);
+                    }else{
+                        
+                    }
+                });
+            }else{
+                let listGroup = document.createElement('ul');
+                listGroup.className = 'list-group';
+
+                let listItem = document.createElement('li');
+                listItem.className = 'list-group-item d-flex justify-content-center align-items-center';
+                listItem.textContent = 'No announcements found';
+
+                listGroup.appendChild(listItem);
+                document.getElementById('announcements').appendChild(listGroup);
+            }
+        })
+        .catch(error => console.error('Error fetching data:', error));
+    }
+
+
+    function acceptedOffers(){
+        fetch('http://localhost:3000/citizen_active_tasks/offers/accepted/alexandros_apostolou')
+        .then(response => response.json())
+        .then(data => {
+            let dataContainer = document.getElementById('accepted_offers');
+
+            if(Object.keys(data).length > 0){
+                data.forEach(item => {
                     let container = document.createElement('div');
                     container.className = 'container mt-4';
 
                     let cardItem = document.createElement('div');
                     cardItem.className = 'card';
-                    cardItem.id = 'ann_' + item.announcement_id;
-                    
+                    cardItem.id = 'offer_' + item.offer_id;
+                            
                     let header = document.createElement('div');
                     header.className = 'card-header';
-                    header.textContent = 'Announcement ID: ' + item.announcement_id;
+                    header.textContent = 'Offer ID: ' + item.offer_id;
 
                     let body = document.createElement('div');
                     body.className = 'card-body';
                     body.innerHTML = `
-                        <div class="container d-flex justify-content-between align-items-center">
-                            <p class="mb-0"><b>Product: </b>${item.product_name}</p>
-                            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modal_${item.id}">Offer</button>
+                        <p><b>Product: </b>${item.product_name}</p>
+                        <p><b>Quantity: </b>${item.quantity}</p>
+                        <p><b>Rescuer: </b>${item.username}</p>
+                        <p><b>Registration Date: </b>${item.reg_date.replace('T','  ').slice(0, -5)}</p>
+                        <p><b>Accept Date: </b>${item.accept_date.replace('T','  ').slice(0, -5)}</p>
+
+                        <div class="mb-1 mt-3 text-center">
+                            <button type="button" class="btn btn-outline-danger mt-3" id="${item.task_id}">Cancel Offer</button>
                         </div>
                     `;
-
-
-                    document.getElementById('offer_btn_' + item.id).addEventListener('click', function(){
-                        let quantity = document.getElementById('spinner_' + item.id).value;
-                        fetch('http://localhost:3000/new_offer/' + item.id + '/' + quantity + '/panagiota_milona', {method: 'POST'})
-                        .then(response => response.text())
-                        .then(data => {
-                            if(data == 'success'){
-                                alert('Offer submitted successfully!');
-                            }
-                        })
-                        .catch(error => console.error('Error fetching data:', error));
-                    });
-                    
+                            
                     cardItem.appendChild(header);
                     cardItem.appendChild(body);
                     container.appendChild(cardItem);
                     dataContainer.appendChild(container);
-                }else{
 
-                }
-            });
+                    document.getElementById(item.task_id).addEventListener('click', function() {  
+                        fetch('http://localhost:3000/cancel_offer/' + item.task_id + '/' + 'alexandros_apostolou', { method: 'POST' })
+                        .then(response => response.text())
+                        .then(data => {
+                            if (data == 'success'){
+                                alert('Offer canceled successfully');
+                                document.getElementById('accepted_offers').innerHTML = '';
+                                acceptedOffers();
+                            }
+                        })
+                        .catch(error => console.error('Error fetching data:', error));
+                    });
+                })
+            }else{
+                let listGroup = document.createElement('ul');
+                listGroup.className = 'list-group';
+
+                let listItem = document.createElement('li');
+                listItem.className = 'list-group-item d-flex justify-content-center align-items-center';
+                listItem.textContent = 'No accepted offers';
+
+                listGroup.appendChild(listItem);
+                document.getElementById('accepted_offers').appendChild(listGroup);
+            }
         })
         .catch(error => console.error('Error fetching data:', error));
     }
-    
 
-    fetch('http://localhost:3000/past_offers_display/marios_raftopoulos')
-    .then(response => response.json())
-    .then(data => {
-        let dataContainer = document.getElementById('past_offers');
 
-        data.forEach(item => {
-            let container = document.createElement('div');
-            container.className = 'container mt-4';
+    function unacceptedOffers(){
+        fetch('http://localhost:3000/citizen_active_tasks/offers/unaccepted/alexandros_apostolou')
+        .then(response => response.json())
+        .then(data => {
+            let dataContainer = document.getElementById('unaccepted_offers');
 
-            let cardItem = document.createElement('div');
-            cardItem.className = 'card';
-            cardItem.id = 'ann_' + item.offer_id;
-                    
-            let header = document.createElement('div');
-            header.className = 'card-header';
-            header.textContent = 'Offer ID: ' + item.offer_id;
+            if(Object.keys(data).length > 0){
+                data.forEach(item => {
+                    let container = document.createElement('div');
+                    container.className = 'container mt-4';
 
-            let body = document.createElement('div');
-            body.className = 'card-body';
-            body.innerHTML = `
-                <div class="container d-flex justify-content-between">
-                    <p><b>Product ID: </b>${item.product_id}</p>
-                    <p>Accept Date: ${item.accept_date}</p>
-                    <p>Complete Date: ${item.complete_date}</p>
-                </div>
-            `;
-                    
-            cardItem.appendChild(header);
-            cardItem.appendChild(body);
-            container.appendChild(cardItem);
-            dataContainer.appendChild(container);
+                    let cardItem = document.createElement('div');
+                    cardItem.className = 'card';
+                    cardItem.id = 'offer_' + item.offer_id;
+                            
+                    let header = document.createElement('div');
+                    header.className = 'card-header';
+                    header.textContent = 'Offer ID: ' + item.offer_id;
+
+                    let body = document.createElement('div');
+                    body.className = 'card-body';
+                    body.innerHTML = `
+                        <p><b>Product: </b>${item.product_name}</p>
+                        <p><b>Quantity: </b>${item.quantity}</p>
+                        <p><b>Registration Date: </b>${item.reg_date.replace('T','  ').slice(0, -5)}</p>
+
+                        <div class="mb-1 mt-3 text-center">
+                            <button type="button" class="btn btn-outline-danger mt-3" id="${item.task_id}">Cancel Offer</button>
+                        </div>
+                    `;
+                            
+                    cardItem.appendChild(header);
+                    cardItem.appendChild(body);
+                    container.appendChild(cardItem);
+                    dataContainer.appendChild(container);
+
+                    document.getElementById(item.task_id).addEventListener('click', function() {  
+                        fetch('http://localhost:3000/cancel_offer/' + item.task_id + '/' + 'alexandros_apostolou', { method: 'POST' })
+                        .then(response => response.text())
+                        .then(data => {
+                            if (data == 'success'){
+                                alert('Offer canceled successfully');
+                                document.getElementById('unaccepted_offers').innerHTML = '';
+                                unacceptedOffers();
+                            }
+                        })
+                        .catch(error => console.error('Error fetching data:', error));
+                    });
+                })
+            }else{
+                let listGroup = document.createElement('ul');
+                listGroup.className = 'list-group';
+
+                let listItem = document.createElement('li');
+                listItem.className = 'list-group-item d-flex justify-content-center align-items-center';
+                listItem.textContent = 'No unaccepted offers';
+
+                listGroup.appendChild(listItem);
+                document.getElementById('unaccepted_offers').appendChild(listGroup);
+            }
         })
-    })
-    .catch(error => console.error('Error fetching data:', error));
+        .catch(error => console.error('Error fetching data:', error));
+    }
 
 
-    fetch('http://localhost:3000/current_offers_display/marios_raftopoulos')
-    .then(response => response.json())
-    .then(data => {
-        let dataContainer = document.getElementById('current_offers');
+    function completedOffers(){
+        fetch('http://localhost:3000/citizen_completed_tasks/offers/alexandros_apostolou')
+        .then(response => response.json())
+        .then(data => {
+            let dataContainer = document.getElementById('completed_offers');
 
-        data.forEach(item => {
-            let container = document.createElement('div');
-            container.className = 'container mt-4';
+            if(Object.keys(data).length > 0){
+                data.forEach(item => {
+                    let container = document.createElement('div');
+                    container.className = 'container mt-4';
 
-            let cardItem = document.createElement('div');
-            cardItem.className = 'card';
-            cardItem.id = 'ann_' + item.offer_id;
-                    
-            let header = document.createElement('div');
-            header.className = 'card-header';
-            header.textContent = 'Offer ID: ' + item.offer_id;
+                    let cardItem = document.createElement('div');
+                    cardItem.className = 'card';
+                    cardItem.id = 'ann_' + item.offer_id;
+                            
+                    let header = document.createElement('div');
+                    header.className = 'card-header';
+                    header.textContent = 'Offer ID: ' + item.offer_id;
 
-            let body = document.createElement('div');
-            body.className = 'card-body';
-            body.innerHTML = `
-                <div class="container d-flex justify-content-between">
-                    <p><b>Product ID: </b>${item.product_id}</p>
-                    <p>Accept Date: ${item.accept_date}</p>
-                </div>
-            `;
-                    
-            cardItem.appendChild(header);
-            cardItem.appendChild(body);
-            container.appendChild(cardItem);
-            dataContainer.appendChild(container);
+                    let body = document.createElement('div');
+                    body.className = 'card-body';
+                    body.innerHTML = `
+                        <p><b>Product: </b>${item.product_name}</p>
+                        <p><b>Quantity: </b>${item.persons_num}</p>
+                        <p><b>Rescuer: </b>${item.username}</p>
+                        <p><b>Registration Date: </b>${item.reg_date.replace('T','  ').slice(0, -5)}</p>
+                        <p><b>Accept Date: </b>${item.accept_date.replace('T','  ').slice(0, -5)}</p>
+                        <p><b>Complete Date: </b>${item.complete_date.replace('T','  ').slice(0, -5)}</p>
+                    `;
+                            
+                    cardItem.appendChild(header);
+                    cardItem.appendChild(body);
+                    container.appendChild(cardItem);
+                    dataContainer.appendChild(container);
+                })
+            }else{
+                let listGroup = document.createElement('ul');
+                listGroup.className = 'list-group';
+
+                let listItem = document.createElement('li');
+                listItem.className = 'list-group-item d-flex justify-content-center align-items-center';
+                listItem.textContent = 'No completed offers';
+
+                listGroup.appendChild(listItem);
+                document.getElementById('completed_offers').appendChild(listGroup);
+            }
         })
-    })
-    .catch(error => console.error('Error fetching data:', error));
+        .catch(error => console.error('Error fetching data:', error));
+    }
 
-    Announcements();
+    announcements();
+    acceptedOffers();
+    unacceptedOffers();
+    completedOffers();
 
   </script>
 
