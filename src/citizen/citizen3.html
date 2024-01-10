@@ -373,8 +373,8 @@
 
 
         document.getElementById('spinner').addEventListener('input', function() {
-            if (parseInt(spinner.value) < 1){
-                spinner.value = 1;
+            if (parseInt(document.getElementById('spinner').value) < 1){
+                document.getElementById('spinner').value = 1;
             }
         });
 
