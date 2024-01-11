@@ -866,6 +866,45 @@ app.get('/citizen_completed_tasks/offers/:citizen', async (req, res) => {
     res.json(result);
 });
 
+app.get('/get_tasks/:task_type/:task_state/:start_date/:end_date', async (req, res) => {
+    let task_type = req.params.task_type;
+    let task_state = req.params.task_state;
+    let start_date = new Date(req.params.start_date);
+    let end_date = new Date(req.params.end_date);
+
+    let difference_in_days = (end_date - start_date) / (1000 * 3600 * 24);
+    difference_in_days++;
+
+    let result = [];
+
+    if(task_type == 'request' && task_state == 'new'){
+        
+        for(let i = 0; i < difference_in_days; i++){
+            let date = new Date(start_date);
+            date.setDate(date.getDate() + i);
+            date = date.toISOString().slice(0, 10);
+
+            let [x] = await pool.query(`
+                SELECT COUNT(*) AS count 
+                FROM \`task\`
+                    JOIN \`request\` ON \`task\`.\`task_id\` = \`request\`.\`request_id\`
+                WHERE DATE(\`task\`.\`reg_date\`) = ?
+            `, [date]);
+
+            result.push(x[0]);
+        }
+
+    }else if(task_type == 'request' && task_state == 'completed'){
+
+    }else if(task_type == 'offer' && task_state == 'new'){
+
+    }else if(task_type == 'offer' && task_state == 'completed'){
+
+    }
+
+    res.json(result);
+});
+
 app.listen(port, () => {
     console.log(`Server is running on port ${port}`);
 });

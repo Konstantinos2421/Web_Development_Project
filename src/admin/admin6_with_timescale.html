@@ -91,6 +91,35 @@
                     </form>
                 </div>
 
+                <div class="col-lg-1"></div>
+
+                <div class="col-lg-3">
+                    <form class="border border-3 rounded-4 ps-4 pt-4 mt-4 mb-2">
+                        <p class="h3 text-center mb-4">Time Scale</p>
+
+                        <div class="form-check mb-3">
+                            <input type="radio" class="form-check-input" id="radio1" name="radio" value="something">
+                            <label class="form-check-label" for="radio1">Hours</label>
+                        </div>
+
+                        <div class="form-check mb-3">
+                            <input type="radio" class="form-check-input" id="radio2" name="radio" value="something" checked>
+                            <label class="form-check-label" for="radio2">Days</label>
+                        </div>
+
+                        <div class="form-check mb-3">
+                            <input type="radio" class="form-check-input" id="radio3" name="radio" value="something">
+                            <label class="form-check-label" for="radio3">Weeks</label>
+                        </div>
+
+                        <div class="form-check mb-3">
+                            <input type="radio" class="form-check-input" id="radio4" name="radio" value="something">
+                            <label class="form-check-label" for="radio4">Months</label>
+                        </div>
+
+                    </form>
+                </div>
+
             </div>
         </div>
 
@@ -98,105 +127,83 @@
             <canvas id="chart" style="height: 550px; width: 1000px;"></canvas>
         </div>
 
-    </body>
 
+        <script>
+            document.getElementById('start_date').addEventListener('input', function() {
+                document.getElementById('end_date').min = this.value;
+            });
 
-    <script>
-        document.getElementById('start_date').addEventListener('input', function() {
-            document.getElementById('end_date').min = this.value;
-        });
+            document.getElementById('end_date').addEventListener('input', function() {
+                document.getElementById('start_date').max = this.value;
+            });
 
-        document.getElementById('end_date').addEventListener('input', function() {
-            document.getElementById('start_date').max = this.value;
-        });
+            document.getElementById('display_btn').addEventListener('click', function(){
+                let start_date = new Date(document.getElementById('start_date').value);
+                let end_date = new Date(document.getElementById('end_date').value);
+                let difference_in_days = (end_date - start_date) / (1000 * 3600 * 24);
 
+                let xValues = [];
 
-        document.getElementById('display_btn').addEventListener('click' , function() {
-
-            let xValues = [];
-
-            let start_date = new Date(document.getElementById('start_date').value);
-            let end_date = new Date(document.getElementById('end_date').value);
-            let difference_in_days = (end_date - start_date) / (1000 * 3600 * 24);
-
-            for (let i = 0; i <= difference_in_days; i++) {
-                let date = new Date(start_date);
-                date.setDate(date.getDate() + i);
-                xValues.push(date.toISOString().slice(0, 10));
-            }
-
-            let chart = new Chart('chart', {
-                type: 'line',
-                data: {
-                    labels: xValues,
-                    datasets: []
-                },
-                options: {
-                    legend: {display: true},
-                    scales: {
-                        yAxes: [{ticks: {min: 0, max:30}}],
+                let time_scale;
+                if(document.getElementById('radio1').checked) {
+                    time_scale = 'hours';
+                    for(let i = 0; i < difference_in_days*24; i++) {
+                        xValues.push(i);
                     }
-                }
-            });
-            
-            document.getElementById('check1').addEventListener('change', function() {
-                if (document.getElementById('check1').checked) {
-                    fetch('http://localhost:3000/get_tasks/request/new/' + start_date.toISOString().slice(0, 10) + '/' + end_date.toISOString().slice(0, 10))
-                    .then(response => response.json())
-                    .then(data => {
-                        let yValues = [];
+                }else if(document.getElementById('radio2').checked) {
+                    time_scale = 'days';
+                    for(let i = 0; i < difference_in_days; i++) {
+                        xValues.push(i);
+                    }
+                }else if(document.getElementById('radio3').checked) {
+                    time_scale = 'weeks';
+                    for(let i = 0; i < difference_in_days/7; i++) {
+                        xValues.push(i);
+                    }
+                }else if(document.getElementById('radio4').checked) {
+                    time_scale = 'months';
+                    for(let i = 0; i < difference_in_days/30; i++) {
+                        xValues.push(i);
+                    }
+                }   
 
-                        data.forEach(item => {
-                            yValues.push(item.count);
-                        })
-
-                        console.log(chart.data);
-
-                        chart.data.datasets.push({
-                            fill: false,
-                            backgroundColor: 'rgb(0, 0, 255)',
-                            borderColor: 'rgb(0, 0, 255)',
-                            data: yValues
-                        });
-
-                        console.log(chart.data);
+                document.getElementById("check1").addEventListener("click", function() {
+                    if (document.getElementById("check1").checked) {
                         
-                    })
-                    .catch(error => console.error('Error fetching data:', error));
+                    }else{
 
-                }else{
+                    }
+                });
 
-                }
+
+                document.getElementById("check2").addEventListener("click", function() {
+                    if (document.getElementById("check2").checked) {
+                        
+                    }else{
+                        
+                    }
+                });
+
+
+                document.getElementById("check3").addEventListener("click", function() {
+                    if (document.getElementById("check3").checked) {
+                        
+                    }else{
+                        
+                    }
+                });
+
+
+                document.getElementById("check4").addEventListener("click", function() {
+                    if (document.getElementById("check4").checked) {
+                        
+                    }else{
+                        
+                    }
+                });
             });
 
+        </script>
 
-            document.getElementById('check2').addEventListener('change', function() {
-                if (document.getElementById('check2').checked) {
-                    
-                }else{
-                    
-                }
-            });
-
-
-            document.getElementById('check3').addEventListener('change', function() {
-                if (document.getElementById('check3').checked) {
-                    
-                }else{
-                    
-                }
-            });
-
-
-            document.getElementById('check4').addEventListener('change', function() {
-                if (document.getElementById('check4').checked) {
-                    
-                }else{
-                    
-                }
-            });
-        });
-
-    </script>
-
+    </body>
 </html>
