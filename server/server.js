@@ -895,11 +895,50 @@ app.get('/get_tasks/:task_type/:task_state/:start_date/:end_date', async (req, r
         }
 
     }else if(task_type == 'request' && task_state == 'completed'){
+        for(let i = 0; i < difference_in_days; i++){
+            let date = new Date(start_date);
+            date.setDate(date.getDate() + i);
+            date = date.toISOString().slice(0, 10);
 
+            let [x] = await pool.query(`
+                SELECT COUNT(*) AS count 
+                FROM \`task\`
+                    JOIN \`request\` ON \`task\`.\`task_id\` = \`request\`.\`request_id\`
+                WHERE DATE(\`task\`.\`complete_date\`) = ?
+            `, [date]);
+
+            result.push(x[0]);
+        }
     }else if(task_type == 'offer' && task_state == 'new'){
+        for(let i = 0; i < difference_in_days; i++){
+            let date = new Date(start_date);
+            date.setDate(date.getDate() + i);
+            date = date.toISOString().slice(0, 10);
 
+            let [x] = await pool.query(`
+                SELECT COUNT(*) AS count 
+                FROM \`task\`
+                    JOIN \`offer\` ON \`task\`.\`task_id\` = \`offer\`.\`offer_id\`
+                WHERE DATE(\`task\`.\`reg_date\`) = ?
+            `, [date]);
+
+            result.push(x[0]);
+        }
     }else if(task_type == 'offer' && task_state == 'completed'){
+        for(let i = 0; i < difference_in_days; i++){
+            let date = new Date(start_date);
+            date.setDate(date.getDate() + i);
+            date = date.toISOString().slice(0, 10);
 
+            let [x] = await pool.query(`
+                SELECT COUNT(*) AS count 
+                FROM \`task\`
+                    JOIN \`offer\` ON \`task\`.\`task_id\` = \`offer\`.\`offer_id\`
+                WHERE DATE(\`task\`.\`complete_date\`) = ?
+            `, [date]);
+
+            result.push(x[0]);
+        }
     }
 
     res.json(result);
