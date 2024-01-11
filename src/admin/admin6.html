@@ -40,7 +40,7 @@
         </div>
 
 
-        <div class="container mt-4">
+        <div class="container-fluid ms-2 mt-4">
             <div class="row">
                 
                 <div class="col-lg-3">
@@ -67,11 +67,8 @@
                             <label class="form-check-label" for="check4">Completed Offers</label>
                         </div>
                     </form>
-                </div>
 
-                <div class="col-lg-1"></div>
 
-                <div class="col-lg-3">
                     <form class="border border-3 rounded-4 ps-4 pt-4 mt-4">
                         <p class="h3 text-center mb-4">Time Period</p>
 
@@ -91,13 +88,11 @@
                     </form>
                 </div>
 
+                <div class="col-lg-9">
+                    <canvas id="chart" style="height: 550px; width: 1000px;"></canvas>
+                </div>
             </div>
         </div>
-
-        <div class="col-lg-9">
-            <canvas id="chart" style="height: 550px; width: 1000px;"></canvas>
-        </div>
-
     </body>
 
 
@@ -110,8 +105,22 @@
             document.getElementById('start_date').max = this.value;
         });
 
+        let chart = new Chart('chart', {
+            type: 'line',
+            data: {
+                labels: [],
+                datasets: []
+            },
+            options: {
+                legend: {display: false},
+                scales: {
+                    yAxes: [{ticks: {min: 0, max:30}}],
+                }
+            }
+        });
 
         document.getElementById('display_btn').addEventListener('click' , function() {
+            chart.data.datasets = [];
 
             let xValues = [];
 
@@ -125,14 +134,14 @@
                 xValues.push(date.toISOString().slice(0, 10));
             }
 
-            let chart = new Chart('chart', {
+            chart = new Chart('chart', {
                 type: 'line',
                 data: {
                     labels: xValues,
                     datasets: []
                 },
                 options: {
-                    legend: {display: true},
+                    legend: {display: false},
                     scales: {
                         yAxes: [{ticks: {min: 0, max:30}}],
                     }
@@ -150,49 +159,131 @@
                             yValues.push(item.count);
                         })
 
-                        console.log(chart.data);
-
                         chart.data.datasets.push({
                             fill: false,
-                            backgroundColor: 'rgb(0, 0, 255)',
-                            borderColor: 'rgb(0, 0, 255)',
+                            lineTension: 0,
+                            backgroundColor: "rgba(0, 85, 255, 1.0)",
+                            borderColor: "rgba(0, 85, 255, 0.1)",
+                            name: 'New Requests',
                             data: yValues
                         });
 
-                        console.log(chart.data);
-                        
+                        chart.update();
                     })
                     .catch(error => console.error('Error fetching data:', error));
-
                 }else{
-
+                    for(let i = 0; i < chart.data.datasets.length; i++) {
+                        if(chart.data.datasets[i].name == 'New Requests') {
+                            chart.data.datasets.splice(i, 1);
+                            chart.update();
+                            break;
+                        }
+                    }
                 }
             });
 
 
             document.getElementById('check2').addEventListener('change', function() {
                 if (document.getElementById('check2').checked) {
-                    
+                    fetch('http://localhost:3000/get_tasks/request/completed/' + start_date.toISOString().slice(0, 10) + '/' + end_date.toISOString().slice(0, 10))
+                    .then(response => response.json())
+                    .then(data => {
+                        let yValues = [];
+
+                        data.forEach(item => {
+                            yValues.push(item.count);
+                        })
+
+                        chart.data.datasets.push({
+                            fill: false,
+                            lineTension: 0,
+                            backgroundColor: "rgba(0, 230, 0, 1.0)",
+                            borderColor: "rgba(0, 230, 0, 0.1)",
+                            name: 'Completed Requests',
+                            data: yValues
+                        });
+
+                        chart.update();
+                    })
+                    .catch(error => console.error('Error fetching data:', error));
                 }else{
-                    
+                    for(let i = 0; i < chart.data.datasets.length; i++) {
+                        if(chart.data.datasets[i].name == 'Completed Requests') {
+                            chart.data.datasets.splice(i, 1);
+                            chart.update();
+                            break;
+                        }
+                    }
                 }
             });
 
 
             document.getElementById('check3').addEventListener('change', function() {
                 if (document.getElementById('check3').checked) {
-                    
+                    fetch('http://localhost:3000/get_tasks/offer/new/' + start_date.toISOString().slice(0, 10) + '/' + end_date.toISOString().slice(0, 10))
+                    .then(response => response.json())
+                    .then(data => {
+                        let yValues = [];
+
+                        data.forEach(item => {
+                            yValues.push(item.count);
+                        })
+
+                        chart.data.datasets.push({
+                            fill: false,
+                            lineTension: 0,
+                            backgroundColor: "rgba(255, 0, 0, 1.0)",
+                            borderColor: "rgba(255, 0, 0, 0.1)",
+                            name: 'New Offers',
+                            data: yValues
+                        });
+
+                        chart.update();
+                    })
+                    .catch(error => console.error('Error fetching data:', error));
                 }else{
-                    
+                    for(let i = 0; i < chart.data.datasets.length; i++) {
+                        if(chart.data.datasets[i].name == 'New Offers') {
+                            chart.data.datasets.splice(i, 1);
+                            chart.update();
+                            break;
+                        }
+                    }
                 }
             });
 
 
             document.getElementById('check4').addEventListener('change', function() {
                 if (document.getElementById('check4').checked) {
-                    
+                    fetch('http://localhost:3000/get_tasks/offer/completed/' + start_date.toISOString().slice(0, 10) + '/' + end_date.toISOString().slice(0, 10))
+                    .then(response => response.json())
+                    .then(data => {
+                        let yValues = [];
+
+                        data.forEach(item => {
+                            yValues.push(item.count);
+                        })
+
+                        chart.data.datasets.push({
+                            fill: false,
+                            lineTension: 0,
+                            backgroundColor: "rgba(255, 204, 0, 1.0)",
+                            borderColor: "rgba(255, 204, 0, 0.1)",
+                            name: 'Completed Offers',
+                            data: yValues
+                        });
+
+                        chart.update();
+                    })
+                    .catch(error => console.error('Error fetching data:', error));
                 }else{
-                    
+                    for(let i = 0; i < chart.data.datasets.length; i++) {
+                        if(chart.data.datasets[i].name == 'Completed Offers') {
+                            chart.data.datasets.splice(i, 1);
+                            chart.update();
+                            break;
+                        }
+                    }
                 }
             });
         });
