@@ -407,6 +407,58 @@ END $$
 DELIMITER ;
 
 
+DROP PROCEDURE IF EXISTS newProduct;
+DELIMITER $$
+CREATE PROCEDURE newProduct(prod VARCHAR(30), base VARCHAR(30), prod_id INT, descr TEXT, cat INT)
+BEGIN
+    DECLARE element_count INT;
+    DECLARE id INT;
+
+    SELECT COUNT(*)
+    INTO element_count
+    FROM `product`
+    WHERE `product_name`=prod;
+
+    IF element_count = 0 THEN
+		IF cat_id = 0 THEN
+			INSERT INTO `product` VALUES
+			(NULL, prod, descr, cat);
+		ELSE 
+			INSERT INTO `product` VALUES
+			(prod_id, prod, descr, cat);
+		END IF;
+
+        SELECT `id`
+        INTO id
+        FROM `product`
+        WHERE `product_name`=prod;
+
+        INSERT INTO `has_product` VALUES
+        (base, id);
+    ELSE
+        SELECT `id`
+        INTO id
+        FROM `product`
+        WHERE `product_name`=prod;
+
+        SELECT COUNT(*)
+        INTO element_count
+        FROM `has_product`
+        WHERE `has_product`.`base`=base AND `has_product`.`product`=id;
+
+        IF element_count = 0 THEN
+            INSERT INTO `has_product` VALUES
+            (base, id);
+        ELSE
+            SIGNAL SQLSTATE '45000'
+                SET MESSAGE_TEXT = 'Category already exists';
+        END IF;
+    END IF;
+
+END $$
+DELIMITER ;
+
+
 DROP PROCEDURE IF EXISTS newRequest;
 DELIMITER $$
 CREATE PROCEDURE newRequest(citizen VARCHAR(30), product INT, persons INT)
