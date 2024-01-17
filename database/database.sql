@@ -154,4 +154,14 @@ CREATE TABLE `base_inventory`(
     FOREIGN KEY (`product_id`) REFERENCES `product` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) Engine = InnoDB;
 
+DROP TABLE IF EXISTS `has_product`;
+CREATE TABLE `has_product`(
+    `base` VARCHAR(30) NOT NULL,
+    `product` INT UNIQUE NOT NULL,
+
+    PRIMARY KEY (`base`, `product`),
+    FOREIGN KEY (`base`) REFERENCES `base` (`base_name`) ON DELETE CASCADE ON UPDATE CASCADE,
+    FOREIGN KEY (`product`) REFERENCES `product` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) Engine = InnoDB;
+
 
