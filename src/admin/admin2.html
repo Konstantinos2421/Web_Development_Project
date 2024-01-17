@@ -102,7 +102,7 @@
             <form class="p-3">
               <div class="mb-3 mt-3">
                 <label for="category_name" class="form-label">Category Name:</label>
-                <input type="text" class="form-control" placeholder="Enter Category Name" id="category_name_field">
+                <input type="text" class="form-control" autocomplete="off" placeholder="Enter Category Name" id="category_name_field">
               </div>
 
               <div class="mb-3 mt-3 text-center">
@@ -130,12 +130,12 @@
 
               <div class="mb-3 mt-3">
                 <label for="product_name" class="form-label">Product Name:</label>
-                <input type="text" class="form-control" placeholder="Enter Product Name" id="product_name_field">
+                <input type="text" class="form-control" autocomplete="off" placeholder="Enter Product Name" id="product_name_field">
               </div>
 
               <div class="mb-3 mt-3">
                 <label for="product_description" class="form-label">Product Description:</label>
-                <textarea class="form-control" rows="8" id="product_description_field" placeholder="Enter Product Description" name="product_description"></textarea>
+                <textarea class="form-control" rows="8" autocomplete="off" id="product_description_field" placeholder="Enter Product Description" name="product_description"></textarea>
               </div>
 
               <div class="mb-1 mt-3 text-center">
@@ -269,10 +269,11 @@
 
 
     document.getElementById('submit_btn1').addEventListener('click', () => {
+      let category_name = document.getElementById('category_name_field').value;
       if (category_name == '') {
         alert("Please enter a category name");
       }else{
-        fetch('http://localhost:3000/new_category/' + admin + '/' + category_name + '/NULL', { method: "POST" })
+        fetch('http://localhost:3000/new_category/' + admin + '/' + category_name + '/0', { method: "POST" })
         .then(response => response.text())
         .then(data => {
 

@@ -443,13 +443,16 @@ app.get('/displayBaseInventory/admin/:admin/:category_id', async (req, res) => {
     res.json(result[0]);
 });
 
-app.get('/citizen/announcements', async (req, res) => {
+app.get('/citizen/announcements/:base', async (req, res) => {
+    let base = req.params.base;
+
     const [result] = await pool.query(`
         SELECT *
         FROM \`announcement\`
             JOIN \`product\` ON \`announcement\`.\`product_id\` = \`product\`.\`id\`
+        WHERE \`announcement\`.\`base\` = ?
         ORDER BY \`announcement\`.\`announcement_id\`
-    `);
+    `, [base]);
 
     res.json(result);
 });

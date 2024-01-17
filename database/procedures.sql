@@ -368,8 +368,13 @@ BEGIN
     WHERE `category_name`=cat;
 
     IF element_count = 0 THEN
-        INSERT INTO `category` VALUES
-        (cat_id, cat);
+		IF cat_id = 0 THEN
+			INSERT INTO `category` VALUES
+			(NULL, cat);
+		ELSE 
+			INSERT INTO `category` VALUES
+			(cat_id, cat);
+		END IF;
 
         SELECT `category_id`
         INTO id

@@ -67,13 +67,13 @@ INSERT INTO `product` VALUES
 ('GTD8563', 1, 20),
 ('GTD8563', 4, 25),
 ('PLE8456', 2, 10),
-('PLE8456', 3, 5);
+('PLE8456', 3, 5);*/
 
-INSERT INTO `base_inventory` VALUES
+/*INSERT INTO `base_inventory` VALUES
 (1, 10, 'PATRA_BASE1'),
 (2, 20, 'PATRA_BASE1'),
 (3, 80, 'PATRA_BASE1'),
-(4, 65, 'PATRA_BASE1');*/
+(4, 65, 'PATRA_BASE1');
 
 INSERT INTO `task` VALUES
 (NULL, NULL, 'NO', 'NO', current_timestamp(), NULL, NULL),
@@ -97,4 +97,4 @@ INSERT INTO `offer` VALUES
 (6, 'alexandros_apostolou', 1, 10),
 (7, 'alexandros_apostolou', 2, 20),
 (8, 'thanos_kostopoulos', 3, 20),
-(9, 'panagiota_milona', 4, 25);
+(9, 'panagiota_milona', 4, 25);*/

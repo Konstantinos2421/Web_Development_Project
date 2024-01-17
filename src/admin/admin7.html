@@ -70,32 +70,32 @@
 
                         <div class="mb-3 mt-2">
                             <label for="username" class="form-label">Username:</label>
-                            <input type="text" class="form-control" placeholder="Enter Username" id="username_field">
+                            <input type="text" class="form-control" autocomplete="off" placeholder="Enter Username" id="username_field">
                         </div>
 
                         <div class="mb-3 mt-3">
                             <label for="password" class="form-label">Password:</label>
-                            <input type="password" class="form-control" placeholder="Enter Password" id="password_field" required>
+                            <input type="password" class="form-control" autocomplete="off" placeholder="Enter Password" id="password_field" required>
                         </div>
                         
                         <div class="mb-3 mt-3">
                             <label for="first name" class="form-label">First Name:</label> 
-                            <input type="text" class="form-control" placeholder="Enter First Name" id="first_name_field" required>
+                            <input type="text" class="form-control" autocomplete="off" placeholder="Enter First Name" id="first_name_field" required>
                         </div> 
 
                         <div class="mb-3 mt-3">
                             <label for="last name" class="form-label">Last Name:</label> 
-                            <input type="text" class="form-control" placeholder="Enter Last Name" id="last_name_field" required>
+                            <input type="text" class="form-control" autocomplete="off" placeholder="Enter Last Name" id="last_name_field" required>
                         </div> 
 
                         <div class="mb-3 mt-3">
                             <label for="phone_num" class="form-label">Phone Number:</label> 
-                            <input type="tel" class="form-control" placeholder="Enter Phone Number" id="phone_num_field" required>
+                            <input type="tel" class="form-control" autocomplete="off" placeholder="Enter Phone Number" id="phone_num_field" required>
                         </div>
 
                         <div class="mb-3 mt-3">
                             <label for="vehicle" class="form-label">Vehicle:</label> 
-                            <input type="text" class="form-control" placeholder="Enter Vehicle" id="vehicle_field" required>
+                            <input type="text" class="form-control" autocomplete="off" placeholder="Enter Vehicle" id="vehicle_field" required>
                         </div>
 
                         <div class="mb-1 mt-3 text-center">
@@ -144,7 +144,12 @@
                 .then(data => {
                     if (data == 'success') {
                         alert('The account was created successfully!');
-                        window.location.href = 'admin_home.html';
+                        document.getElementById('username_field').value = '';
+                        document.getElementById('password_field').value = '';
+                        document.getElementById('first_name_field').value = '';
+                        document.getElementById('last_name_field').value = '';
+                        document.getElementById('phone_num_field').value = '';
+                        document.getElementById('vehicle_field').value = '';
                     }
                     else {
                         alert('Username already exists!');

@@ -109,6 +109,8 @@
       })
       .catch(error => console.error('Error fetching data:', error));
     });
+
+    let admin = sessionStorage.getItem('username');
     
     fetch('http://localhost:3000/base_inventory/admin/' + admin)
     .then(response => response.json())
