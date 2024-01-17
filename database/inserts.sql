@@ -35,7 +35,7 @@ INSERT INTO `citizen` VALUES
 ('thanos_kostopoulos', ST_GeomFromText('POINT(38.2569 21.7451)')),
 ('panagiota_milona', ST_GeomFromText('POINT(38.2497 21.7373)'));
 
-INSERT INTO `category` VALUES
+/*INSERT INTO `category` VALUES
 (NULL, 'meat'),
 (NULL, 'diary'),
 (NULL, 'beverages'),
@@ -52,9 +52,9 @@ INSERT INTO `product` VALUES
 (NULL, 'milk', '', 2),
 (NULL, 'water', '', 3),
 (NULL, 'soap', '', 4),
-(NULL, 'kfc', '', 1);
+(NULL, 'kfc', '', 1);*/
 
-INSERT INTO `cargo` VALUES
+/*INSERT INTO `cargo` VALUES
 ('AXY8965', 1, 10),
 ('AXY8965', 3, 5),
 ('AXY8965', 2, 15),
@@ -73,7 +73,7 @@ INSERT INTO `base_inventory` VALUES
 (1, 10, 'PATRA_BASE1'),
 (2, 20, 'PATRA_BASE1'),
 (3, 80, 'PATRA_BASE1'),
-(4, 65, 'PATRA_BASE1');
+(4, 65, 'PATRA_BASE1');*/
 
 INSERT INTO `task` VALUES
 (NULL, NULL, 'NO', 'NO', current_timestamp(), NULL, NULL),

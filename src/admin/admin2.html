@@ -8,6 +8,15 @@
     <title>Base Warehouse Management</title>
     <link rel="stylesheet" href="../../bootstrap-5.3.2-dist/css/bootstrap.css">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+      if (sessionStorage.getItem('loggedIn') != 'yes') {
+        window.location.href = "../login/login.html";
+      }else if(sessionStorage.getItem('userType') != 'admin'){
+        let user_type = sessionStorage.getItem('userType');
+        window.location.href = '../' + user_type + '/' + user_type + '_home.html';
+      }
+    </script>
   </head>
 
   <style>
@@ -38,15 +47,26 @@
 
         <div class="col-lg-2 mt-4">
           <div class="btn-group">
-            <button type="button" class="btn btn-link">
+            <button type="button" class="btn btn-link" id="home_btn">
               <img src="../../imgs/home.png" class="img-thumbnail" width="45" height="45">
             </button>
 
-            <button type="button" class="btn btn-link">
-              <img src="../../imgs/user.png" class="img-thumbnail" width="45" height="45">
-            </button>
+            <div class="dropdown">
+              <button type="button" class="btn btn-link" data-bs-toggle="dropdown">
+                <img src="../../imgs/user.png" class="img-thumbnail" width="45" height="45">
+              </button>
+              <div class="dropdown-menu p-3" id="user_info">
+                <script>
+                  document.getElementById('user_info').innerHTML = `
+                    <div class="text-center">
+                      <b class="font-weight-bold">${sessionStorage.getItem('username')}</b>
+                    </div>
+                  `;
+                </script>
+              </div>
+            </div>
 
-            <button type="button" class="btn btn-link">
+            <button type="button" class="btn btn-link" id="power_btn">
               <img src="../../imgs/power.png" class="img-thumbnail" width="45" height="45">
             </button>
           </div>
@@ -173,9 +193,26 @@
   </body>
 
   <script>
+    document.getElementById('home_btn').addEventListener('click', function () {
+      location.href = './admin_home.html';
+    });
+
+    document.getElementById('power_btn').addEventListener('click', function () {
+      fetch('http://localhost:3000/logout', {method: 'POST'})
+      .then(response => response.text())
+      .then(data => {
+        if (data == 'success') {
+          sessionStorage.setItem('loggedIn', 'no');
+          sessionStorage.setItem('userType', '');
+          location.href = '../login/login.html';
+        }
+      })
+      .catch(error => console.error('Error fetching data:', error));
+    });
+
     let admin = sessionStorage.getItem("username");
 
-    fetch('http://localhost:3000/base/categories/stavros_paraskevopoulos')
+    fetch('http://localhost:3000/base/categories/' + admin)
     .then(response => response.json())
     .then(data => {
       
@@ -192,7 +229,7 @@
 
 
     function displayBaseInventory(){
-      fetch('http://localhost:3000/base_inventory/admin/stavros_paraskevopoulos')
+      fetch('http://localhost:3000/base_inventory/admin/' + admin)
       .then(response => response.json())
       .then(data => {
         let dataContainer = document.getElementById('base_inventory');
@@ -235,7 +272,7 @@
       if (category_name == '') {
         alert("Please enter a category name");
       }else{
-        fetch('http://localhost:3000/new_category/stavros_paraskevopoulos' + category_name, { method: "POST" })
+        fetch('http://localhost:3000/new_category/' + admin + '/' + category_name + '/NULL', { method: "POST" })
         .then(response => response.text())
         .then(data => {
 
@@ -302,7 +339,7 @@
       .then(response => response.json())
       .then(data => {
         data.categories.forEach(item => {
-          fetch('http://localhost:3000/new_category/stavros_paraskevopoulos/' + item.category_name, {method: 'POST'})
+          fetch('http://localhost:3000/new_category/' + admin + '/' + item.category_name + '/' + parseFloat(item.id), {method: 'POST'})
           .then(response => response.text())
           .then(data => {
             if(data == 'fail'){
@@ -317,7 +354,9 @@
           let product_category = parseInt(item.category);
           let product_description = '';
           item.details.forEach(detail => {
-            product_description = product_description + detail.detail_name + ': ' + detail.detail_value + '\n';
+            if(detail.detail_name != '' && detail.detail_name != 'stock'){
+              product_description = product_description + detail.detail_name + ': ' + detail.detail_value + '\n';
+            }
           });
 
           let obj = {
@@ -360,7 +399,7 @@
             let jsonData = JSON.parse(e.target.result);
 
             jsonData.categories.forEach(item => {
-              fetch('http://localhost:3000/new_category/stavros_paraskevopoulos/' + item.category_name, {method: 'POST'})
+              fetch('http://localhost:3000/new_category/' + admin + '/' + item.category_name + '/' + parseFloat(item.id), {method: 'POST'})
               .then(response => response.text())
               .then(data => {
                 if(data == 'fail'){
@@ -375,7 +414,9 @@
               let product_category = parseInt(item.category);
               let product_description = '';
               item.details.forEach(detail => {
-                product_description = product_description + detail.detail_name + ': ' + detail.detail_value + '\n';
+                if(detail.detail_name != '' && detail.detail_name != 'stock'){
+                  product_description = product_description + detail.detail_name + ': ' + detail.detail_value + '\n';
+                }
               });
     
               let obj = {
@@ -399,6 +440,8 @@
               })
               .catch(error => console.error('Error fetching data:', error));
             });
+
+            alert('JSON loaded successfully');
 
           } catch (error) {
             alert('File is not JSON!');
@@ -424,7 +467,7 @@
         }
       }
 
-      fetch('http://localhost:3000/update_inventory/stavros_paraskevopoulos', {
+      fetch('http://localhost:3000/update_inventory/' + admin, {
         method: 'POST', 
         body: JSON.stringify(data),
         headers: {
@@ -440,7 +483,7 @@
       .catch(error => console.error('Error fetching data:', error));
     });
 
-    displayBaseInventory()
+    displayBaseInventory();
   </script>
 
 </html>

@@ -357,7 +357,7 @@ DELIMITER ;
 
 DROP PROCEDURE IF EXISTS newCategory;
 DELIMITER $$
-CREATE PROCEDURE newCategory(cat VARCHAR(30), base VARCHAR(30))
+CREATE PROCEDURE newCategory(cat VARCHAR(30), base VARCHAR(30), cat_id INT)
 BEGIN
     DECLARE element_count INT;
     DECLARE id INT;
@@ -369,7 +369,7 @@ BEGIN
 
     IF element_count = 0 THEN
         INSERT INTO `category` VALUES
-        (NULL, cat);
+        (cat_id, cat);
 
         SELECT `category_id`
         INTO id

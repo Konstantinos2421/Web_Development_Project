@@ -1,0 +1,865 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Map</title>
+        <link rel="stylesheet" href="../../bootstrap-5.3.2-dist/css/bootstrap.css">
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+        <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
+        <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+        <script>
+            if (sessionStorage.getItem('loggedIn') != 'yes') {
+              window.location.href = "../login/login.html";
+            }else if(sessionStorage.getItem('userType') != 'rescuer'){
+              let user_type = sessionStorage.getItem('userType');
+              window.location.href = '../' + user_type + '/' + user_type + '_home.html';
+            }
+        </script>
+    </head>
+
+    <style>
+        .leaflet-popup-content {
+            max-height: 320px;
+            overflow-y: auto;
+        }
+
+        .leaflet-popup-content::-webkit-scrollbar {
+            width: 5px;
+        }
+        
+        .leaflet-popup-content::-webkit-scrollbar-thumb {
+            background-color: #827979;
+            border-radius: 5px;
+        }
+    </style>
+
+    <body>
+
+        <div class="container">
+            <div class="row" style="background-color:rgb(80, 102, 80)">
+
+                <div class="col-sm-12">
+                    <img src="../../imgs/logo.png" class="img-thumbnail mx-auto d-block mt-4" width="150" height="45">
+                </div>
+
+            </div>
+        </div>
+
+        <div class="container mb-4">
+            <div class="row" style="background-color:rgb(80, 102, 80)">
+
+                <div class="btn-group mb-3">
+                    <button type="button" class="btn btn-link mt-5" id="home_btn">
+                        <img src="../../imgs/home.png" class="img-thumbnail" width="45" height="45">
+                    </button>
+
+                    <div class="dropdown">
+                        <button type="button" class="btn btn-link mt-5" data-bs-toggle="dropdown">
+                            <img src="../../imgs/user.png" class="img-thumbnail" width="45" height="45">
+                        </button>
+                        <div class="dropdown-menu p-3" id="user_info">
+                            <script>
+                                document.getElementById('user_info').innerHTML = `
+                                    <div class="text-center">
+                                        <b class="font-weight-bold">${sessionStorage.getItem('username')}</b>
+                                    </div>
+                                `;
+                            </script>
+                        </div>
+                    </div>
+
+                    <button type="button" class="btn btn-link mt-5" id="power_btn">
+                        <img src="../../imgs/power.png" class="img-thumbnail" width="45" height="45">
+                    </button>
+                </div> 
+
+            </div>
+        </div>
+
+        <div class="container-fluid mt-4">
+            <div class="row">
+
+                <div class="col-sm-12">
+                    <form class="border border-3 rounded-4 ps-4 pt-4">
+                        <p class="h3 text-center mb-4">Toggles</p>
+
+                        <div class="form-check mb-3">
+                            <input type="checkbox" class="form-check-input" id="check1" name="option1" value="something">
+                            <label class="form-check-label" for="check1">Unaccepted Requests</label>
+                        </div>
+
+                        <div class="form-check mb-3">
+                            <input type="checkbox" class="form-check-input" id="check2" name="option2" value="something">
+                            <label class="form-check-label" for="check2">Unaccepted Offers</label>
+                        </div>
+
+                        <div class="form-check mb-3">
+                            <input type="checkbox" class="form-check-input" id="check3" name="option3" value="something">
+                            <label class="form-check-label" for="check3">My Accepted Tasks</label>
+                        </div>
+                    </form>
+
+                </div>
+            </div>
+        </div>
+
+        <div class="container-fluid mt-4">
+            <div class="row">
+                <div class="col-sm-12">
+                    <div id="map" style="height: 400px;"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-3 mb-4 text-center">
+            <button type="button" class="btn btn-outline-primary" id="new_location_btn" disabled>Change Your Location</button>
+        </div>
+
+
+    </body>
+
+    <script>
+        document.getElementById('home_btn').addEventListener('click', function () {
+            location.href = './rescuer_home.html';
+        });
+      
+        document.getElementById('power_btn').addEventListener('click', function () {
+            fetch('http://localhost:3000/logout', {method: 'POST'})
+            .then(response => response.text())
+            .then(data => {
+              if (data == 'success') {
+                sessionStorage.setItem('loggedIn', 'no');
+                sessionStorage.setItem('userType', '');
+                location.href = '../login/login.html';
+              }
+            })
+            .catch(error => console.error('Error fetching data:', error));
+        });
+
+        let rescuer = sessionStorage.getItem('username');
+        var map = L.map('map').setView([38.2904, 21.7957], 14);
+          
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(map);
+
+        fetch('http://localhost:3000/base_location/rescuer/' + rescuer)
+        .then(response => response.json())
+        .then(data => {
+            let lat = data.base_location.x;
+            let lng = data.base_location.y;
+
+            map.setView([lat, lng], 14);
+
+            let marker = L.marker([lat, lng],{
+                icon: L.icon({
+                    iconUrl: '../../imgs/pins/marker-icon-2x-black.png',
+                    iconSize: [25, 41],
+                    iconAnchor: [12, 41],
+                    popupAnchor: [1, -34]
+                })
+            });
+
+            marker.addTo(map);
+            marker.bindPopup(`
+                <div class="text-center">
+                    <b class="font-weight-bold">Base</b>
+                </div>
+
+                <p><b>Base Name: </b>${data.base_name}</p>
+                <p><b>Location: </b>${lat.toFixed(4)} ${lng.toFixed(4)}</p>
+            `);
+        })
+        .catch(error => console.error('Error fetching data:', error));
+
+
+        fetch('http://localhost:3000/rescuer_location/' + rescuer)
+        .then(response => response.json())
+        .then(data => {
+            let lat = data.vehicle_location.x;
+            let lng = data.vehicle_location.y;
+
+            map.setView([lat, lng], 14);
+
+            let marker = L.marker([lat, lng],{
+                icon: L.icon({
+                    iconUrl: '../../imgs/pins/marker-icon-2x-gold.png',
+                    iconSize: [25, 41],
+                    iconAnchor: [12, 41],
+                    popupAnchor: [1, -34]
+                })
+            });
+
+            marker.addTo(map);
+            marker.bindPopup(`
+                <div class="text-center">
+                    <b class="font-weight-bold">Your Location</b>
+                </div>
+
+                <p><b>Userame: </b>${data.rescuer_username}</p>
+                <p><b>Location: </b>${lat.toFixed(4)} ${lng.toFixed(4)}</p>
+            `);
+        })
+        .catch(error => console.error('Error fetching data:', error));
+
+
+        let new_location_marker;
+        let new_location_lat, new_location_lng;
+        map.on('click', function(e) {
+            new_location_lat = e.latlng.lat;
+            new_location_lng = e.latlng.lng;
+
+            if (new_location_marker) {
+                map.removeLayer(new_location_marker);
+            }
+
+            new_location_marker = L.marker([new_location_lat, new_location_lng]).addTo(map);
+            document.getElementById('new_location_btn').disabled = false;
+        });
+
+        document.getElementById('new_location_btn').addEventListener('click', function(){
+            fetch('http://localhost:3000/change_rescuer_location/' + new_location_lat + '/' + new_location_lng + '/' + rescuer, {method: 'POST'})
+            .then(response => response.text())
+            .then(data => {
+                if(data == 'success') {
+                    alert('Your location changed successfully!');
+                    window.location.href = 'rescuer3_4_5.html';
+                }
+            })
+            .catch(error => console.error('Error fetching data:', error));
+        });
+
+
+        let unacceptedRequestsLayer = L.layerGroup();
+        document.getElementById('check1').addEventListener('change', function() {
+            if(document.getElementById('check1').checked){
+                fetch('http://localhost:3000/unaccepted/requests')
+                .then(response => response.json())
+                .then(data => {
+                    let markers = [];
+                    let marker_exists = false;
+                    let existing_marker;
+                    
+                    data.forEach(item => {
+                        let lat = item.citizen_location.x;
+                        let lng = item.citizen_location.y;
+
+                        markers.forEach(marker => {
+                            if(marker.getLatLng().lat == lat && marker.getLatLng().lng == lng){
+                                marker_exists = true;
+                                existing_marker = marker;
+                            }
+                        });
+
+                       if(marker_exists){
+                            existing_marker.getPopup().setContent(existing_marker.getPopup().getContent() + `
+                                <hr><div class="text-center">
+                                    <b class="font-weight-bold">Request</b>
+                                </div>
+                                
+                                <p><b>Name: </b>${item.first_name} ${item.last_name}</p>
+                                <p><b>Phone: </b>${item.phone_num}</p>
+                                <p><b>Product: </b>${item.product_name}</p>
+                                <p><b>Persons: </b>${item.persons_num}</p>
+                                <p><b>Registration Date: </b>${item.reg_date.replace('T','  ').slice(0, -5)}</p>
+
+                                <div class="mt-2 mb-3 text-center">
+                                    <button type="button" class="btn btn-outline-primary btn-sm" id="${item.task_id}">Accept</button>
+                                </div>
+                            `);
+
+                            existing_marker.on('popupopen', function() {
+                                document.getElementById(item.task_id).addEventListener('click', function(){
+                                    fetch('http://localhost:3000/accept_task/' + item.task_id + '/' + rescuer, {method: 'POST'})
+                                    .then(response => response.text())
+                                    .then(data => {
+                                        if(data == 'success') {
+                                            alert('Request has been accepted!');
+                                            window.location.href = 'rescuer3_4_5.html';
+                                        }else{
+                                            alert('You cannot take more than 4 tasks!');
+                                        }
+                                    })
+                                    .catch(error => console.error('Error fetching data:', error));
+                                });
+                            })
+
+                            marker_exists = false;
+                        }else{
+                            let marker = L.marker([lat, lng],{
+                                icon: L.icon({
+                                    iconUrl: '../../imgs/pins/location-304467_1920.png',
+                                    iconSize: [25, 41],
+                                    iconAnchor: [12, 41],
+                                    popupAnchor: [1, -34]
+                                })
+                            });
+                            
+                            marker.addTo(unacceptedRequestsLayer);
+                            marker.bindPopup(`
+                                <div class="text-center">
+                                    <b class="font-weight-bold">Request</b>
+                                </div>
+                                
+                                <p><b>Name: </b>${item.first_name} ${item.last_name}</p>
+                                <p><b>Phone: </b>${item.phone_num}</p>
+                                <p><b>Product: </b>${item.product_name}</p>
+                                <p><b>Persons: </b>${item.persons_num}</p>
+                                <p><b>Registration Date: </b>${item.reg_date.replace('T','  ').slice(0, -5)}</p>
+
+                                <div class="mt-2 mb-3 text-center">
+                                    <button type="button" class="btn btn-outline-primary btn-sm" id="${item.task_id}">Accept</button>
+                                </div>
+                            `);
+
+                            markers.push(marker);
+                            
+                            marker.on('popupopen', function() {
+                                document.getElementById(item.task_id).addEventListener('click', function(){
+                                    fetch('http://localhost:3000/accept_task/' + item.task_id + '/' + rescuer, {method: 'POST'})
+                                    .then(response => response.text())
+                                    .then(data => {
+                                        if(data == 'success') {
+                                            alert('Request has been accepted!');
+                                            window.location.href = 'rescuer3_4_5.html';
+                                        }else{
+                                            alert('You cannot take more than 4 tasks!');
+                                        }
+                                    })
+                                    .catch(error => console.error('Error fetching data:', error));
+                                });
+                            })
+                        }
+                    });
+                    map.addLayer(unacceptedRequestsLayer);
+                })
+                .catch(error => console.error('Error fetching data:', error));
+            }else{
+                map.removeLayer(unacceptedRequestsLayer);
+            }
+
+        });
+
+        let unacceptedOffersLayer = L.layerGroup();
+        document.getElementById('check2').addEventListener('change', function() {
+            if(document.getElementById('check2').checked){
+                fetch('http://localhost:3000/unaccepted/offers')
+                .then(response => response.json())
+                .then(data => {
+                    let markers = [];
+                    let marker_exists = false;
+                    let existing_marker;
+                    
+                    data.forEach(item => {
+                        let lat = item.citizen_location.x;
+                        let lng = item.citizen_location.y;
+
+                        markers.forEach(marker => {
+                            if(marker.getLatLng().lat == lat && marker.getLatLng().lng == lng){
+                                marker_exists = true;
+                                existing_marker = marker;
+                            }
+                        });
+                        
+                        if(marker_exists){
+                            existing_marker.getPopup().setContent(existing_marker.getPopup().getContent() + `
+                                <hr><div class="text-center">
+                                    <b class="font-weight-bold">Offer</b>
+                                </div>
+                                
+                                <p><b>Name: </b>${item.first_name} ${item.last_name}</p>
+                                <p><b>Phone: </b>${item.phone_num}</p>
+                                <p><b>Product: </b>${item.product_name}</p>
+                                <p><b>Quantity: </b>${item.quantity}</p>
+                                <p><b>Registration Date: </b>${item.reg_date.replace('T','  ').slice(0, -5)}</p>
+
+                                <div class="mt-2 mb-3 text-center">
+                                    <button type="button" class="btn btn-outline-primary btn-sm" id="${item.task_id}">Accept</button>
+                                </div>
+                            `);
+
+                            existing_marker.on('popupopen', function() {
+                                document.getElementById(item.task_id).addEventListener('click', function(){
+                                    fetch('http://localhost:3000/accept_task/' + item.task_id + '/' + rescuer, {method: 'POST'})
+                                    .then(response => response.text())
+                                    .then(data => {
+                                        if(data == 'success') {
+                                            alert('Offer has been accepted!');
+                                            window.location.href = 'rescuer3_4_5.html';
+                                        }else{
+                                            alert('You cannot take more than 4 tasks!');
+                                        }
+                                    })
+                                    .catch(error => console.error('Error fetching data:', error));
+                                });
+                            })
+
+                            marker_exists = false;
+                        }else{
+                            let marker = L.marker([lat, lng],{
+                                icon: L.icon({
+                                    iconUrl: '../../imgs/pins/map-158493_1920.png',
+                                    iconSize: [28, 45],
+                                    iconAnchor: [12, 41],
+                                    popupAnchor: [1, -34]
+                                })
+                            });
+
+                            marker.addTo(unacceptedOffersLayer);
+                            marker.bindPopup(`
+                                <div class="text-center">
+                                    <b class="font-weight-bold">Offer</b>
+                                </div>
+                                
+                                <p><b>Name: </b>${item.first_name} ${item.last_name}</p>
+                                <p><b>Phone: </b>${item.phone_num}</p>
+                                <p><b>Product: </b>${item.product_name}</p>
+                                <p><b>Quantity: </b>${item.quantity}</p>
+                                <p><b>Registration Date: </b>${item.reg_date.replace('T','  ').slice(0, -5)}</p>
+
+                                <div class="mt-2 mb-3 text-center">
+                                    <button type="button" class="btn btn-outline-primary btn-sm" id="${item.task_id}">Accept</button>
+                                </div>
+                            `);
+
+                            markers.push(marker);
+
+                            marker.on('popupopen', function() {
+                                document.getElementById(item.task_id).addEventListener('click', function(){
+                                    fetch('http://localhost:3000/accept_task/' + item.task_id + '/' + rescuer, {method: 'POST'})
+                                    .then(response => response.text())
+                                    .then(data => {
+                                        if(data == 'success') {
+                                            alert('Offer has been accepted!');
+                                            window.location.href = 'rescuer3_4_5.html';
+                                        }else{
+                                            alert('You cannot take more than 4 tasks!');
+                                        }
+                                    })
+                                    .catch(error => console.error('Error fetching data:', error));
+                                });
+                            })
+                        }
+                    });
+                    map.addLayer(unacceptedOffersLayer);
+                })
+                .catch(error => console.error('Error fetching data:', error));
+            }else{
+                map.removeLayer(unacceptedOffersLayer);
+            }
+        });
+
+
+        let activeRequestsLayer = L.layerGroup(); 
+        let activeOffersLayer = L.layerGroup();
+        let linesLayer = L.layerGroup();
+        document.getElementById('check3').addEventListener('change', function() {
+            if(document.getElementById('check3').checked){
+                fetch('http://localhost:3000/rescuer_active_tasks/requests/' + rescuer)
+                .then(response => response.json())
+                .then(data => {
+                    let markers = [];
+                    let marker_exists = false;
+                    let existing_marker;
+
+                    data.forEach(item => {
+                        let citizen_lat = item.citizen_location.x;
+                        let citizen_lng = item.citizen_location.y;
+
+                        markers.forEach(marker => {
+                            if(marker.getLatLng().lat == citizen_lat && marker.getLatLng().lng == citizen_lng){
+                                marker_exists = true;
+                                existing_marker = marker;
+                            }
+                        });
+                        
+                        if(marker_exists){
+                            existing_marker.getPopup().setContent(existing_marker.getPopup().getContent() + `
+                                <hr><div class="text-center">
+                                    <b class="font-weight-bold">Request</b>
+                                </div>
+                                
+                                <p><b>Name: </b>${item.first_name} ${item.last_name}</p>
+                                <p><b>Phone: </b>${item.phone_num}</p>
+                                <p><b>Product: </b>${item.product_name}</p>
+                                <p><b>Persons: </b>${item.persons_num}</p>
+                                <p><b>Registration Date: </b>${item.reg_date.replace('T','  ').slice(0, -5)}</p>
+                                <p><b>Takeover Date: </b>${item.accept_date.replace('T','  ').slice(0, -5)}</p>
+                                <p><b>Vehicle: </b>${item.vehicle}</p>
+
+                                <div class="mt-2 mb-3 text-center">
+                                    <button type="button" class="btn btn-outline-primary btn-sm me-3" id="complete_${item.task_id}">Complete</button>
+                                    <button type="button" class="btn btn-outline-danger btn-sm" id="cancel_${item.task_id}">Cancel</button>
+                                </div>
+                            `);
+
+                            existing_marker.on('popupopen', function() {
+                                document.getElementById('complete_' + item.task_id).addEventListener('click', async function(){
+                                    let rescuer_lat;
+                                    let rescuer_lng;
+                                    let citizen_lat;
+                                    let citizen_lng;
+                                    
+                                    await fetch('http://localhost:3000/rescuer_location/' + rescuer)
+                                    .then(response => response.json())
+                                    .then(data => {
+                                        rescuer_lat = data.vehicle_location.x;
+                                        rescuer_lng = data.vehicle_location.y;
+                                    })
+                                    .catch(error => console.error('Error fetching data:', error));
+
+                                    await fetch('http://localhost:3000/citizen_location/' + item.citizen_username)
+                                    .then(response => response.json())
+                                    .then(data => {
+                                        citizen_lat = data.citizen_location.x;
+                                        citizen_lng = data.citizen_location.y;
+                                    })
+                                    .catch(error => console.error('Error fetching data:', error));
+
+                                    let distance = L.latLng(citizen_lat, citizen_lng).distanceTo(L.latLng(rescuer_lat, rescuer_lng));
+                                    if(distance > 50){
+                                        alert('You are too far away from the citizen!');
+                                        return;
+                                    }
+
+                                    fetch('http://localhost:3000/complete_task/request/' + item.task_id + '/' + item.persons_num + '/' + rescuer, {method: 'POST'})
+                                    .then(response => response.text())
+                                    .then(data => {
+                                        if(data == 'success') {
+                                            alert('Task has been completed!');
+                                            window.location.href = 'rescuer3_4_5.html';
+                                        }
+                                    })
+                                    .catch(error => console.error('Error fetching data:', error));
+                                });
+
+                                document.getElementById('cancel_' + item.task_id).addEventListener('click', function(){
+                                    fetch('http://localhost:3000/cancel_task/' + item.task_id + '/' + rescuer, {method: 'POST'})
+                                    .then(response => response.text())
+                                    .then(data => {
+                                        if(data == 'success') {
+                                            alert('Task has been canceled!');
+                                            window.location.href = 'rescuer3_4_5.html';
+                                        }
+                                    })
+                                    .catch(error => console.error('Error fetching data:', error));
+                                });
+
+                            })
+
+                            let rescuer_lat = item.vehicle_location.x;
+                            let rescuer_lng = item.vehicle_location.y;
+
+                            let line = L.polyline([L.latLng(citizen_lat, citizen_lng), L.latLng(rescuer_lat, rescuer_lng)], {color: 'black'});
+                            line.addTo(linesLayer);
+
+                            marker_exists = false;
+                        }else{
+                            let marker = L.marker([citizen_lat, citizen_lng],{
+                                icon: L.icon({
+                                    iconUrl: '../../imgs/pins/poi-304466_1920.png',
+                                    iconSize: [25, 41],
+                                    iconAnchor: [12, 41],
+                                    popupAnchor: [1, -34]
+                                })
+                            });
+
+                            marker.addTo(activeRequestsLayer);
+                            marker.bindPopup(`
+                                <div class="text-center">
+                                    <b class="font-weight-bold">Request</b>
+                                </div>
+                                
+                                <p><b>Name: </b>${item.first_name} ${item.last_name}</p>
+                                <p><b>Phone: </b>${item.phone_num}</p>
+                                <p><b>Product: </b>${item.product_name}</p>
+                                <p><b>Persons: </b>${item.persons_num}</p>
+                                <p><b>Registration Date: </b>${item.reg_date.replace('T','  ').slice(0, -5)}</p>
+                                <p><b>Takeover Date: </b>${item.accept_date.replace('T','  ').slice(0, -5)}</p>
+                                <p><b>Vehicle: </b>${item.vehicle}</p>
+
+                                <div class="mt-2 mb-3 text-center">
+                                    <button type="button" class="btn btn-outline-primary btn-sm me-3" id="complete_${item.task_id}">Complete</button>
+                                    <button type="button" class="btn btn-outline-danger btn-sm" id="cancel_${item.task_id}">Cancel</button>
+                                </div>
+                            `);
+
+                            markers.push(marker);
+
+                            marker.on('popupopen', function() {
+                                document.getElementById('complete_' + item.task_id).addEventListener('click', async function(){
+                                    let rescuer_lat;
+                                    let rescuer_lng;
+                                    let citizen_lat;
+                                    let citizen_lng;
+                                    
+                                    await fetch('http://localhost:3000/rescuer_location/' + rescuer)
+                                    .then(response => response.json())
+                                    .then(data => {
+                                        rescuer_lat = data.vehicle_location.x;
+                                        rescuer_lng = data.vehicle_location.y;
+                                    })
+                                    .catch(error => console.error('Error fetching data:', error));
+
+                                    await fetch('http://localhost:3000/citizen_location/' + item.citizen_username)
+                                    .then(response => response.json())
+                                    .then(data => {
+                                        citizen_lat = data.citizen_location.x;
+                                        citizen_lng = data.citizen_location.y;
+                                    })
+                                    .catch(error => console.error('Error fetching data:', error));
+
+                                    let distance = L.latLng(citizen_lat, citizen_lng).distanceTo(L.latLng(rescuer_lat, rescuer_lng));
+                                    if(distance > 50){
+                                        alert('You are too far away from the citizen!');
+                                        return;
+                                    }
+
+                                    fetch('http://localhost:3000/complete_task/request/' + item.task_id + '/' + item.persons_num + '/' + rescuer, {method: 'POST'})
+                                    .then(response => response.text())
+                                    .then(data => {
+                                        if(data == 'success') {
+                                            alert('Task has been completed!');
+                                            window.location.href = 'rescuer3_4_5.html';
+                                        }
+                                    })
+                                    .catch(error => console.error('Error fetching data:', error));
+                                });
+
+                                document.getElementById('cancel_' + item.task_id).addEventListener('click', function(){
+                                    fetch('http://localhost:3000/cancel_task/' + item.task_id + '/' + rescuer, {method: 'POST'})
+                                    .then(response => response.text())
+                                    .then(data => {
+                                        if(data == 'success') {
+                                            alert('Task has been canceled!');
+                                            window.location.href = 'rescuer3_4_5.html';
+                                        }
+                                    })
+                                    .catch(error => console.error('Error fetching data:', error));
+                                });
+
+                            })
+
+                            let rescuer_lat = item.vehicle_location.x;
+                            let rescuer_lng = item.vehicle_location.y;
+
+                            let line = L.polyline([L.latLng(citizen_lat, citizen_lng), L.latLng(rescuer_lat, rescuer_lng)], {color: 'black'});
+                            line.addTo(linesLayer);
+                        }
+                    });
+                })
+                .catch(error => console.error('Error fetching data:', error));
+
+
+                fetch('http://localhost:3000/rescuer_active_tasks/offers/' + rescuer)
+                .then(response => response.json())
+                .then(data => {
+                    let markers = [];
+                    let marker_exists = false;
+                    let existing_marker;
+
+                    data.forEach(item => {
+                        let citizen_lat = item.citizen_location.x;
+                        let citizen_lng = item.citizen_location.y;
+
+                        markers.forEach(marker => {
+                            if(marker.getLatLng().lat == citizen_lat && marker.getLatLng().lng == citizen_lng){
+                                marker_exists = true;
+                                existing_marker = marker;
+                            }
+                        });
+                        
+                        if(marker_exists){
+                            existing_marker.getPopup().setContent(existing_marker.getPopup().getContent() + `
+                                <hr><div class="text-center">
+                                    <b class="font-weight-bold">Offer</b>
+                                </div>
+                                
+                                <p><b>Name: </b>${item.first_name} ${item.last_name}</p>
+                                <p><b>Phone: </b>${item.phone_num}</p>
+                                <p><b>Product: </b>${item.product_name}</p>
+                                <p><b>Quantity: </b>${item.quantity}</p>
+                                <p><b>Registration Date: </b>${item.reg_date.replace('T','  ').slice(0, -5)}</p>
+                                <p><b>Takeover Date: </b>${item.accept_date.replace('T','  ').slice(0, -5)}</p>
+                                <p><b>Vehicle: </b>${item.vehicle}</p>
+
+                                <div class="mt-2 mb-3 text-center">
+                                    <button type="button" class="btn btn-outline-primary btn-sm me-3" id="complete_${item.task_id}">Complete</button>
+                                    <button type="button" class="btn btn-outline-danger btn-sm" id="cancel_${item.task_id}">Cancel</button>
+                                </div>
+                            `);
+
+                            existing_marker.on('popupopen', function() {
+                                document.getElementById('complete_' + item.task_id).addEventListener('click', async function(){
+                                    let rescuer_lat;
+                                    let rescuer_lng;
+                                    let citizen_lat;
+                                    let citizen_lng;
+                                    
+                                    await fetch('http://localhost:3000/rescuer_location/' + rescuer)
+                                    .then(response => response.json())
+                                    .then(data => {
+                                        rescuer_lat = data.vehicle_location.x;
+                                        rescuer_lng = data.vehicle_location.y;
+                                    })
+                                    .catch(error => console.error('Error fetching data:', error));
+
+                                    await fetch('http://localhost:3000/citizen_location/' + item.citizen_username)
+                                    .then(response => response.json())
+                                    .then(data => {
+                                        citizen_lat = data.citizen_location.x;
+                                        citizen_lng = data.citizen_location.y;
+                                    })
+                                    .catch(error => console.error('Error fetching data:', error));
+
+                                    let distance = L.latLng(citizen_lat, citizen_lng).distanceTo(L.latLng(rescuer_lat, rescuer_lng));
+                                    if(distance > 50){
+                                        alert('You are too far away from the citizen!');
+                                        return;
+                                    }
+
+                                    fetch('http://localhost:3000/complete_task/request/' + item.task_id + '/' + item.persons_num + '/' + rescuer, {method: 'POST'})
+                                    .then(response => response.text())
+                                    .then(data => {
+                                        if(data == 'success') {
+                                            alert('Task has been completed!');
+                                            window.location.href = 'rescuer3_4_5.html';
+                                        }
+                                    })
+                                    .catch(error => console.error('Error fetching data:', error));
+                                });
+
+                                document.getElementById('cancel_' + item.task_id).addEventListener('click', function(){
+                                    fetch('http://localhost:3000/cancel_task/' + item.task_id + '/' + rescuer, {method: 'POST'})
+                                    .then(response => response.text())
+                                    .then(data => {
+                                        if(data == 'success') {
+                                            alert('Task has been canceled!');
+                                            window.location.href = 'rescuer3_4_5.html';
+                                        }
+                                    })
+                                    .catch(error => console.error('Error fetching data:', error));
+                                });
+
+                            })
+
+                            let rescuer_lat = item.vehicle_location.x;
+                            let rescuer_lng = item.vehicle_location.y;
+
+                            let line = L.polyline([L.latLng(citizen_lat, citizen_lng), L.latLng(rescuer_lat, rescuer_lng)], {color: 'black'});
+                            line.addTo(linesLayer);
+
+                            marker_exists = false;
+                        }else{
+                            let marker = L.marker([citizen_lat, citizen_lng],{
+                                icon: L.icon({
+                                    iconUrl: '../../imgs/pins/map-158494_1920.png',
+                                    iconSize: [28, 45],
+                                    iconAnchor: [12, 41],
+                                    popupAnchor: [1, -34]
+                                })
+                            });
+
+                            marker.addTo(activeOffersLayer);
+                            marker.bindPopup(`
+                                <div class="text-center">
+                                    <b class="font-weight-bold">Offer</b>
+                                </div>
+                                
+                                <p><b>Name: </b>${item.first_name} ${item.last_name}</p>
+                                <p><b>Phone: </b>${item.phone_num}</p>
+                                <p><b>Product: </b>${item.product_name}</p>
+                                <p><b>Quantity: </b>${item.quantity}</p>
+                                <p><b>Registration Date: </b>${item.reg_date.replace('T','  ').slice(0, -5)}</p>
+                                <p><b>Takeover Date: </b>${item.accept_date.replace('T','  ').slice(0, -5)}</p>
+                                <p><b>Vehicle: </b>${item.vehicle}</p>
+
+                                <div class="mt-2 mb-3 text-center">
+                                    <button type="button" class="btn btn-outline-primary btn-sm me-3" id="complete_${item.task_id}">Complete</button>
+                                    <button type="button" class="btn btn-outline-danger btn-sm" id="cancel_${item.task_id}">Cancel</button>
+                                </div>
+                            `);
+
+                            markers.push(marker);
+
+                            marker.on('popupopen', function() {
+                                document.getElementById('complete_' + item.task_id).addEventListener('click', async function(){
+                                    let rescuer_lat;
+                                    let rescuer_lng;
+                                    let citizen_lat;
+                                    let citizen_lng;
+                                    
+                                    await fetch('http://localhost:3000/rescuer_location/' + rescuer)
+                                    .then(response => response.json())
+                                    .then(data => {
+                                        rescuer_lat = data.vehicle_location.x;
+                                        rescuer_lng = data.vehicle_location.y;
+                                    })
+                                    .catch(error => console.error('Error fetching data:', error));
+
+                                    await fetch('http://localhost:3000/citizen_location/' + item.citizen_username)
+                                    .then(response => response.json())
+                                    .then(data => {
+                                        citizen_lat = data.citizen_location.x;
+                                        citizen_lng = data.citizen_location.y;
+                                    })
+                                    .catch(error => console.error('Error fetching data:', error));
+
+                                    let distance = L.latLng(citizen_lat, citizen_lng).distanceTo(L.latLng(rescuer_lat, rescuer_lng));
+                                    if(distance > 50){
+                                        alert('You are too far away from the citizen!');
+                                        return;
+                                    }
+
+                                    fetch('http://localhost:3000/complete_task/offer/' + item.task_id + '/' + rescuer, {method: 'POST'})
+                                    .then(response => response.text())
+                                    .then(data => {
+                                        if(data == 'success') {
+                                            alert('Task has been completed!');
+                                            window.location.href = 'rescuer3_4_5.html';
+                                        }
+                                    })
+                                    .catch(error => console.error('Error fetching data:', error));
+                                });
+
+                                document.getElementById('cancel_' + item.task_id).addEventListener('click', function(){
+                                    fetch('http://localhost:3000/cancel_task/' + item.task_id + '/' + rescuer, {method: 'POST'})
+                                    .then(response => response.text())
+                                    .then(data => {
+                                        if(data == 'success') {
+                                            alert('Task has been canceled!');
+                                            window.location.href = 'rescuer3_4_5.html';
+                                        }
+                                    })
+                                    .catch(error => console.error('Error fetching data:', error));
+                                });
+                            
+                            });
+
+                            let rescuer_lat = item.vehicle_location.x;
+                            let rescuer_lng = item.vehicle_location.y;
+
+                            let line = L.polyline([L.latLng(citizen_lat, citizen_lng), L.latLng(rescuer_lat, rescuer_lng)], {color: 'black'});
+                            line.addTo(linesLayer);
+                        }
+                    });
+                })
+                .catch(error => console.error('Error fetching data:', error));
+
+                map.addLayer(activeRequestsLayer);
+                map.addLayer(activeOffersLayer);
+                map.addLayer(linesLayer);
+            }else{
+                activeRequestsLayer.clearLayers();
+                activeOffersLayer.clearLayers();
+                linesLayer.clearLayers();
+            }
+
+        })
+
+    </script>
+
+</html>

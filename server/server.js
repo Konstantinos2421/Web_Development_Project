@@ -22,7 +22,7 @@ app.use(session({
     secret: 'secret-key',
     resave: false,
     saveUninitialized: false,
-    cookie: { secure: false }
+    cookie: {secure: false}
 }));
 
 app.post('/login/:username/:password', async (req, res) => {
@@ -335,10 +335,11 @@ app.get('/vehicles/no_active_tasks/:admin', async (req, res) => {
     res.json(result);
 });
 
-app.post('/new_category/:admin/:category', async (req, res) => {
+app.post('/new_category/:admin/:category/:category_id', async (req, res) => {
     try{
         let admin = req.params.admin;
         let category = req.params.category;
+        let category_id = req.params.category_id;
 
         let [result] = await pool.query(`
             SELECT * 
@@ -349,7 +350,7 @@ app.post('/new_category/:admin/:category', async (req, res) => {
 
         let base = result[0].base;
 
-        await pool.query(`CALL newCategory(?, ?)`, [category, base])
+        await pool.query(`CALL newCategory(?, ?, ?)`, [category, base, category_id])
         res.send('success');
     }catch(err){
         res.send('fail');
@@ -942,6 +943,11 @@ app.get('/get_tasks/:task_type/:task_state/:start_date/:end_date', async (req, r
     }
 
     res.json(result);
+});
+
+app.post('/logout', (req, res) => {
+    req.session.destroy();
+    res.send('success');
 });
 
 app.listen(port, () => {

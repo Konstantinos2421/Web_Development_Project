@@ -104,25 +104,6 @@
       ]
     },
     {
-      "id": "23",
-      "name": "Test Product",
-      "category": "9",
-      "details": [
-        {
-          "detail_name": "weight",
-          "detail_value": "500g"
-        },
-        {
-          "detail_name": "pack size",
-          "detail_value": "12"
-        },
-        {
-          "detail_name": "expiry date",
-          "detail_value": "13/12/1978"
-        }
-      ]
-    },
-    {
       "id": "24",
       "name": "Test Val",
       "category": "14",
@@ -152,17 +133,6 @@
         {
           "detail_name": "calories",
           "detail_value": "200"
-        }
-      ]
-    },
-    {
-      "id": "28",
-      "name": "",
-      "category": "10",
-      "details": [
-        {
-          "detail_name": "",
-          "detail_value": ""
         }
       ]
     },
@@ -404,47 +374,6 @@
         {
           "detail_name": "dosage",
           "detail_value": "200mg"
-        }
-      ]
-    },
-    {
-      "id": "48",
-      "name": "",
-      "category": "10",
-      "details": [
-        {
-          "detail_name": "",
-          "detail_value": ""
-        }
-      ]
-    },
-    {
-      "id": "49",
-      "name": "",
-      "category": "10",
-      "details": [
-        {
-          "detail_name": "",
-          "detail_value": ""
-        },
-        {
-          "detail_name": "",
-          "detail_value": ""
-        },
-        {
-          "detail_name": "",
-          "detail_value": ""
-        }
-      ]
-    },
-    {
-      "id": "50",
-      "name": "",
-      "category": "10",
-      "details": [
-        {
-          "detail_name": "",
-          "detail_value": ""
         }
       ]
     },
@@ -727,118 +656,6 @@
       "id": "76",
       "name": "Glass",
       "category": "24",
-      "details": [
-        {
-          "detail_name": "",
-          "detail_value": ""
-        }
-      ]
-    },
-    {
-      "id": "77",
-      "name": "",
-      "category": "10",
-      "details": [
-        {
-          "detail_name": "",
-          "detail_value": ""
-        },
-        {
-          "detail_name": "",
-          "detail_value": ""
-        },
-        {
-          "detail_name": "",
-          "detail_value": ""
-        }
-      ]
-    },
-    {
-      "id": "78",
-      "name": "",
-      "category": "10",
-      "details": [
-        {
-          "detail_name": "",
-          "detail_value": ""
-        }
-      ]
-    },
-    {
-      "id": "79",
-      "name": "",
-      "category": "10",
-      "details": [
-        {
-          "detail_name": "",
-          "detail_value": ""
-        }
-      ]
-    },
-    {
-      "id": "80",
-      "name": "",
-      "category": "10",
-      "details": [
-        {
-          "detail_name": "",
-          "detail_value": ""
-        }
-      ]
-    },
-    {
-      "id": "81",
-      "name": "",
-      "category": "10",
-      "details": [
-        {
-          "detail_name": "",
-          "detail_value": ""
-        }
-      ]
-    },
-    {
-      "id": "82",
-      "name": "",
-      "category": "10",
-      "details": [
-        {
-          "detail_name": "",
-          "detail_value": ""
-        },
-        {
-          "detail_name": "",
-          "detail_value": ""
-        },
-        {
-          "detail_name": "",
-          "detail_value": ""
-        },
-        {
-          "detail_name": "ghw56",
-          "detail_value": "twhwhrwh"
-        },
-        {
-          "detail_name": "",
-          "detail_value": ""
-        }
-      ]
-    },
-    {
-      "id": "83",
-      "name": "t22",
-      "category": "9",
-      "details": [
-        {
-          "detail_name": "wtwty",
-          "detail_value": "wytwty"
-        }
-      ]
-    },
-    {
-      "id": "84",
-      "name": "water ",
-      "category": "6",
       "details": [
         {
           "detail_name": "",
@@ -1278,34 +1095,12 @@
       ]
     },
     {
-      "id": "122",
-      "name": "",
-      "category": "10",
-      "details": [
-        {
-          "detail_name": "",
-          "detail_value": ""
-        }
-      ]
-    },
-    {
       "id": "123",
-      "name": "Αθλητικά",
+      "name": "Sport Shoes",
       "category": "19",
       "details": [
         {
           "detail_name": "Νο 46",
-          "detail_value": ""
-        }
-      ]
-    },
-    {
-      "id": "124",
-      "name": "Πασατέμπος",
-      "category": "5",
-      "details": [
-        {
-          "detail_name": "",
           "detail_value": ""
         }
       ]
@@ -1551,35 +1346,13 @@
       ]
     },
     {
-      "id": "145",
-      "name": "",
-      "category": "10",
-      "details": [
-        {
-          "detail_name": "",
-          "detail_value": ""
-        }
-      ]
-    },
-    {
       "id": "146",
-      "name": "Πατατάκια",
+      "name": "Chips",
       "category": "5",
       "details": [
         {
           "detail_name": "weight",
           "detail_value": "45g"
-        }
-      ]
-    },
-    {
-      "id": "147",
-      "name": "Σερβιέτες",
-      "category": "21",
-      "details": [
-        {
-          "detail_name": "pcs",
-          "detail_value": "18"
         }
       ]
     },
@@ -1617,43 +1390,6 @@
       ]
     },
     {
-      "id": "151",
-      "name": "Παξιμάδια",
-      "category": "5",
-      "details": [
-        {
-          "detail_name": "weight",
-          "detail_value": "200g"
-        }
-      ]
-    },
-    {
-      "id": "152",
-      "name": "",
-      "category": "10",
-      "details": [
-        {
-          "detail_name": "",
-          "detail_value": ""
-        }
-      ]
-    },
-    {
-      "id": "153",
-      "name": "Test Item",
-      "category": "11",
-      "details": [
-        {
-          "detail_name": "volume",
-          "detail_value": "200g"
-        },
-        {
-          "detail_name": "",
-          "detail_value": ""
-        }
-      ]
-    },
-    {
       "id": "154",
       "name": "Painkillers",
       "category": "35",
@@ -1678,18 +1414,6 @@
   ],
   "categories": [
     {
-      "id": "10",
-      "category_name": ""
-    },
-    {
-      "id": "13",
-      "category_name": "-----"
-    },
-    {
-      "id": "9",
-      "category_name": "2d hacker"
-    },
-    {
       "id": "29",
       "category_name": "Animal Food"
     },
@@ -1704,10 +1428,6 @@
     {
       "id": "22",
       "category_name": "Cleaning Supplies"
-    },
-    {
-      "id": "33",
-      "category_name": "Cleaning Supplies."
     },
     {
       "id": "7",
@@ -1738,10 +1458,6 @@
       "category_name": "Food"
     },
     {
-      "id": "8",
-      "category_name": "Hacker of class"
-    },
-    {
       "id": "34",
       "category_name": "Hot Weather"
     },
@@ -1758,24 +1474,12 @@
       "category_name": "Medical Supplies"
     },
     {
-      "id": "15",
-      "category_name": "new cat"
-    },
-    {
       "id": "21",
       "category_name": "Personal Hygiene "
     },
     {
       "id": "19",
       "category_name": "Shoes"
-    },
-    {
-      "id": "11",
-      "category_name": "Test"
-    },
-    {
-      "id": "39",
-      "category_name": "Test_0"
     },
     {
       "id": "23",

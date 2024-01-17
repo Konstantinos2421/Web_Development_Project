@@ -9,8 +9,11 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
     <script>
-      if (sessionStorage.getItem('loggedIn') != 'yes' || sessionStorage.getItem('userType') != 'admin') {
+      if (sessionStorage.getItem('loggedIn') != 'yes') {
         window.location.href = "../login/login.html";
+      }else if(sessionStorage.getItem('userType') != 'admin'){
+        let user_type = sessionStorage.getItem('userType');
+        window.location.href = '../' + user_type + '/' + user_type + '_home.html';
       }
     </script>
   </head>
@@ -39,22 +42,33 @@
           <img src="../../imgs/logo.png" class="img-thumbnail mt-4 mx-auto d-block" height="45" width="170">
         </div>
 
-        <div class="col-lg-2"></div>
+        <div class="col-lg-3"></div>
 
-        <div class="col-lg-3 mt-4">
-          <div clas="btn-group">
+        <div class="col-lg-2 mt-4">
+          <div class="btn-group">
             <button type="button" class="btn btn-link" id="home_btn">
               <img src="../../imgs/home.png" class="img-thumbnail" width="45" height="45">
             </button>
 
-            <button type="button" class="btn btn-link" id="user_btn">
-              <img src="../../imgs/user.png" class="img-thumbnail" width="45" height="45">
-            </button>
+            <div class="dropdown">
+              <button type="button" class="btn btn-link" data-bs-toggle="dropdown">
+                <img src="../../imgs/user.png" class="img-thumbnail" width="45" height="45">
+              </button>
+              <div class="dropdown-menu p-3" id="user_info">
+                <script>
+                  document.getElementById('user_info').innerHTML = `
+                    <div class="text-center">
+                      <b class="font-weight-bold">${sessionStorage.getItem('username')}</b>
+                    </div>
+                  `;
+                </script>
+              </div>
+            </div>
 
             <button type="button" class="btn btn-link" id="power_btn">
               <img src="../../imgs/power.png" class="img-thumbnail" width="45" height="45">
-            </button> 
-          </div>  
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -62,27 +76,27 @@
     <nav class="navbar navbar-expand-sm navbar-dark justify-content-center" style="background-color:rgb(80, 102, 80)">
       <ul class="navbar-nav">
         <li class="nav-item">
-          <a class="nav-link active" href="./admin2.html">Base Warehouse Management</a>
+          <a class="nav-link" href="./admin2.html">Base Warehouse Management</a>
         </li>
 
         <li class="nav-item">
-          <a class="nav-link active" href="./admin3_4.html">Map Display</a>
+          <a class="nav-link" href="./admin3_4.html">Display Map</a>
         </li>
 
         <li class="nav-item">
-          <a class="nav-link active" href="./admin5.html">Base Warehouse Inventory</a>
+          <a class="nav-link" href="./admin5.html">Base Warehouse Inventory</a>
         </li>
 
         <li class="nav-item">
-          <a class="nav-link active" href="./admin6.html">Service Statistics</a>
+          <a class="nav-link" href="./admin6.html">Service Statistics</a>
         </li>
 
         <li class="nav-item">
-          <a class="nav-link active" href="./admin7.html">Create Rescuer Account</a>
+          <a class="nav-link" href="./admin7.html">New Rescuer</a>
         </li>
 
         <li class="nav-item">
-          <a class="nav-link active" href="./admin8.html">New Announcement</a>
+          <a class="nav-link" href="./admin8.html">New Announcement</a>
         </li>
 
       </ul>
@@ -91,7 +105,22 @@
   </body>
 
   <script>
+    document.getElementById('home_btn').addEventListener('click', function () {
+      location.href = './admin_home.html';
+    });
 
+    document.getElementById('power_btn').addEventListener('click', function () {
+      fetch('http://localhost:3000/logout', {method: 'POST'})
+      .then(response => response.text())
+      .then(data => {
+        if (data == 'success') {
+          sessionStorage.setItem('loggedIn', 'no');
+          sessionStorage.setItem('userType', '');
+          location.href = '../login/login.html';
+        }
+      })
+      .catch(error => console.error('Error fetching data:', error));
+    });
 
   </script>
 

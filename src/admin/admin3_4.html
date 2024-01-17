@@ -9,7 +9,32 @@
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
         <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
         <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+        <script>
+            if (sessionStorage.getItem('loggedIn') != 'yes') {
+              window.location.href = "../login/login.html";
+            }else if(sessionStorage.getItem('userType') != 'admin'){
+              let user_type = sessionStorage.getItem('userType');
+              window.location.href = '../' + user_type + '/' + user_type + '_home.html';
+            }
+        </script>
     </head>
+
+    <style>
+        .leaflet-popup-content {
+            max-height: 280px;
+            overflow-y: auto;
+        }
+
+        .leaflet-popup-content::-webkit-scrollbar {
+            width: 5px;
+        }
+        
+        .leaflet-popup-content::-webkit-scrollbar-thumb {
+            background-color: #827979;
+            border-radius: 5px;
+        }
+    </style>
 
     <body>
 
@@ -25,15 +50,26 @@
       
               <div class="col-lg-2 mt-4">
                 <div class="btn-group">
-                  <button type="button" class="btn btn-link">
+                  <button type="button" class="btn btn-link" id="home_btn">
                     <img src="../../imgs/home.png" class="img-thumbnail" width="45" height="45">
                   </button>
       
-                  <button type="button" class="btn btn-link">
-                    <img src="../../imgs/user.png" class="img-thumbnail" width="45" height="45">
-                  </button>
+                  <div class="dropdown">
+                    <button type="button" class="btn btn-link" data-bs-toggle="dropdown">
+                      <img src="../../imgs/user.png" class="img-thumbnail" width="45" height="45">
+                    </button>
+                    <div class="dropdown-menu p-3" id="user_info">
+                      <script>
+                        document.getElementById('user_info').innerHTML = `
+                          <div class="text-center">
+                            <b class="font-weight-bold">${sessionStorage.getItem('username')}</b>
+                          </div>
+                        `;
+                      </script>
+                    </div>
+                  </div>
       
-                  <button type="button" class="btn btn-link">
+                  <button type="button" class="btn btn-link" id="power_btn">
                     <img src="../../imgs/power.png" class="img-thumbnail" width="45" height="45">
                   </button> 
                 </div>  
@@ -99,13 +135,31 @@
     </body>
 
     <script>
+        document.getElementById('home_btn').addEventListener('click', function () {
+            location.href = './admin_home.html';
+        });
+      
+        document.getElementById('power_btn').addEventListener('click', function () {
+        fetch('http://localhost:3000/logout', {method: 'POST'})
+        .then(response => response.text())
+        .then(data => {
+            if (data == 'success') {
+            sessionStorage.setItem('loggedIn', 'no');
+            sessionStorage.setItem('userType', '');
+            location.href = '../login/login.html';
+            }
+        })
+        .catch(error => console.error('Error fetching data:', error));
+        });
+
+        let admin = sessionStorage.getItem('username');
         let map = L.map('map').setView([38.2904, 21.7957], 14);
           
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         }).addTo(map);
 
-        fetch('http://localhost:3000/base_location/admin/stavros_paraskevopoulos')
+        fetch('http://localhost:3000/base_location/admin/' + admin)
         .then(response => response.json())
         .then(data => {
             let lat = data.base_location.x;
@@ -150,7 +204,7 @@
 
 
         document.getElementById('new_location_btn').addEventListener('click', function(){
-            fetch('http://localhost:3000/change_base_location/' + new_base_lat + '/' + new_base_lng + '/stavros_paraskevopoulos', {method: 'POST'})
+            fetch('http://localhost:3000/change_base_location/' + new_base_lat + '/' + new_base_lng + '/' + admin, {method: 'POST'})
             .then(response => response.text())
             .then(data => {
                 if(data == 'success') {
@@ -168,23 +222,24 @@
                 fetch('http://localhost:3000/accepted/requests')
                 .then(response => response.json())
                 .then(data => {
+                    let markers = [];
+                    let marker_exists = false;
+                    let existing_marker;
                     
                     data.forEach(item => {
                         let lat = item.citizen_location.x;
                         let lng = item.citizen_location.y;
-                       
-                        let marker = L.marker([lat, lng],{
-                            icon: L.icon({
-                                iconUrl: '../../imgs/pins/marker-icon-2x-orange.png',
-                                iconSize: [25, 41],
-                                iconAnchor: [12, 41],
-                                popupAnchor: [1, -34]
-                            })
-                        });
 
-                        marker.addTo(acceptedRequestsLayer);
-                        marker.bindPopup(`
-                            <div class="text-center">
+                        markers.forEach(marker => {
+                            if(marker.getLatLng().lat == lat && marker.getLatLng().lng == lng){
+                                marker_exists = true;
+                                existing_marker = marker;
+                            }
+                        });
+                       
+                        if(marker_exists){
+                            existing_marker.getPopup().setContent(existing_marker.getPopup().getContent() + `
+                            <hr><div class="text-center">
                                 <b class="font-weight-bold">Request</b>
                             </div>
                             
@@ -195,7 +250,36 @@
                             <p><b>Registration Date: </b>${item.reg_date.replace('T','  ').slice(0, -5)}</p>
                             <p><b>Takeover Date: </b>${item.accept_date.replace('T','  ').slice(0, -5)}</p>
                             <p><b>Vehicle: </b>${item.vehicle}</p>
-                        `);
+                            `);
+                            marker_exists = false;
+                        }else{
+                            let marker = L.marker([lat, lng],{
+                                icon: L.icon({
+                                    iconUrl: '../../imgs/pins/poi-304466_1920.png',
+                                    iconSize: [25, 41],
+                                    iconAnchor: [12, 41],
+                                    popupAnchor: [1, -34]
+                                })
+                            });
+
+                            marker.addTo(acceptedRequestsLayer);
+                            marker.bindPopup(`
+                                <div class="text-center">
+                                    <b class="font-weight-bold">Request</b>
+                                </div>
+                                
+                                <p><b>Name: </b>${item.first_name} ${item.last_name}</p>
+                                <p><b>Phone: </b>${item.phone_num}</p>
+                                <p><b>Product: </b>${item.product_name}</p>
+                                <p><b>Persons: </b>${item.persons_num}</p>
+                                <p><b>Registration Date: </b>${item.reg_date.replace('T','  ').slice(0, -5)}</p>
+                                <p><b>Takeover Date: </b>${item.accept_date.replace('T','  ').slice(0, -5)}</p>
+                                <p><b>Vehicle: </b>${item.vehicle}</p>
+                            `);
+
+                            markers.push(marker);
+                        }
+
                     });
 
                     map.addLayer(acceptedRequestsLayer);
@@ -213,34 +297,64 @@
                 fetch('http://localhost:3000/unaccepted/requests')
                 .then(response => response.json())
                 .then(data => {
+                    let markers = [];
+                    let marker_exists = false;
+                    let existing_marker;
                     
                     data.forEach(item => {
                         let lat = item.citizen_location.x;
                         let lng = item.citizen_location.y;
-                       
-                        let marker = L.marker([lat, lng],{
-                            icon: L.icon({
-                                iconUrl: '../../imgs/pins/marker-icon-2x-red.png',
-                                iconSize: [25, 41],
-                                iconAnchor: [12, 41],
-                                popupAnchor: [1, -34]
-                            })
-                        });
 
-                        marker.addTo(unacceptedRequestsLayer);
-                        marker.bindPopup(`
-                            <div class="text-center">
-                                <b class="font-weight-bold">Request</b>
-                            </div>
-                            
-                            <p><b>Name: </b>${item.first_name} ${item.last_name}</p>
-                            <p><b>Phone: </b>${item.phone_num}</p>
-                            <p><b>Product: </b>${item.product_name}</p>
-                            <p><b>Persons: </b>${item.persons_num}</p>
-                            <p><b>Registration Date: </b>${item.reg_date.replace('T','  ').slice(0, -5)}</p>
-                        `);
+                        markers.forEach(marker => {
+                            if(marker.getLatLng().lat == lat && marker.getLatLng().lng == lng){
+                                marker_exists = true;
+                                existing_marker = marker;
+                            }
+                        });
+                        
+
+                        if(marker_exists){
+                            existing_marker.getPopup().setContent(existing_marker.getPopup().getContent() + `
+                                <hr><div class="text-center">
+                                    <b class="font-weight-bold">Request</b>
+                                </div>
+                                
+                                <p><b>Name: </b>${item.first_name} ${item.last_name}</p>
+                                <p><b>Phone: </b>${item.phone_num}</p>
+                                <p><b>Product: </b>${item.product_name}</p>
+                                <p><b>Persons: </b>${item.persons_num}</p>
+                                <p><b>Registration Date: </b>${item.reg_date.replace('T','  ').slice(0, -5)}</p>
+                            `);
+                            marker_exists = false;
+                        }else{
+                            let marker = L.marker([lat, lng],{
+                                icon: L.icon({
+                                    iconUrl: '../../imgs/pins/location-304467_1920.png',
+                                    iconSize: [25, 41],
+                                    iconAnchor: [12, 41],
+                                    popupAnchor: [1, -34]
+                                })
+                            });
+
+                            marker.addTo(unacceptedRequestsLayer);
+                            marker.bindPopup(`
+                                <div class="text-center">
+                                    <b class="font-weight-bold">Request</b>
+                                </div>
+                                
+                                <p><b>Name: </b>${item.first_name} ${item.last_name}</p>
+                                <p><b>Phone: </b>${item.phone_num}</p>
+                                <p><b>Product: </b>${item.product_name}</p>
+                                <p><b>Persons: </b>${item.persons_num}</p>
+                                <p><b>Registration Date: </b>${item.reg_date.replace('T','  ').slice(0, -5)}</p>
+                            `);
+
+                            markers.push(marker);
+                        }
                     });
+
                     map.addLayer(unacceptedRequestsLayer);
+
                 })
                 .catch(error => console.error('Error fetching data:', error));
             }
@@ -255,34 +369,63 @@
                 fetch('http://localhost:3000/accepted/offers')
                 .then(response => response.json())
                 .then(data => {
+                    let markers = [];
+                    let marker_exists = false;
+                    let existing_marker;
 
                     data.forEach(item => {
                         let lat = item.citizen_location.x;
                         let lng = item.citizen_location.y;
-                        
-                        let marker = L.marker([lat, lng],{
-                            icon: L.icon({
-                                iconUrl: '../../imgs/pins/marker-icon-2x-green.png',
-                                iconSize: [25, 41],
-                                iconAnchor: [12, 41],
-                                popupAnchor: [1, -34]
-                            })
-                        });
 
-                        marker.addTo(acceptedOffersLayer);
-                        marker.bindPopup(`
-                            <div class="text-center">
-                                <b class="font-weight-bold">Offer</b>
-                            </div>
-                            
-                            <p><b>Name: </b>${item.first_name} ${item.last_name}</p>
-                            <p><b>Phone: </b>${item.phone_num}</p>
-                            <p><b>Product: </b>${item.product_name}</p>
-                            <p><b>Quantity: </b>${item.quantity}</p>
-                            <p><b>Registration Date: </b>${item.reg_date.replace('T','  ').slice(0, -5)}</p>
-                            <p><b>Takeover Date: </b>${item.accept_date.replace('T','  ').slice(0, -5)}</p>
-                            <p><b>Vehicle: </b>${item.vehicle}</p>
-                        `);
+                        markers.forEach(marker => {
+                            if(marker.getLatLng().lat == lat && marker.getLatLng().lng == lng){
+                                marker_exists = true;
+                                existing_marker = marker;
+                            }
+                        });
+                        
+                        if(marker_exists){
+                            existing_marker.getPopup().setContent(existing_marker.getPopup().getContent() + `
+                                <hr><div class="text-center">
+                                    <b class="font-weight-bold">Offer</b>
+                                </div>
+                                
+                                <p><b>Name: </b>${item.first_name} ${item.last_name}</p>
+                                <p><b>Phone: </b>${item.phone_num}</p>
+                                <p><b>Product: </b>${item.product_name}</p>
+                                <p><b>Quantity: </b>${item.quantity}</p>
+                                <p><b>Registration Date: </b>${item.reg_date.replace('T','  ').slice(0, -5)}</p>
+                                <p><b>Takeover Date: </b>${item.accept_date.replace('T','  ').slice(0, -5)}</p>
+                                <p><b>Vehicle: </b>${item.vehicle}</p>
+                            `);
+                            marker_exists = false;
+                        }else{
+                            let marker = L.marker([lat, lng],{
+                                icon: L.icon({
+                                    iconUrl: '../../imgs/pins/map-158494_1920.png',
+                                    iconSize: [28, 45],
+                                    iconAnchor: [12, 41],
+                                    popupAnchor: [1, -34]
+                                })
+                            });
+
+                            marker.addTo(acceptedOffersLayer);
+                            marker.bindPopup(`
+                                <div class="text-center">
+                                    <b class="font-weight-bold">Offer</b>
+                                </div>
+                                
+                                <p><b>Name: </b>${item.first_name} ${item.last_name}</p>
+                                <p><b>Phone: </b>${item.phone_num}</p>
+                                <p><b>Product: </b>${item.product_name}</p>
+                                <p><b>Quantity: </b>${item.quantity}</p>
+                                <p><b>Registration Date: </b>${item.reg_date.replace('T','  ').slice(0, -5)}</p>
+                                <p><b>Takeover Date: </b>${item.accept_date.replace('T','  ').slice(0, -5)}</p>
+                                <p><b>Vehicle: </b>${item.vehicle}</p>
+                            `);
+
+                            markers.push(marker);
+                        }
                     });
                     map.addLayer(acceptedOffersLayer);
                 })
@@ -299,32 +442,59 @@
                 fetch('http://localhost:3000/unaccepted/offers')
                 .then(response => response.json())
                 .then(data => {
-                    
+                    let markers = [];
+                    let marker_exists = false;
+                    let existing_marker;
+
                     data.forEach(item => {
                         let lat = item.citizen_location.x;
                         let lng = item.citizen_location.y;
-                        
-                        let marker = L.marker([lat, lng],{
-                            icon: L.icon({
-                                iconUrl: '../../imgs/pins/marker-icon-2x-grey.png',
-                                iconSize: [25, 41],
-                                iconAnchor: [12, 41],
-                                popupAnchor: [1, -34]
-                            })
-                        });
 
-                        marker.addTo(unacceptedOffersLayer);
-                        marker.bindPopup(`
-                            <div class="text-center">
-                                <b class="font-weight-bold">Offer</b>
-                            </div>
-                            
-                            <p><b>Name: </b>${item.first_name} ${item.last_name}</p>
-                            <p><b>Phone: </b>${item.phone_num}</p>
-                            <p><b>Product: </b>${item.product_name}</p>
-                            <p><b>Quantity: </b>${item.quantity}</p>
-                            <p><b>Registration Date: </b>${item.reg_date.replace('T','  ').slice(0, -5)}</p>
-                        `);
+                        markers.forEach(marker => {
+                            if(marker.getLatLng().lat == lat && marker.getLatLng().lng == lng){
+                                marker_exists = true;
+                                existing_marker = marker;
+                            }
+                        });
+                        
+                        if(marker_exists){
+                            existing_marker.getPopup().setContent(existing_marker.getPopup().getContent() + `
+                                <hr><div class="text-center">
+                                    <b class="font-weight-bold">Offer</b>
+                                </div>
+                                
+                                <p><b>Name: </b>${item.first_name} ${item.last_name}</p>
+                                <p><b>Phone: </b>${item.phone_num}</p>
+                                <p><b>Product: </b>${item.product_name}</p>
+                                <p><b>Quantity: </b>${item.quantity}</p>
+                                <p><b>Registration Date: </b>${item.reg_date.replace('T','  ').slice(0, -5)}</p>
+                            `);
+                            marker_exists = false;
+                        }else{
+                            let marker = L.marker([lat, lng],{
+                                icon: L.icon({
+                                    iconUrl: '../../imgs/pins/map-158493_1920.png',
+                                    iconSize: [28, 45],
+                                    iconAnchor: [12, 41],
+                                    popupAnchor: [1, -34]
+                                })
+                            });
+
+                            marker.addTo(unacceptedOffersLayer);
+                            marker.bindPopup(`
+                                <div class="text-center">
+                                    <b class="font-weight-bold">Offer</b>
+                                </div>
+                                
+                                <p><b>Name: </b>${item.first_name} ${item.last_name}</p>
+                                <p><b>Phone: </b>${item.phone_num}</p>
+                                <p><b>Product: </b>${item.product_name}</p>
+                                <p><b>Quantity: </b>${item.quantity}</p>
+                                <p><b>Registration Date: </b>${item.reg_date.replace('T','  ').slice(0, -5)}</p>
+                            `);
+
+                            markers.push(marker);
+                        }
                     });
                     map.addLayer(unacceptedOffersLayer);
                 })
@@ -338,35 +508,59 @@
         let vehiclesWithActiveTasksLayer = L.layerGroup();
         document.getElementById('check5').addEventListener('change', function(){
             if(document.getElementById('check5').checked){
-                let admin = sessionStorage.getItem('username');
-
-                fetch('http://localhost:3000/vehicles/active_tasks/stavros_paraskevopoulos')
+                
+                fetch('http://localhost:3000/vehicles/active_tasks/' + admin)
                 .then(response => response.json())
                 .then(data => {
+                    let markers = [];
+                    let marker_exists = false;
+                    let existing_marker;
                     
                     data.forEach(item => {
                         let lat = item.vehicle_location.x;
                         let lng = item.vehicle_location.y;
-                        
-                        let marker = L.marker([lat, lng],{
-                            icon: L.icon({
-                                iconUrl: '../../imgs/pins/marker-icon-2x-violet.png',
-                                iconSize: [25, 41],
-                                iconAnchor: [12, 41],
-                                popupAnchor: [1, -34]
-                            })
-                        });
 
-                        marker.addTo(vehiclesWithActiveTasksLayer);
-                        marker.bindPopup(`
-                            <div class="text-center">
-                                <b class="font-weight-bold">Vehicle</b>
-                            </div>
-                            
-                            <p><b>Name: </b>${item.first_name} ${item.last_name}</p>
-                            <p><b>Phone: </b>${item.phone_num}</p>
-                            <p><b>Vehicle Username: </b>${item.vehicle}</p>
-                        `);
+                        markers.forEach(marker => {
+                            if(marker.getLatLng().lat == lat && marker.getLatLng().lng == lng){
+                                marker_exists = true;
+                                existing_marker = marker;
+                            }
+                        });
+                        
+                        if(marker_exists){
+                            existing_marker.getPopup().setContent(existing_marker.getPopup().getContent() + `
+                                <hr><div class="text-center">
+                                    <b class="font-weight-bold">Vehicle</b>
+                                </div>
+                                
+                                <p><b>Name: </b>${item.first_name} ${item.last_name}</p>
+                                <p><b>Phone: </b>${item.phone_num}</p>
+                                <p><b>Vehicle Username: </b>${item.vehicle}</p>
+                            `);
+                            marker_exists = false;
+                        }else{
+                            let marker = L.marker([lat, lng],{
+                                icon: L.icon({
+                                    iconUrl: '../../imgs/pins/marker-icon-2x-green.png',
+                                    iconSize: [25, 41],
+                                    iconAnchor: [12, 41],
+                                    popupAnchor: [1, -34]
+                                })
+                            });
+
+                            marker.addTo(vehiclesWithActiveTasksLayer);
+                            marker.bindPopup(`
+                                <div class="text-center">
+                                    <b class="font-weight-bold">Vehicle</b>
+                                </div>
+                                
+                                <p><b>Name: </b>${item.first_name} ${item.last_name}</p>
+                                <p><b>Phone: </b>${item.phone_num}</p>
+                                <p><b>Vehicle Username: </b>${item.vehicle}</p>
+                            `);
+
+                            markers.push(marker);
+                        }
                     });
 
                     map.addLayer(vehiclesWithActiveTasksLayer);
@@ -381,35 +575,59 @@
         let vehiclesWithNoActiveTasksLayer = L.layerGroup();
         document.getElementById('check6').addEventListener('change', function(){
             if(document.getElementById('check6').checked){
-                let admin = sessionStorage.getItem('username');
 
-                fetch('http://localhost:3000/vehicles/no_active_tasks/stavros_paraskevopoulos')
+                fetch('http://localhost:3000/vehicles/no_active_tasks/' + admin)
                 .then(response => response.json())
                 .then(data => {
+                    let markers = [];
+                    let marker_exists = false;
+                    let existing_marker;
                     
                     data.forEach(item => {
                         let lat = item.vehicle_location.x;
                         let lng = item.vehicle_location.y;
-                        
-                        let marker = L.marker([lat, lng],{
-                            icon: L.icon({
-                                iconUrl: '../../imgs/pins/marker-icon-2x-yellow.png',
-                                iconSize: [25, 41],
-                                iconAnchor: [12, 41],
-                                popupAnchor: [1, -34]
-                            })
-                        });
 
-                        marker.addTo(vehiclesWithNoActiveTasksLayer);
-                        marker.bindPopup(`
-                            <div class="text-center">
-                                <b class="font-weight-bold">Vehicle</b>
-                            </div>
-                            
-                            <p><b>Name: </b>${item.first_name} ${item.last_name}</p>
-                            <p><b>Phone: </b>${item.phone_num}</p>
-                            <p><b>Vehicle Username: </b>${item.vehicle}</p>
-                        `);
+                        markers.forEach(marker => {
+                            if(marker.getLatLng().lat == lat && marker.getLatLng().lng == lng){
+                                marker_exists = true;
+                                existing_marker = marker;
+                            }
+                        });
+                        
+                        if(marker_exists){
+                            existing_marker.getPopup().setContent(existing_marker.getPopup().getContent() + `
+                                <hr><div class="text-center">
+                                    <b class="font-weight-bold">Vehicle</b>
+                                </div>
+                                
+                                <p><b>Name: </b>${item.first_name} ${item.last_name}</p>
+                                <p><b>Phone: </b>${item.phone_num}</p>
+                                <p><b>Vehicle Username: </b>${item.vehicle}</p>
+                            `);
+                            marker_exists = false;
+                        }else{
+                            let marker = L.marker([lat, lng],{
+                                icon: L.icon({
+                                    iconUrl: '../../imgs/pins/marker-icon-2x-red.png',
+                                    iconSize: [25, 41],
+                                    iconAnchor: [12, 41],
+                                    popupAnchor: [1, -34]
+                                })
+                            });
+
+                            marker.addTo(vehiclesWithNoActiveTasksLayer);
+                            marker.bindPopup(`
+                                <div class="text-center">
+                                    <b class="font-weight-bold">Vehicle</b>
+                                </div>
+                                
+                                <p><b>Name: </b>${item.first_name} ${item.last_name}</p>
+                                <p><b>Phone: </b>${item.phone_num}</p>
+                                <p><b>Vehicle Username: </b>${item.vehicle}</p>
+                            `);
+
+                            markers.push(marker);
+                        }
                     });
 
                     map.addLayer(vehiclesWithNoActiveTasksLayer);
@@ -425,7 +643,7 @@
         let linesLayer = L.layerGroup();
         document.getElementById('check7').addEventListener('change', function(){
             if(document.getElementById('check7').checked){
-                fetch('http://localhost:3000/coordinates_for_map_lines/stavros_paraskevopoulos')
+                fetch('http://localhost:3000/coordinates_for_map_lines/' + admin)
                 .then(response => response.json())
                 .then(data => {
                     data.forEach(item => {

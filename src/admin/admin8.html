@@ -8,6 +8,15 @@
     <title>New Announcement</title>
     <link rel="stylesheet" href="../../bootstrap-5.3.2-dist/css/bootstrap.css">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+      if (sessionStorage.getItem('loggedIn') != 'yes') {
+        window.location.href = "../login/login.html";
+      }else if(sessionStorage.getItem('userType') != 'admin'){
+        let user_type = sessionStorage.getItem('userType');
+        window.location.href = '../' + user_type + '/' + user_type + '_home.html';
+      }
+    </script>
   </head>
 
   <body>
@@ -24,15 +33,26 @@
 
         <div class="col-lg-2 mt-4">
           <div class="btn-group">
-            <button type="button" class="btn btn-link">
+            <button type="button" class="btn btn-link" id="home_btn">
               <img src="../../imgs/home.png" class="img-thumbnail" width="45" height="45">
             </button>
 
-            <button type="button" class="btn btn-link">
-              <img src="../../imgs/user.png" class="img-thumbnail" width="45" height="45">
-            </button>
+            <div class="dropdown">
+              <button type="button" class="btn btn-link" data-bs-toggle="dropdown">
+                <img src="../../imgs/user.png" class="img-thumbnail" width="45" height="45">
+              </button>
+              <div class="dropdown-menu p-3" id="user_info">
+                <script>
+                  document.getElementById('user_info').innerHTML = `
+                    <div class="text-center">
+                      <b class="font-weight-bold">${sessionStorage.getItem('username')}</b>
+                    </div>
+                  `;
+                </script>
+              </div>
+            </div>
 
-            <button type="button" class="btn btn-link">
+            <button type="button" class="btn btn-link" id="power_btn">
               <img src="../../imgs/power.png" class="img-thumbnail" width="45" height="45">
             </button>
           </div>
@@ -73,7 +93,24 @@
   </body>
 
   <script>
-    fetch('http://localhost:3000/base_inventory/admin/stavros_paraskevopoulos')
+    document.getElementById('home_btn').addEventListener('click', function () {
+      location.href = './admin_home.html';
+    });
+
+    document.getElementById('power_btn').addEventListener('click', function () {
+      fetch('http://localhost:3000/logout', {method: 'POST'})
+      .then(response => response.text())
+      .then(data => {
+        if (data == 'success') {
+          sessionStorage.setItem('loggedIn', 'no');
+          sessionStorage.setItem('userType', '');
+          location.href = '../login/login.html';
+        }
+      })
+      .catch(error => console.error('Error fetching data:', error));
+    });
+    
+    fetch('http://localhost:3000/base_inventory/admin/' + admin)
     .then(response => response.json())
     .then(data => {
       
@@ -109,7 +146,7 @@
 
       document.getElementById('add_product_btn_div').parentNode.insertBefore(div, document.getElementById('add_product_btn_div'));
 
-      fetch('http://localhost:3000/base_inventory/admin/stavros_paraskevopoulos')
+      fetch('http://localhost:3000/base_inventory/admin/' + admin)
       .then(response => response.json())
       .then(data => {
         
@@ -148,7 +185,7 @@
         }
       });
 
-      fetch('http://localhost:3000/new_announcement/stavros_paraskevopoulos', {
+      fetch('http://localhost:3000/new_announcement/' + admin, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
