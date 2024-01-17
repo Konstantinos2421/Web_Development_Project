@@ -163,5 +163,3 @@ CREATE TABLE `has_product`(
     FOREIGN KEY (`base`) REFERENCES `base` (`base_name`) ON DELETE CASCADE ON UPDATE CASCADE,
     FOREIGN KEY (`product`) REFERENCES `product` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) Engine = InnoDB;
-
-
