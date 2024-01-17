@@ -149,22 +149,6 @@
             .catch(error => console.error('Error fetching data:', error));
         });
         
-        document.getElementById('home_btn').addEventListener('click', function () {
-            location.href = './admin_home.html';
-        });
-      
-        document.getElementById('power_btn').addEventListener('click', function () {
-            fetch('http://localhost:3000/logout', {method: 'POST'})
-            .then(response => response.text())
-            .then(data => {
-              if (data == 'success') {
-                sessionStorage.setItem('loggedIn', 'no');
-                sessionStorage.setItem('userType', '');
-                location.href = '../login/login.html';
-              }
-            })
-            .catch(error => console.error('Error fetching data:', error));
-        });
 
         document.getElementById('start_date').addEventListener('input', function() {
             document.getElementById('end_date').min = this.value;
