@@ -9,10 +9,10 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
     <script>
-      if (sessionStorage.getItem('loggedIn') != 'yes') {
+      if (localStorage.getItem('loggedIn') != 'yes') {
         window.location.href = "../login/login.html";
-      }else if(sessionStorage.getItem('userType') != 'admin'){
-        let user_type = sessionStorage.getItem('userType');
+      }else if(localStorage.getItem('userType') != 'admin'){
+        let user_type = localStorage.getItem('userType');
         window.location.href = '../' + user_type + '/' + user_type + '_home.html';
       }
     </script>
@@ -58,7 +58,7 @@
                 <script>
                   document.getElementById('user_info').innerHTML = `
                     <div class="text-center">
-                      <b class="font-weight-bold">${sessionStorage.getItem('username')}</b>
+                      <b class="font-weight-bold">${localStorage.getItem('username')}</b>
                     </div>
                   `;
                 </script>
@@ -110,16 +110,9 @@
     });
 
     document.getElementById('power_btn').addEventListener('click', function () {
-      fetch('http://localhost:3000/logout', {method: 'POST'})
-      .then(response => response.text())
-      .then(data => {
-        if (data == 'success') {
-          sessionStorage.setItem('loggedIn', 'no');
-          sessionStorage.setItem('userType', '');
-          location.href = '../login/login.html';
-        }
-      })
-      .catch(error => console.error('Error fetching data:', error));
+      localStorage.setItem('loggedIn', 'no');
+      localStorage.setItem('userType', '');
+      location.href = '../login/login.html';
     });
 
   </script>

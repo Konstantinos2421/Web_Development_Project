@@ -18,13 +18,6 @@ let pool = mysql.createPool({
     database: 'natural_disasters_volunteering_platform'
 }).promise();
 
-app.use(session({
-    secret: 'secret-key',
-    resave: false,
-    saveUninitialized: false,
-    cookie: {secure: false}
-}));
-
 app.post('/login/:username/:password', async (req, res) => {
     const user = req.params.username;
     const password = req.params.password;
@@ -528,14 +521,14 @@ app.get('/coordinates_for_map_lines/:admin', async (req, res) => {
             JOIN \`task\` ON \`rescuer\`.\`rescuer_username\` = \`task\`.\`rescuer_took_over\`
             JOIN \`request\` ON \`task\`.\`task_id\` = \`request\`.\`request_id\`
             JOIN \`citizen\` ON \`citizen\`.\`citizen_username\` = \`request\`.\`request_user\`
-        WHERE \`rescuer\`.\`base\` = 'PATRA_BASE1'
+        WHERE \`rescuer\`.\`base\` = 'PATRA_BASE1' AND \`task\`.\`completed\` = 'NO'
         UNION
         SELECT \`rescuer\`.\`vehicle_location\` AS rescuer_location, \`citizen\`.\`citizen_location\` AS citizen_location
         FROM \`rescuer\`
             JOIN \`task\` ON \`rescuer\`.\`rescuer_username\` = \`task\`.\`rescuer_took_over\`
             JOIN \`offer\` ON \`task\`.\`task_id\` = \`offer\`.\`offer_id\`
             JOIN \`citizen\` ON \`citizen\`.\`citizen_username\` = \`offer\`.\`offer_user\`
-        WHERE \`rescuer\`.\`base\` = 'PATRA_BASE1'
+        WHERE \`rescuer\`.\`base\` = 'PATRA_BASE1' AND \`task\`.\`completed\` = 'NO'
     `, [base]);
 
     res.json(result);
@@ -948,9 +941,13 @@ app.get('/get_tasks/:task_type/:task_state/:start_date/:end_date', async (req, r
     res.json(result);
 });
 
-app.post('/logout', (req, res) => {
-    req.session.destroy();
-    res.send('success');
+app.get('/get_json/:url', async (req, res) => {
+    let url = req.params.url.replace(new RegExp('@', 'g'), '/');
+
+    await fetch(url)
+    .then(response => response.json())
+    .then(data => res.json(data))
+    .catch(error => console.error('Error fetching data:', error));
 });
 
 app.listen(port, () => {
