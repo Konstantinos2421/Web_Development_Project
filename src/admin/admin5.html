@@ -87,7 +87,7 @@
       location.href = '../login/login.html';
     });
     
-    let admin = localStorage.getItem("username");
+    let admin = localStorage.getItem('username');
 
     fetch('http://localhost:3000/base/categories/' + admin)
     .then(response => response.json())
@@ -112,7 +112,7 @@
 
         input.addEventListener('change', function () {
           if (input.checked) {
-            fetch('http://localhost:3000/displayBaseInventory/admin/stavros_paraskevopoulos/' + category.category_id)
+            fetch('http://localhost:3000/displayBaseInventory/admin/' + admin + '/' + category.category_id)
             .then(response => response.json())
             .then(data2 => {
               console.log(data2);

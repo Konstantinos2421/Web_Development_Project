@@ -149,7 +149,7 @@ CREATE TABLE `base_inventory`(
     `quantity` INT NOT NULL,
     `base` VARCHAR(30) NOT NULL,
 
-    PRIMARY KEY (`product_id`),
+    PRIMARY KEY (`product_id`, `base`),
     FOREIGN KEY (`base`) REFERENCES `base` (`base_name`) ON DELETE CASCADE ON UPDATE CASCADE,
     FOREIGN KEY (`product_id`) REFERENCES `product` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) Engine = InnoDB;

@@ -67,6 +67,7 @@ DECLARE base_quantity INT;
 DECLARE products_in_base INT;
 DECLARE vehicle VARCHAR(20);
 DECLARE base VARCHAR(30);
+DECLARE new_quantity INT;
 
 SELECT `rescuer`.`base`
 INTO base
@@ -82,9 +83,18 @@ IF quant>base_quantity THEN
     SIGNAL SQLSTATE '45000'
         SET MESSAGE_TEXT = 'Not enough products in base inventory';
 ELSE
-    UPDATE `base_inventory`
-    SET `quantity`=`quantity`-quant
-    WHERE `product_id`=prod;
+	SELECT `quantity`-quant
+    INTO new_quantity
+    FROM `base_inventory`
+    WHERE `base_inventory`.`product_id`=prod AND `base_inventory`.`base`=base;
+    
+    IF new_quantity > 0 THEN 
+		UPDATE `base_inventory`
+		SET `quantity`=new_quantity
+		WHERE `product_id`=prod AND `base_inventory`.`base`=base;
+	ELSE
+		DELETE FROM `base_inventory` WHERE `base_inventory`.`product_id`=prod AND `base_inventory`.`base`=base;
+	END IF;
 END IF;
 
 SELECT `rescuer`.`vehicle`
@@ -420,7 +430,7 @@ BEGIN
     WHERE `product_name`=prod;
 
     IF element_count = 0 THEN
-		IF cat_id = 0 THEN
+		IF prod_id = 0 THEN
 			INSERT INTO `product` VALUES
 			(NULL, prod, descr, cat);
 		ELSE 
@@ -428,7 +438,7 @@ BEGIN
 			(prod_id, prod, descr, cat);
 		END IF;
 
-        SELECT `id`
+        SELECT `product`.`id`
         INTO id
         FROM `product`
         WHERE `product_name`=prod;
@@ -436,7 +446,7 @@ BEGIN
         INSERT INTO `has_product` VALUES
         (base, id);
     ELSE
-        SELECT `id`
+        SELECT `product`.`id`
         INTO id
         FROM `product`
         WHERE `product_name`=prod;

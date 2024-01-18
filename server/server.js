@@ -159,10 +159,10 @@ app.get('/base_inventory/admin/:admin', async (req, res) => {
     let base = result[0].base;
 
     [result] = await pool.query(`
-        SELECT \`product\`.\`product_name\` AS product_name, \`base_inventory\`.\`quantity\` AS quantity, \`product\`.\`id\` AS product_id
-        FROM \`base_inventory\`
-            JOIN \`product\` ON \`base_inventory\`.\`product_id\` = \`product\`.\`id\`
-        WHERE \`base_inventory\`.\`base\` = ?  
+        SELECT \`product\`.\`product_name\` AS product_name, IFNULL(\`base_inventory\`.\`quantity\`, 0) AS quantity, \`product\`.\`id\` AS product_id
+        FROM \`has_product\`
+            JOIN \`product\` ON \`has_product\`.\`product\` = \`product\`.\`id\` AND \`has_product\`.\`base\` = ?
+            LEFT JOIN \`base_inventory\` ON \`product\`.\`id\` = \`base_inventory\`.\`product_id\`
         ORDER BY \`product\`.\`product_name\`
     `, [base]);
 
@@ -373,23 +373,26 @@ app.get('/base/categories/:admin', async (req, res) => {
     res.json(result);
 });
 
-app.post('/new_product', async (req, res) => {
+app.post('/new_product/:admin', async (req, res) => {
+    let admin = req.params.admin;
     const receivedData = req.body;
 
     let [result] = await pool.query(`
-        SELECT *
-        FROM \`product\`
-        WHERE \`product_name\` = ?
-    `, [receivedData.product_name]);
+        SELECT * 
+        FROM \`admin\` 
+            JOIN \`base\` ON \`admin\`.\`base\` = \`base\`.\`base_name\`
+        WHERE \`admin_username\` = ?
+    `, [admin]);
 
-    if(result.length == 0){
+    let base = result[0].base;
+
+    try{
         await pool.query(`
-            INSERT INTO \`product\` VALUES 
-            (NULL, ?, ?, ?)
-        `, [receivedData.product_name, receivedData.product_description, receivedData.product_category]);
+            CALL newProduct(?, ?, ?, ?, ?)  
+        `, [receivedData.product_name, base, receivedData.product_id, receivedData.product_description, receivedData.product_category]);
 
         res.send('success');
-    }else{
+    }catch(error){
         res.send('product_already_exists');
     }
 });
@@ -408,11 +411,29 @@ app.post('/update_inventory/:admin', async (req, res) => {
     let base = result[0].base;
 
     receivedData.forEach(async item => {
-        await pool.query(`
-            UPDATE \`base_inventory\`
-            SET \`quantity\` = ?
-            WHERE \`base\` = ? AND \`product_id\` = ?
-        `, [ item.quantity, base, item.product_id]);
+        let [count] = await pool.query (`
+            SELECT COUNT(*) AS count
+            FROM \`base_inventory\`
+            WHERE \`base_inventory\`.\`base\` = ? AND \`base_inventory\`.\`product_id\` = ?
+        `, [base, item.product_id]);
+
+        if(count[0].count != 0){
+            if(item.quantity != 0){
+                await pool.query(`
+                    UPDATE \`base_inventory\`
+                    SET \`quantity\` = ?
+                    WHERE \`base\` = ? AND \`product_id\` = ?
+                `, [ item.quantity, base, item.product_id]);
+            }else{
+                await pool.query(`
+                    DELETE FROM \`base_inventory\` 
+                    WHERE \`base_inventory\`.\`base\` = ? AND \`base_inventory\`.\`product_id\` = ?
+                `, [base, item.product_id]);
+            }
+        }else{
+            await pool.query(`INSERT INTO \`base_inventory\` VALUES (?, ?, ?)`, [item.product_id, item.quantity, base]);
+        }
+
     });
 
     res.send('success');
@@ -436,10 +457,33 @@ app.get('/displayBaseInventory/admin/:admin/:category_id', async (req, res) => {
     res.json(result[0]);
 });
 
+app.get('/admin/announcements/:admin', async (req, res) => {
+    let admin = req.params.admin;
+
+    let [result] = await pool.query(`
+    SELECT * 
+    FROM \`admin\` 
+        JOIN \`base\` ON \`admin\`.\`base\` = \`base\`.\`base_name\`
+    WHERE \`admin_username\` = ?
+    `, [admin]);
+
+    let base = result[0].base;
+
+    [result] = await pool.query(`
+        SELECT *
+        FROM \`announcement\`
+            JOIN \`product\` ON \`announcement\`.\`product_id\` = \`product\`.\`id\`
+        WHERE \`announcement\`.\`base\` = ?
+        ORDER BY \`announcement\`.\`announcement_id\` DESC
+    `, [base]);
+
+    res.json(result);
+});
+
 app.get('/citizen/announcements/:base', async (req, res) => {
     let base = req.params.base;
 
-    const [result] = await pool.query(`
+    let [result] = await pool.query(`
         SELECT *
         FROM \`announcement\`
             JOIN \`product\` ON \`announcement\`.\`product_id\` = \`product\`.\`id\`
@@ -776,10 +820,9 @@ app.get('/base_products/:base', async (req, res) => {
 
     let [result] = await pool.query(`
         SELECT *
-        FROM \`has_category\`
-            JOIN \`category\` ON \`has_category\`.\`category\` = \`category\`.\`category_id\`
-            JOIN \`product\` ON \`category\`.\`category_id\` = \`product\`.\`category\`
-        WHERE \`has_category\`.\`base\` = ?
+        FROM \`has_product\`
+            JOIN \`product\` ON \`has_product\`.\`product\` = \`product\`.\`id\`
+        WHERE \`has_product\`.\`base\` = ?
         ORDER BY \`product\`.\`product_name\`
     `, [base]);
 
@@ -792,15 +835,13 @@ app.get('/base_products/:base/:category', async (req, res) => {
 
     let [result] = await pool.query(`
         SELECT *
-        FROM \`has_category\`
-            JOIN \`category\` ON \`has_category\`.\`category\` = \`category\`.\`category_id\`
-            JOIN \`product\` ON \`category\`.\`category_id\` = \`product\`.\`category\` 
-        WHERE \`has_category\`.\`base\` = ? AND \`product\`.\`category\` = ?
+        FROM \`has_product\`
+            JOIN \`product\` ON \`has_product\`.\`product\` = \`product\`.\`id\`
+        WHERE \`has_product\`.\`base\` = ? AND \`product\`.\`category\` = ?
         ORDER BY \`product\`.\`product_name\`
     `, [base, category]);
 
     res.json(result);
-
 });
 
 app.post('/new_offer/:product/:quantity/:citizen', async (req, res) => {
@@ -948,6 +989,49 @@ app.get('/get_json/:url', async (req, res) => {
     .then(response => response.json())
     .then(data => res.json(data))
     .catch(error => console.error('Error fetching data:', error));
+});
+
+app.delete('/delete/announcement/:announcement/:admin', async (req, res) => {
+    let announcement = req.params.announcement;
+    let admin = req.params.admin;
+
+    let [result] = await pool.query(`
+        SELECT * 
+        FROM \`admin\` 
+            JOIN \`base\` ON \`admin\`.\`base\` = \`base\`.\`base_name\`
+        WHERE \`admin_username\` = ?
+    `, [admin]);
+
+    let base = result[0].base;
+
+    await pool.query(`
+        DELETE FROM \`announcement\`
+        WHERE \`announcement_id\` = ? AND \`base\` = ?
+    `, [announcement, base]);
+
+    res.send('success');
+});
+
+app.delete('/delete/announcement/product/:announcement/:product/:admin', async (req, res) => {
+    let announcement = req.params.announcement;
+    let product = req.params.product;
+    let admin = req.params.admin;
+
+    let [result] = await pool.query(`
+        SELECT * 
+        FROM \`admin\` 
+            JOIN \`base\` ON \`admin\`.\`base\` = \`base\`.\`base_name\`
+        WHERE \`admin_username\` = ?
+    `, [admin]);
+
+    let base = result[0].base;
+
+    await pool.query(`
+        DELETE FROM \`announcement\`
+        WHERE \`announcement_id\` = ? AND \`product_id\` = ? AND \`base\` = ?
+    `, [announcement, product, base]);
+
+    res.send('success');
 });
 
 app.listen(port, () => {
