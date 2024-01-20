@@ -227,35 +227,39 @@
       .then(data => {
         let dataContainer = document.getElementById('base_inventory');
 
+        let spinners = [];
+
         data.forEach(item => {
-          const listItem = document.createElement('li');
-          listItem.className = 'list-group-item d-flex justify-content-between align-items-center';
-          listItem.id = item.product_id;
-          listItem.textContent = item.product_name;
+          dataContainer.innerHTML += `
+            <li class="list-group-item custom-list-group-item" id="${item.product_id}">
+              <div class="row d-flex align-items-center">
+                <div class="col d-flex">
+                  <span>${item.product_name}</span>
+                </div>
 
-          const badge = document.createElement('span');
-          badge.className = 'badge bg-secondary rounded-pill';
-          badge.textContent = item.quantity;
+                <div class="col d-flex justify-content-center align-self-center">
+                  <span class="badge bg-secondary rounded-pill">${item.quantity}</span>
+                </div>
 
-          const spinnerContainer = document.createElement('div');
-          spinnerContainer.className = 'd-flex align-items-right';
+                <div class="col d-flex align-items-right">
+                  <input class="form-control ml-auto" type="number" id="spinner_${item.product_id}" value="${item.quantity}" min="0">
+                </div>
+              </div>
+            </li>
+          `;
 
-          const spinner = document.createElement('input');
-          spinner.className = 'form-control ml-auto';
-          spinner.type = 'number';
-          spinner.value = item.quantity;
-          spinner.min = '0';
-
-          spinner.addEventListener('input', function() {
-              if(parseInt(spinner.value) < parseInt(spinner.min)){
-                spinner.value = spinner.min;
-              }
-          });
-          
-          listItem.appendChild(badge);
-          listItem.appendChild(spinnerContainer).appendChild(spinner);
-          dataContainer.appendChild(listItem);
+          spinners.push('spinner_' + item.product_id);
         });
+
+        spinners.forEach(item => {
+          let spinner = document.getElementById(item);
+          spinner.addEventListener('input', function() {
+            if(parseInt(spinner.value) < parseInt(spinner.min)){
+              spinner.value = spinner.min;
+            }
+          });
+        });
+
       })
       .catch(error => console.error('Error fetching data:', error));
     }

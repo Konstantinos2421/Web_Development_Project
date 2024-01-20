@@ -110,9 +110,9 @@
             location.href = '../login/login.html';
         });
 
-        function unloadCargo() {
-            let rescuer = localStorage.getItem('username');
+        let rescuer = localStorage.getItem('username');
 
+        function unloadCargo() {
             fetch('http://localhost:3000/cargo/' + rescuer)
             .then(response => response.json())
             .then(data => {
@@ -171,7 +171,6 @@
                             unloadCargo();
 
                             document.getElementById('base_inventory').innerHTML = '';
-                            document.getElementById('load_cargo').removeChild(document.getElementById('load_cargo_btn'));
                             loadCargo();
 
                             alert('Cargo unloaded successfully!');
@@ -198,124 +197,132 @@
 
 
         function loadCargo() {
-            let rescuer = localStorage.getItem('username');
-
             fetch('http://localhost:3000/base_inventory/rescuer/' + rescuer)
             .then(response => response.json())
             .then(data => {
                 let dataContainer = document.getElementById('base_inventory');
 
-                data.forEach(item => {
-                    const listItem = document.createElement('li');
-                    listItem.className = 'list-group-item d-flex justify-content-between align-items-center';
-                    listItem.id = item.product_id;
-                    listItem.textContent = item.product_name;
+                if(Object.keys(data).length > 0){
 
-                    const badge = document.createElement('span');
-                    badge.className = 'badge bg-secondary rounded-pill';
-                    badge.textContent = item.quantity;
+                    let spinners = [];
+                    data.forEach(item => {
+                        dataContainer.innerHTML += `
+                            <li class="list-group-item custom-list-group-item" id="${item.product_id}">
+                                <div class="row d-flex align-items-center">
+                                    <div class="col d-flex">
+                                        <span>${item.product_name}</span>
+                                    </div>
 
-                    const spinnerContainer = document.createElement('div');
-                    spinnerContainer.className = 'd-flex align-items-right';
+                                    <div class="col d-flex justify-content-center align-self-center">
+                                        <span class="badge bg-secondary rounded-pill">${item.quantity}</span>
+                                    </div>
 
-                    const spinner = document.createElement('input');
-                    spinner.className = 'form-control ml-auto';
-                    spinner.type = 'number';
-                    spinner.value = '0';
-                    spinner.min = '0';
-                    spinner.max = item.quantity;
+                                    <div class="col d-flex align-items-right">
+                                        <input class="form-control ml-auto" type="number" id="spinner_${item.product_id}" value="0" min="0" max=${item.quantity}>
+                                    </div>
+                                </div>
+                            </li>
+                        `;
 
-                    spinner.addEventListener('input', function() {
-                        if (parseInt(spinner.value) > parseInt(spinner.max)){
-                            spinner.value = spinner.max;
-                        }else if(parseInt(spinner.value) < parseInt(spinner.min)){
-                            spinner.value = spinner.min;
-                        }
+                        spinners.push('spinner_' + item.product_id);
                     });
-                    
-                    listItem.appendChild(badge);
-                    listItem.appendChild(spinnerContainer).appendChild(spinner);
-                    dataContainer.appendChild(listItem);
-                });
 
-                dataContainer = document.getElementById('load_cargo');
-                const button = document.createElement('button');
-                button.className = 'btn btn-primary mt-4 mx-auto d-block';
-                button.textContent = 'Load';
-                button.id = 'load_cargo_btn';
-                dataContainer.appendChild(button);
+                    spinners.forEach(item => {
+                        let spinner = document.getElementById(item);
+                        spinner.addEventListener('input', function() {
+                            if (parseInt(spinner.value) > parseInt(spinner.max)){
+                                spinner.value = spinner.max;
+                            }else if(parseInt(spinner.value) < parseInt(spinner.min)){
+                                spinner.value = spinner.min;
+                            }
+                        });
+                    });
 
-                document.getElementById('load_cargo_btn').addEventListener('click', async () => {
-                    let base_lat, base_lng, rescuer_lat, rescuer_lng;
+                    dataContainer = document.getElementById('load_cargo');
+                    const button = document.createElement('button');
+                    button.className = 'btn btn-primary mt-4 mx-auto d-block';
+                    button.textContent = 'Load';
+                    button.id = 'load_cargo_btn';
+                    dataContainer.appendChild(button);
 
-                    await fetch('http://localhost:3000/base_location/rescuer/' + rescuer)
-                    .then(response => response.json())
-                    .then(data => {
-                        base_lat = data.base_location.x;
-                        base_lng = data.base_location.y;
-                    })
-                    .catch(error => console.error('Error fetching data:', error));
+                    document.getElementById('load_cargo_btn').addEventListener('click', async () => {
+                        let base_lat, base_lng, rescuer_lat, rescuer_lng;
 
-                    await fetch('http://localhost:3000/rescuer_location/' + rescuer)
-                    .then(response => response.json())
-                    .then(data => {
-                        rescuer_lat = data.vehicle_location.x;
-                        rescuer_lng = data.vehicle_location.y;
-                    })
-                    .catch(error => console.error('Error fetching data:', error));
+                        await fetch('http://localhost:3000/base_location/rescuer/' + rescuer)
+                        .then(response => response.json())
+                        .then(data => {
+                            base_lat = data.base_location.x;
+                            base_lng = data.base_location.y;
+                        })
+                        .catch(error => console.error('Error fetching data:', error));
 
-                    let distance = L.latLng(base_lat, base_lng).distanceTo(L.latLng(rescuer_lat, rescuer_lng));
-                    if (distance > 100) {
-                        alert('You are too far away from the base!');
-                        return;
-                    }
-                    
-                    let data = [];
-                    let listItems = document.getElementById('base_inventory').getElementsByTagName('li');
-                    for (let i = 0; i < listItems.length; i++) {
-                        let item = listItems[i];
-                        let quantity = item.getElementsByTagName('input')[0].value;
-                        let id = item.id;
-                        if (quantity > 0) {
-                            data.push({
-                                product_name: item.textContent,
-                                quantity: quantity,
-                                product_id: id
+                        await fetch('http://localhost:3000/rescuer_location/' + rescuer)
+                        .then(response => response.json())
+                        .then(data => {
+                            rescuer_lat = data.vehicle_location.x;
+                            rescuer_lng = data.vehicle_location.y;
+                        })
+                        .catch(error => console.error('Error fetching data:', error));
+
+                        let distance = L.latLng(base_lat, base_lng).distanceTo(L.latLng(rescuer_lat, rescuer_lng));
+                        if (distance > 100) {
+                            alert('You are too far away from the base!');
+                            return;
+                        }
+                        
+                        let data = [];
+                        let listItems = document.getElementById('base_inventory').getElementsByTagName('li');
+                        for (let i = 0; i < listItems.length; i++) {
+                            let item = listItems[i];
+                            let quantity = item.getElementsByTagName('input')[0].value;
+                            let id = item.id;
+                            if (quantity > 0) {
+                                data.push({
+                                    product_name: item.textContent,
+                                    quantity: quantity,
+                                    product_id: id
+                                });
+                            }
+                        }
+
+                        if (data.length == 0) {
+                            alert('You chose no products!');
+                        }else{
+                            fetch('http://localhost:3000/loadFromBase/' + rescuer, {
+                                method: 'POST', 
+                                body: JSON.stringify(data),
+                                headers: {
+                                    "Content-Type": "application/json"
+                                } 
+                            })
+                            .then(response => response.text())
+                            .then(data => {
+                                document.getElementById('current_cargo').innerHTML = '';
+                                document.getElementById('base_inventory').innerHTML = '';
+                                
+                                if (document.getElementById('unload_cargo_btn')) {
+                                    document.getElementById('unload_cargo').removeChild(document.getElementById('unload_cargo_btn'));
+                                }
+                                document.getElementById('load_cargo').removeChild(document.getElementById('load_cargo_btn'));
+                                
+                                unloadCargo();
+                                loadCargo();
+
+                                alert('Cargo loaded successfully!');
+                            })
+                            .catch((error) => {
+                                console.error('Error:', error);
                             });
                         }
-                    }
 
-                    if (data.length == 0) {
-                        alert('You chose no products!');
-                    }else{
-                        fetch('http://localhost:3000/loadFromBase/' + rescuer, {
-                            method: 'POST', 
-                            body: JSON.stringify(data),
-                            headers: {
-                                "Content-Type": "application/json"
-                            } 
-                        })
-                        .then(response => response.text())
-                        .then(data => {
-                            document.getElementById('current_cargo').innerHTML = '';
-                            document.getElementById('base_inventory').innerHTML = '';
-                            
-                            if (document.getElementById('unload_cargo_btn')) {
-                                document.getElementById('unload_cargo').removeChild(document.getElementById('unload_cargo_btn'));
-                            }
-                            document.getElementById('load_cargo').removeChild(document.getElementById('load_cargo_btn'));
-                            
-                            unloadCargo();
-                            loadCargo();
+                    });
+                }else{
+                    const listItem = document.createElement('li');
+                    listItem.className = 'list-group-item d-flex justify-content-center align-items-center';
+                    listItem.textContent = 'There is no cargo in the base';
 
-                            alert('Cargo loaded successfully!');
-                        })
-                        .catch((error) => {
-                            console.error('Error:', error);
-                        });
-                    }
-
-                });
+                    document.getElementById('base_inventory').appendChild(listItem);
+                }
             })
             .catch(error => console.error('Error fetching data:', error));
         }
