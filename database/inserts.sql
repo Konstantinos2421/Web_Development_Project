@@ -1,3 +1,4 @@
+-- SQLBook: Code
 INSERT INTO `base` VALUES
 ('PATRA_BASE1', ST_GeomFromText('POINT(38.2441 21.7346)'));
 
@@ -35,25 +36,6 @@ INSERT INTO `citizen` VALUES
 ('thanos_kostopoulos', ST_GeomFromText('POINT(38.2569 21.7451)')),
 ('panagiota_milona', ST_GeomFromText('POINT(38.2497 21.7373)'));
 
-/*INSERT INTO `category` VALUES
-(NULL, 'meat'),
-(NULL, 'diary'),
-(NULL, 'beverages'),
-(NULL, 'hygiene');
-
-INSERT INTO `has_category` VALUES
-('PATRA_BASE1', 1),
-('PATRA_BASE1', 2),
-('PATRA_BASE1', 3),
-('PATRA_BASE1', 4);
-
-INSERT INTO `product` VALUES
-(NULL, 'beef', '', 1),
-(NULL, 'milk', '', 2),
-(NULL, 'water', '', 3),
-(NULL, 'soap', '', 4),
-(NULL, 'kfc', '', 1);*/
-
 /*INSERT INTO `cargo` VALUES
 ('AXY8965', 1, 10),
 ('AXY8965', 3, 5),
@@ -67,34 +49,75 @@ INSERT INTO `product` VALUES
 ('GTD8563', 1, 20),
 ('GTD8563', 4, 25),
 ('PLE8456', 2, 10),
-('PLE8456', 3, 5);*/
+('PLE8456', 3, 5);
 
-/*INSERT INTO `base_inventory` VALUES
+INSERT INTO `base_inventory` VALUES
 (1, 10, 'PATRA_BASE1'),
 (2, 20, 'PATRA_BASE1'),
 (3, 80, 'PATRA_BASE1'),
-(4, 65, 'PATRA_BASE1');
+(4, 65, 'PATRA_BASE1'),
+(5, 30, 'PATRA_BASE1'),
+(8, 25, 'PATRA_BASE1'),
+(10, 20, 'PATRA_BASE1'),
+(17, 100, 'PATRA_BASE1'),
+(22, 60, 'PATRA_BASE1'),
+(27, 5, 'PATRA_BASE1'),
+(31, 70, 'PATRA_BASE1'),
+(35, 80, 'PATRA_BASE1'),
+(40, 35, 'PATRA_BASE1'),
+(44, 6, 'PATRA_BASE1'),
+(46, 20, 'PATRA_BASE1'),
+(58, 70, 'PATRA_BASE1'),
+(60, 46, 'PATRA_BASE1'),
+(63, 38, 'PATRA_BASE1'),
+(66, 32, 'PATRA_BASE1'),
+(68, 52, 'PATRA_BASE1'),
+(70, 45, 'PATRA_BASE1'),
+(71, 40, 'PATRA_BASE1'),
+(75, 40, 'PATRA_BASE1'),
+(80, 26, 'PATRA_BASE1'),
+(82, 72, 'PATRA_BASE1'),
+(88, 54, 'PATRA_BASE1'),
+(89, 15, 'PATRA_BASE1'),
+(90, 40, 'PATRA_BASE1'),
+(95, 38, 'PATRA_BASE1'),
+(100, 65, 'PATRA_BASE1'),
+(102, 2, 'PATRA_BASE1'),
+(105, 120, 'PATRA_BASE1'),
+(107, 20, 'PATRA_BASE1');
 
 INSERT INTO `task` VALUES
-(NULL, NULL, 'NO', 'NO', current_timestamp(), NULL, NULL),
+(NULL, 'natassa_politi', 'YES', 'NO', current_timestamp(), current_timestamp(), NULL),
 (NULL, NULL, 'NO', 'NO', current_timestamp(), NULL, NULL),
 (NULL, NULL, 'NO', 'NO', current_timestamp(), NULL, NULL),
 (NULL, 'foivos_rigopoulos', 'YES', 'NO', current_timestamp(), current_timestamp(), NULL),
 (NULL, NULL, 'NO', 'NO', current_timestamp(), NULL, NULL),
+(NULL, NULL, 'NO', 'NO', current_timestamp(), NULL, NULL),
+(NULL, NULL, 'NO', 'NO', current_timestamp(), NULL, NULL),
+(NULL, NULL, 'NO', 'NO', current_timestamp(), NULL, NULL),
 (NULL, 'niki_petratou', 'YES', 'NO', current_timestamp(), current_timestamp(), NULL),
 (NULL, NULL, 'NO', 'NO', current_timestamp(), NULL, NULL),
+(NULL, NULL, 'NO', 'NO', current_timestamp(), NULL, NULL),
+(NULL, NULL, 'NO', 'NO', current_timestamp(), NULL, NULL),
+(NULL, 'natassa_politi', 'YES', 'NO', current_timestamp(), current_timestamp(), NULL),
 (NULL, NULL, 'NO', 'NO', current_timestamp(), NULL, NULL),
 (NULL, NULL, 'NO', 'NO', current_timestamp(), NULL, NULL);
 
 INSERT INTO `request` VALUES
 (1, 'marios_raftopoulos', 1, 5),
-(2, 'marios_raftopoulos', 5, 10),
-(3, 'vasia_alexiou', 2, 3),
-(4, 'lydia_loukakou', 3, 15),
-(5, 'nikos_kalogeropoulos', 4, 5);
+(2, 'marios_raftopoulos', 5, 3),
+(3, 'marios_raftopoulos', 35, 7),
+(4, 'vasia_alexiou', 40, 10),
+(5, 'vasia_alexiou', 46, 8),
+(6, 'lydia_loukakou', 68, 6),
+(7, 'lydia_loukakou', 80, 3),
+(8, 'nikos_kalogeropoulos', 95, 9);
 
 INSERT INTO `offer` VALUES
-(6, 'alexandros_apostolou', 1, 10),
-(7, 'alexandros_apostolou', 2, 20),
-(8, 'thanos_kostopoulos', 3, 20),
-(9, 'panagiota_milona', 4, 25);*/
+(9, 'alexandros_apostolou', 32, 10),
+(10, 'alexandros_apostolou', 1, 15),
+(11, 'alexandros_apostolou', 35, 8),
+(12, 'thanos_kostopoulos', 83, 3),
+(13, 'thanos_kostopoulos', 40, 10),
+(14, 'panagiota_milona', 99, 20),
+(15, 'panagiota_milona', 107, 20);*/

@@ -18,9 +18,9 @@ let pool = mysql.createPool({
     database: 'natural_disasters_volunteering_platform'
 }).promise();
 
-app.post('/login/:username/:password', async (req, res) => {
-    const user = req.params.username;
-    const password = req.params.password;
+app.get('/login/:username/:password', async (req, res) => {
+    let user = req.params.username;
+    let password = req.params.password;
     
     let [result] = await pool.query(`SELECT * FROM user WHERE username = ?`, [user]);
     if(result.length == 0) {
@@ -44,23 +44,26 @@ app.post('/login/:username/:password', async (req, res) => {
     }
 });
 
-app.get('/cargo/:user', async (req, res) => {
-    const user = req.params.user;
-    const [result] = await pool.query(`
+app.get('/cargo/:rescuer', async (req, res) => {
+    let rescuer = req.params.rescuer;
+
+    let [result] = await pool.query(`
         SELECT * FROM \`cargo\`
             JOIN \`product\` ON \`cargo\`.\`product_id\` = \`product\`.\`id\`
             JOIN \`rescuer\` ON \`cargo\`.\`vehicle_name\` = \`rescuer\`.\`vehicle\`
         WHERE \`rescuer\`.\`rescuer_username\` = ?
-    `, [user]);
+        ORDER BY \`product\`.\`product_name\`
+    `, [rescuer]);
 
     res.json(result);
 });
 
-app.post('/unloadall/:user', async (req, res) => {
-    const user = req.params.user;
+app.post('/unloadall/:rescuer', async (req, res) => {
+    let rescuer = req.params.rescuer;
+
     await pool.query(`
         CALL rescuerUnloadCargoToBase(?)
-    `, [user]);
+    `, [rescuer]);
 
     res.send('success');
 });
@@ -127,13 +130,13 @@ app.post('/signup/rescuer/:admin/:username/:password/:firstname/:lastname/:phone
 
 });
 
-app.get('/base_inventory/rescuer/:user', async (req, res) => {
-    let user = req.params.user;
+app.get('/base_inventory/rescuer/:rescuer', async (req, res) => {
+    let rescuer = req.params.rescuer;
 
     let [result] = await pool.query(`
         SELECT * FROM \`rescuer\` 
         WHERE \`rescuer_username\` = ?
-    `, [user]);
+    `, [rescuer]);
 
     let base = result[0].base;
 
@@ -169,14 +172,14 @@ app.get('/base_inventory/admin/:admin', async (req, res) => {
     res.json(result);
 });
 
-app.post('/loadFromBase/:user', (req, res) => {
-    let user = req.params.user;
-    const receivedData = req.body;
+app.post('/loadFromBase/:rescuer', (req, res) => {
+    let rescuer = req.params.rescuer;
+    let receivedData = req.body;
 
     receivedData.forEach(async item => {
         await pool.query(`
             CALL rescuerLoadCargoFromBase(?, ?, ?)
-        `, [user, item.product_id, item.quantity]);
+        `, [rescuer, item.product_id, item.quantity]);
     });
 
     res.send('success');
@@ -375,7 +378,7 @@ app.get('/base/categories/:admin', async (req, res) => {
 
 app.post('/new_product/:admin', async (req, res) => {
     let admin = req.params.admin;
-    const receivedData = req.body;
+    let receivedData = req.body;
 
     let [result] = await pool.query(`
         SELECT * 
@@ -393,7 +396,7 @@ app.post('/new_product/:admin', async (req, res) => {
 
         res.send('success');
     }catch(error){
-        res.send('product_already_exists');
+        res.send('fail');
     }
 });
 

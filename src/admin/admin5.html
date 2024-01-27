@@ -67,7 +67,7 @@
             </form>
         </div>
 
-        <div class="col-lg-6" id="categories_tables">
+        <div class="col-lg-9" id="categories_tables">
 
         </div>
 
@@ -134,15 +134,23 @@
                   
               let th2 = document.createElement('th');
               th2.textContent = 'Product Name';
-                  
+
               let th3 = document.createElement('th');
-              th3.textContent = 'Quantity';
+              th3.textContent = 'Base Quantity';
+
+              let th4 = document.createElement('th');
+              th4.textContent = 'Vehicles Quantity';
+                  
+              let th5 = document.createElement('th');
+              th5.textContent = 'Total Quantity';
 
               let tbody = document.createElement('tbody');
 
               tr0.appendChild(th1);
               tr0.appendChild(th2);
               tr0.appendChild(th3);
+              tr0.appendChild(th4);
+              tr0.appendChild(th5);
               thead.appendChild(tr0);
               table.appendChild(thead);
               table.appendChild(tbody);
@@ -157,11 +165,19 @@
                 td2.textContent = item.product_name;
 
                 let td3 = document.createElement('td');
-                td3.textContent = item.quantity;
+                td3.textContent = item.base_quantity;
+
+                let td4 = document.createElement('td');
+                td4.textContent = item.rescuers_quantity;
+
+                let td5 = document.createElement('td');
+                td5.textContent = item.total_quantity;
 
                 tr.appendChild(td1);
                 tr.appendChild(td2);
                 tr.appendChild(td3);
+                tr.appendChild(td4);
+                tr.appendChild(td5);
                 tbody.appendChild(tr);
               });
 

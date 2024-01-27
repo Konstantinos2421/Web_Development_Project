@@ -133,7 +133,7 @@
 
                     dataContainer = document.getElementById('unload_cargo');
                     const button = document.createElement('button');
-                    button.className = 'btn btn-danger mt-4 mx-auto d-block';
+                    button.className = 'btn btn-danger mt-4 mb-3 mx-auto d-block';
                     button.textContent = 'Unload';
                     button.id = 'unload_cargo_btn';
                     dataContainer.appendChild(button);
@@ -168,10 +168,14 @@
                         fetch('http://localhost:3000/unloadall/'+ rescuer, {method: 'POST'})
                         .then(response => response.text())
                         .then(data => {
-                            unloadCargo();
-
                             document.getElementById('base_inventory').innerHTML = '';
+                            document.getElementById('unload_cargo').removeChild(document.getElementById('unload_cargo_btn'));
+                            document.getElementById('current_cargo').innerHTML = '';
+                            if(document.getElementById('load_cargo_btn')){
+                                document.getElementById('load_cargo').removeChild(document.getElementById('load_cargo_btn'));
+                            }
                             loadCargo();
+                            unloadCargo();
 
                             alert('Cargo unloaded successfully!');
                         })
@@ -179,12 +183,6 @@
                     });
 
                 }else{
-                    if (document.getElementById('unload_cargo_btn')) {
-                        document.getElementById('unload_cargo').removeChild(document.getElementById('unload_cargo_btn'));
-                    }
-
-                    document.getElementById('current_cargo').innerHTML = '';
-
                     const listItem = document.createElement('li');
                     listItem.className = 'list-group-item d-flex justify-content-center align-items-center';
                     listItem.textContent = 'No cargo to unload';
@@ -240,7 +238,7 @@
 
                     dataContainer = document.getElementById('load_cargo');
                     const button = document.createElement('button');
-                    button.className = 'btn btn-primary mt-4 mx-auto d-block';
+                    button.className = 'btn btn-primary mt-4 mb-3 mx-auto d-block';
                     button.textContent = 'Load';
                     button.id = 'load_cargo_btn';
                     dataContainer.appendChild(button);
@@ -297,29 +295,26 @@
                             })
                             .then(response => response.text())
                             .then(data => {
-                                document.getElementById('current_cargo').innerHTML = '';
                                 document.getElementById('base_inventory').innerHTML = '';
-                                
-                                if (document.getElementById('unload_cargo_btn')) {
+                                document.getElementById('current_cargo').innerHTML = '';
+                                if(document.getElementById('unload_cargo_btn')){
                                     document.getElementById('unload_cargo').removeChild(document.getElementById('unload_cargo_btn'));
                                 }
                                 document.getElementById('load_cargo').removeChild(document.getElementById('load_cargo_btn'));
-                                
-                                unloadCargo();
-                                loadCargo();
-
                                 alert('Cargo loaded successfully!');
                             })
-                            .catch((error) => {
-                                console.error('Error:', error);
-                            });
+                            .then(() => {
+                                unloadCargo();
+                                loadCargo();
+                            })
+                            .catch(error => console.error('Error fetching data:', error));
                         }
 
                     });
                 }else{
                     const listItem = document.createElement('li');
                     listItem.className = 'list-group-item d-flex justify-content-center align-items-center';
-                    listItem.textContent = 'There is no cargo in the base';
+                    listItem.textContent = 'There are no items in the base';
 
                     document.getElementById('base_inventory').appendChild(listItem);
                 }

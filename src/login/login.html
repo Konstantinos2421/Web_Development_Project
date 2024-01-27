@@ -71,7 +71,7 @@
                 username = document.getElementById('username_field').value;
                 password = document.getElementById('password_field').value;
 
-                fetch('http://localhost:3000/login/' + username + '/' + password, { method: 'POST' })
+                fetch('http://localhost:3000/login/' + username + '/' + password)
                 .then(response => response.text())
                 .then(data => {
                     if(data == 'Username not found'){

@@ -100,6 +100,8 @@
 
           <div class="col-lg-6 rounded text-white" style="background-color:rgb(80, 102, 80)">
             <form class="p-3">
+              <h4 class="text-center mt-3">New Category</h4>
+
               <div class="mb-3 mt-3">
                 <label for="category_name" class="form-label">Category Name:</label>
                 <input type="text" class="form-control" autocomplete="off" placeholder="Enter Category Name" id="category_name_field">
@@ -121,6 +123,8 @@
 
           <div class="col-lg-6 rounded text-white" style="background-color:rgb(80, 102, 80)">
             <form class="p-3">
+              <h4 class="text-center mt-3">New Product</h4>
+
               <div>
                 <label for="product_category" class="form-label">Product Category:</label>
                 <select class="form-select" id="category_select_menu" placeholder="Select Product Category">
@@ -154,6 +158,7 @@
 
           <div class="col-lg-6 rounded text-white" style="background-color:rgb(80, 102, 80)">
             <form class="p-3">
+              <h4 class="text-center mt-3">Load JSON</h4>
 
               <label for="json_url" class="form-label">JSON URL:</label>
               <div class="input-group mb-3">
@@ -183,10 +188,6 @@
             </ul>
           </div>
         </div>
-
-        <div class="mt-5 mb-1 text-center">
-          <button type="button" class="btn btn-primary btn-default" id="update_btn">Update</button>
-        </div>
       </div>
     </div>
 
@@ -205,20 +206,22 @@
 
     let admin = localStorage.getItem("username");
 
-    fetch('http://localhost:3000/base/categories/' + admin)
-    .then(response => response.json())
-    .then(data => {
-      
-      data.forEach(item => {
-        const option = document.createElement('option');
-        option.id = item.category_id;
-        option.textContent = item.category_name;
+    function loadCategories(){
+      fetch('http://localhost:3000/base/categories/' + admin)
+      .then(response => response.json())
+      .then(data => {
+        
+        data.forEach(item => {
+          const option = document.createElement('option');
+          option.id = item.category_id;
+          option.textContent = item.category_name;
 
-        document.getElementById('category_select_menu').appendChild(option);
-      });
+          document.getElementById('category_select_menu').appendChild(option);
+        });
 
-    })
-    .catch(error => console.error('Error fetching data:', error));
+      })
+      .catch(error => console.error('Error fetching data:', error));
+    }
 
 
     function displayBaseInventory(){
@@ -227,38 +230,91 @@
       .then(data => {
         let dataContainer = document.getElementById('base_inventory');
 
-        let spinners = [];
+        if(Object.keys(data).length > 0){
+          let spinners = [];
 
-        data.forEach(item => {
-          dataContainer.innerHTML += `
-            <li class="list-group-item custom-list-group-item" id="${item.product_id}">
-              <div class="row d-flex align-items-center">
-                <div class="col d-flex">
-                  <span>${item.product_name}</span>
-                </div>
+          data.forEach(item => {
+            dataContainer.innerHTML += `
+              <li class="list-group-item custom-list-group-item" id="${item.product_id}">
+                <div class="row d-flex align-items-center">
+                  <div class="col d-flex">
+                    <span>${item.product_name}</span>
+                  </div>
 
-                <div class="col d-flex justify-content-center align-self-center">
-                  <span class="badge bg-secondary rounded-pill">${item.quantity}</span>
-                </div>
+                  <div class="col d-flex justify-content-center align-self-center">
+                    <span class="badge bg-secondary rounded-pill">${item.quantity}</span>
+                  </div>
 
-                <div class="col d-flex align-items-right">
-                  <input class="form-control ml-auto" type="number" id="spinner_${item.product_id}" value="${item.quantity}" min="0">
+                  <div class="col d-flex align-items-right">
+                    <input class="form-control ml-auto" type="number" id="spinner_${item.product_id}" value="${item.quantity}" min="0">
+                  </div>
                 </div>
-              </div>
-            </li>
+              </li>
+            `;
+
+            spinners.push('spinner_' + item.product_id);
+          });
+
+          spinners.forEach(item => {
+            let spinner = document.getElementById(item);
+            spinner.addEventListener('input', function() {
+              if(parseInt(spinner.value) < parseInt(spinner.min)){
+                spinner.value = spinner.min;
+              }
+            });
+          });
+
+          document.getElementById('modify_products_quantity').innerHTML += `
+            <div class="mt-4 mb-3 text-center">
+              <button type="button" class="btn btn-primary btn-default" id="update_btn">Update</button>
+            </div>
           `;
 
-          spinners.push('spinner_' + item.product_id);
-        });
-
-        spinners.forEach(item => {
-          let spinner = document.getElementById(item);
-          spinner.addEventListener('input', function() {
-            if(parseInt(spinner.value) < parseInt(spinner.min)){
-              spinner.value = spinner.min;
+          document.getElementById('update_btn').addEventListener('click', () => {
+            let data = [];
+            let listItems = document.getElementById('base_inventory').getElementsByTagName('li');
+            for (let i = 0; i < listItems.length; i++) {
+              let item = listItems[i];
+              let quantity = item.getElementsByTagName('input')[0].value;
+              let id = item.id;
+              if (quantity > 0) {
+                data.push({
+                  product_name: item.textContent,
+                  quantity: quantity,
+                  product_id: id
+                });
+              }
             }
+      
+            fetch('http://localhost:3000/update_inventory/' + admin, {
+              method: 'POST', 
+              body: JSON.stringify(data),
+              headers: {
+                "Content-Type": "application/json"
+              } 
+            })
+            .then(response => response.text())
+            .then(data => {
+              alert('Inventory updated successfully');
+              document.getElementById('base_inventory').innerHTML = '';
+              document.getElementById('update_btn').remove();
+              displayBaseInventory();
+            })
+            .catch(error => console.error('Error fetching data:', error));
           });
-        });
+        }else{
+          document.getElementById('modify_products_quantity').innerHTML += `
+            <div class="row" id="no_products_ul">
+              <div class="col-lg-3"></div>
+
+              <div class="col-lg-6">
+                <ul class="list-group">
+                  <li class="list-group-item d-flex justify-content-center align-items-center">No registered products found</li>
+                </ul>
+              </div>
+            </div>
+          `;
+        }
 
       })
       .catch(error => console.error('Error fetching data:', error));
@@ -277,6 +333,10 @@
           if(data == 'success'){
             alert('Category added successfully');
             document.getElementById('category_name_field').value = '';
+            document.getElementById('category_select_menu').innerHTML = `
+              <option id="-1">Choose Product Category</option>
+            `;
+            loadCategories();
           }else{
             alert('Category already exists!');
             document.getElementById('category_name_field').value = '';
@@ -318,6 +378,14 @@
             document.getElementById('product_name_field').value = '';
             document.getElementById('category_select_menu').selectedIndex = 0;
             document.getElementById('product_description_field').value = '';
+            document.getElementById('base_inventory').innerHTML = '';
+            if(document.getElementById('update_btn')){
+              document.getElementById('update_btn').remove();
+            }
+            if(document.getElementById('no_products_ul')){
+              document.getElementById('no_products_ul').remove();
+            }
+            displayBaseInventory();
           }else{
             alert('Product already exists!');
           }
@@ -337,18 +405,12 @@
       fetch('http://localhost:3000/get_json/' + url.replace(new RegExp('/', 'g'), '@'))
       .then(response => response.json())
       .then(data => {
-        data.categories.forEach(item => {
-          fetch('http://localhost:3000/new_category/' + admin + '/' + item.category_name + '/' + parseFloat(item.id), {method: 'POST'})
-          .then(response => response.text())
-          .then(data => {
-            if(data == 'fail'){
-              alert('Category ' + item.category_name + ' already exists!');
-            }
-          })
-          .catch(error => console.error('Error fetching data:', error));
+        let categoryPromises = data.categories.map(item => {
+          return fetch('http://localhost:3000/new_category/' + admin + '/' + item.category_name + '/' + parseFloat(item.id), {method: 'POST'})
+          .then(response => response.text());
         });
-
-        data.items.forEach(item => {
+  
+        let productPromises = data.items.map(item => {
           let product_name = item.name;
           let product_category = parseInt(item.category);
           let product_description = '';
@@ -357,28 +419,37 @@
               product_description = product_description + detail.detail_name + ': ' + detail.detail_value + '\n';
             }
           });
-
+  
           let obj = {
             "product_name": product_name,
             "product_category": product_category,
             "product_description": product_description
           };
-          
-          fetch('http://localhost:3000/new_product', { 
+  
+          return fetch('http://localhost:3000/new_product/' + admin, { 
             method: 'POST',
             body: JSON.stringify(obj),
             headers: {
               "Content-Type": "application/json"
             }
-          })
-          .then(response => response.text())
-          .then(data => {
-            if(data == 'fail'){
-              alert('Product ' + item.name + ' already exists!');
-            }
-          })
-          .catch(error => console.error('Error fetching data:', error));
+          }).then(response => response.text());
         });
+
+        Promise.all([...categoryPromises, ...productPromises])
+        .then(() => {
+          alert('JSON loaded successfully');
+          document.getElementById('json_url_field').value = '';
+          document.getElementById('base_inventory').innerHTML = '';
+          if(document.getElementById('update_btn')){
+            document.getElementById('update_btn').remove();
+          }
+          if(document.getElementById('no_products_ul')){
+            document.getElementById('no_products_ul').remove();
+          }
+          displayBaseInventory();
+        })
+        .catch(error => console.error('Error fetching data:', error));
+
       })
       .catch(error => console.error('Error fetching data:', error));
     });
@@ -391,98 +462,67 @@
       }
 
       let file = document.getElementById('json_file_field').files[0];
-
       let reader = new FileReader();
-        reader.onload = function (e) {
-          try {
-            let jsonData = JSON.parse(e.target.result);
 
-            jsonData.categories.forEach(item => {
-              fetch('http://localhost:3000/new_category/' + admin + '/' + item.category_name + '/' + parseFloat(item.id), {method: 'POST'})
-              .then(response => response.text())
-              .then(data => {
-                if(data == 'fail'){
-                  alert('Category ' + item.category_name + ' already exists!');
-                }
-              })
-              .catch(error => console.error('Error fetching data:', error));
-            });
-    
-            jsonData.items.forEach(item => {
-              let product_name = item.name;
-              let product_category = parseInt(item.category);
-              let product_description = '';
-              item.details.forEach(detail => {
-                if(detail.detail_name != '' && detail.detail_name != 'stock'){
-                  product_description = product_description + detail.detail_name + ': ' + detail.detail_value + '\n';
-                }
-              });
-    
-              let obj = {
-                "product_name": product_name,
-                "product_category": product_category,
-                "product_description": product_description,
-                "product_id": "0"
-              };
-              
-              fetch('http://localhost:3000/new_product/' + admin, { 
-                method: 'POST',
-                body: JSON.stringify(obj),
-                headers: {
-                  "Content-Type": "application/json"
-                }
-              })
-              .then(response => response.text())
-              .then(data => {
-                if(data == 'fail'){
-                  alert('Product ' + item.name + ' already exists!');
-                }
-              })
-              .catch(error => console.error('Error fetching data:', error));
-            });
+      reader.onload = function (e) {
+        try {
+          let jsonData = JSON.parse(e.target.result);
 
-            alert('JSON loaded successfully');
-
-          } catch (error) {
-            alert('File is not JSON!');
-          }
-        };
-        reader.readAsText(file);
-    });
-
-
-    document.getElementById('update_btn').addEventListener('click', () => {
-      let data = [];
-      let listItems = document.getElementById('base_inventory').getElementsByTagName('li');
-      for (let i = 0; i < listItems.length; i++) {
-        let item = listItems[i];
-        let quantity = item.getElementsByTagName('input')[0].value;
-        let id = item.id;
-        if (quantity > 0) {
-          data.push({
-            product_name: item.textContent,
-            quantity: quantity,
-            product_id: id
+          let categoryPromises = jsonData.categories.map(item => {
+            return fetch('http://localhost:3000/new_category/' + admin + '/' + item.category_name + '/' + parseFloat(item.id), {method: 'POST'})
+            .then(response => response.text());
           });
-        }
-      }
+  
+          let productPromises = jsonData.items.map(item => {
+            let product_name = item.name;
+            let product_category = parseInt(item.category);
+            let product_description = '';
+            item.details.forEach(detail => {
+              if(detail.detail_name != '' && detail.detail_name != 'stock'){
+                product_description = product_description + detail.detail_name + ': ' + detail.detail_value + '\n';
+              }
+            });
+    
+            let obj = {
+              "product_name": product_name,
+              "product_category": product_category,
+              "product_description": product_description
+            };
+    
+            return fetch('http://localhost:3000/new_product/' + admin, { 
+              method: 'POST',
+              body: JSON.stringify(obj),
+              headers: {
+                "Content-Type": "application/json"
+              }
+            }).then(response => response.text());
+          });
 
-      fetch('http://localhost:3000/update_inventory/' + admin, {
-        method: 'POST', 
-        body: JSON.stringify(data),
-        headers: {
-          "Content-Type": "application/json"
-        } 
-      })
-      .then(response => response.text())
-      .then(data => {
-        alert('Inventory updated successfully');
-        document.getElementById('base_inventory').innerHTML = '';
-        displayBaseInventory()
-      })
-      .catch(error => console.error('Error fetching data:', error));
+          Promise.all([...categoryPromises, ...productPromises])
+          .then(() => {
+            alert('JSON loaded successfully');
+            document.getElementById('json_file_field').value = '';
+            document.getElementById('base_inventory').innerHTML = '';
+            if(document.getElementById('update_btn')){
+              document.getElementById('update_btn').remove();
+            }
+            if(document.getElementById('no_products_ul')){
+              document.getElementById('no_products_ul').remove();
+            }
+            displayBaseInventory();
+          })
+          .catch(error => console.error('Error fetching data:', error));
+
+        } catch (error) {
+          alert('File is not JSON!');
+        }
+      };
+
+      reader.readAsText(file);
+
     });
 
+    loadCategories();
     displayBaseInventory();
   </script>
 

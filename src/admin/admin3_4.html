@@ -152,6 +152,8 @@
             attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         }).addTo(map);
 
+        let base_marker;
+
         fetch('http://localhost:3000/base_location/admin/' + admin)
         .then(response => response.json())
         .then(data => {
@@ -160,7 +162,7 @@
 
             map.setView([lat, lng], 14);
 
-            let marker = L.marker([lat, lng],{
+            base_marker = L.marker([lat, lng],{
                 icon: L.icon({
                     iconUrl: '../../imgs/pins/marker-icon-2x-black.png',
                     iconSize: [25, 41],
@@ -169,8 +171,8 @@
                 })
             });
 
-            marker.addTo(map);
-            marker.bindPopup(`
+            base_marker.addTo(map);
+            base_marker.bindPopup(`
                 <div class="text-center">
                     <b class="font-weight-bold">Base</b>
                 </div>
@@ -202,7 +204,8 @@
             .then(data => {
                 if(data == 'success') {
                     alert('Base location changed successfully!');
-                    window.location.href = 'admin3_4.html';
+                    map.removeLayer(new_base_marker);
+                    base_marker.setLatLng([new_base_lat, new_base_lng]);
                 }
             })
             .catch(error => console.error('Error fetching data:', error));
@@ -509,7 +512,7 @@
                     let marker_exists = false;
                     let existing_marker;
                     
-                    data.forEach(item => {
+                    data.forEach(async item => {
                         let lat = item.vehicle_location.x;
                         let lng = item.vehicle_location.y;
 
@@ -530,6 +533,35 @@
                                 <p><b>Phone: </b>${item.phone_num}</p>
                                 <p><b>Vehicle Username: </b>${item.vehicle}</p>
                             `);
+
+                            await fetch('http://localhost:3000/cargo/' + item.rescuer_username)
+                            .then(response => response.json())
+                            .then(cargo => {
+                                if(Object.keys(cargo).length > 0){
+                                    existing_marker.getPopup().setContent(existing_marker.getPopup().getContent() + `
+                                        <p><b>Cargo: </b>${cargo[0].product_name} (${cargo[0].quantity})</p>
+                                    `);
+
+                                    let isFirstElement = true;
+
+                                    cargo.forEach(product => {
+                                        if (isFirstElement) {
+                                            isFirstElement = false;
+                                        }else{
+                                            existing_marker.getPopup().setContent(existing_marker.getPopup().getContent() + `
+                                                <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                                ${product.product_name} (${product.quantity})</p>
+                                            `);
+                                        }
+                                    });
+                                }else{
+                                    existing_marker.getPopup().setContent(existing_marker.getPopup().getContent() + `
+                                        <p><b>Cargo: </b>Empty</p>
+                                    `);
+                                }
+                            })
+                            .catch(error => console.error('Error fetching data:', error));
+
                             marker_exists = false;
                         }else{
                             let marker = L.marker([lat, lng],{
@@ -551,6 +583,34 @@
                                 <p><b>Phone: </b>${item.phone_num}</p>
                                 <p><b>Vehicle Username: </b>${item.vehicle}</p>
                             `);
+
+                            await fetch('http://localhost:3000/cargo/' + item.rescuer_username)
+                            .then(response => response.json())
+                            .then(cargo => {
+                                if(Object.keys(cargo).length > 0){
+                                    marker.getPopup().setContent(marker.getPopup().getContent() + `
+                                        <p><b>Cargo: </b>${cargo[0].product_name} (${cargo[0].quantity})</p>
+                                    `);
+
+                                    let isFirstElement = true;
+
+                                    cargo.forEach(product => {
+                                        if (isFirstElement) {
+                                            isFirstElement = false;
+                                        }else{
+                                            marker.getPopup().setContent(marker.getPopup().getContent() + `
+                                                <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                                ${product.product_name} (${product.quantity})</p>
+                                            `);
+                                        }
+                                    });
+                                }else{
+                                    marker.getPopup().setContent(marker.getPopup().getContent() + `
+                                        <p><b>Cargo: </b>Empty</p>
+                                    `);
+                                }
+                            })
+                            .catch(error => console.error('Error fetching data:', error));
 
                             markers.push(marker);
                         }
@@ -576,7 +636,7 @@
                     let marker_exists = false;
                     let existing_marker;
                     
-                    data.forEach(item => {
+                    data.forEach(async item => {
                         let lat = item.vehicle_location.x;
                         let lng = item.vehicle_location.y;
 
@@ -597,6 +657,35 @@
                                 <p><b>Phone: </b>${item.phone_num}</p>
                                 <p><b>Vehicle Username: </b>${item.vehicle}</p>
                             `);
+
+                            await fetch('http://localhost:3000/cargo/' + item.rescuer_username)
+                            .then(response => response.json())
+                            .then(cargo => {
+                                if(Object.keys(cargo).length > 0){
+                                    existing_marker.getPopup().setContent(existing_marker.getPopup().getContent() + `
+                                        <p><b>Cargo: </b>${cargo[0].product_name} (${cargo[0].quantity})</p>
+                                    `);
+
+                                    let isFirstElement = true;
+
+                                    cargo.forEach(product => {
+                                        if (isFirstElement) {
+                                            isFirstElement = false;
+                                        }else{
+                                            existing_marker.getPopup().setContent(existing_marker.getPopup().getContent() + `
+                                                <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                                ${product.product_name} (${product.quantity})</p>
+                                            `);
+                                        }
+                                    });
+                                }else{
+                                    existing_marker.getPopup().setContent(existing_marker.getPopup().getContent() + `
+                                        <p><b>Cargo: </b>Empty</p>
+                                    `);
+                                }
+                            })
+                            .catch(error => console.error('Error fetching data:', error));
+                            
                             marker_exists = false;
                         }else{
                             let marker = L.marker([lat, lng],{
@@ -618,6 +707,34 @@
                                 <p><b>Phone: </b>${item.phone_num}</p>
                                 <p><b>Vehicle Username: </b>${item.vehicle}</p>
                             `);
+
+                            await fetch('http://localhost:3000/cargo/' + item.rescuer_username)
+                            .then(response => response.json())
+                            .then(cargo => {
+                                if(Object.keys(cargo).length > 0){
+                                    marker.getPopup().setContent(marker.getPopup().getContent() + `
+                                        <p><b>Cargo: </b>${cargo[0].product_name} (${cargo[0].quantity})</p>
+                                    `);
+
+                                    let isFirstElement = true;
+
+                                    cargo.forEach(product => {
+                                        if (isFirstElement) {
+                                            isFirstElement = false;
+                                        }else{
+                                            marker.getPopup().setContent(marker.getPopup().getContent() + `
+                                                <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                                ${product.product_name} (${product.quantity})</p>
+                                            `);
+                                        }
+                                    });
+                                }else{
+                                    marker.getPopup().setContent(marker.getPopup().getContent() + `
+                                        <p><b>Cargo: </b>Empty</p>
+                                    `);
+                                }
+                            })
+                            .catch(error => console.error('Error fetching data:', error));
 
                             markers.push(marker);
                         }

@@ -137,28 +137,6 @@
       ]
     },
     {
-      "id": "29",
-      "name": "Biscuits",
-      "category": "5",
-      "details": [
-        {
-          "detail_name": "",
-          "detail_value": ""
-        }
-      ]
-    },
-    {
-      "id": "30",
-      "name": "Bandages",
-      "category": "16",
-      "details": [
-        {
-          "detail_name": "",
-          "detail_value": "25 pcs"
-        }
-      ]
-    },
-    {
       "id": "31",
       "name": "Disposable gloves",
       "category": "16",
@@ -255,21 +233,6 @@
         {
           "detail_name": "size",
           "detail_value": "regular"
-        }
-      ]
-    },
-    {
-      "id": "40",
-      "name": "Toilet Paper",
-      "category": "21",
-      "details": [
-        {
-          "detail_name": "stock",
-          "detail_value": "300"
-        },
-        {
-          "detail_name": "ply",
-          "detail_value": "3"
         }
       ]
     },
@@ -490,17 +453,6 @@
     {
       "id": "62",
       "name": "Shovel",
-      "category": "23",
-      "details": [
-        {
-          "detail_name": "",
-          "detail_value": ""
-        }
-      ]
-    },
-    {
-      "id": "63",
-      "name": "Flashlight",
       "category": "23",
       "details": [
         {
@@ -959,28 +911,6 @@
       ]
     },
     {
-      "id": "112",
-      "name": "Toothbrush",
-      "category": "21",
-      "details": [
-        {
-          "detail_name": "",
-          "detail_value": ""
-        }
-      ]
-    },
-    {
-      "id": "113",
-      "name": "Toothpaste",
-      "category": "21",
-      "details": [
-        {
-          "detail_name": "",
-          "detail_value": ""
-        }
-      ]
-    },
-    {
       "id": "114",
       "name": "Thermometer",
       "category": "16",
@@ -994,17 +924,6 @@
     {
       "id": "115",
       "name": "Rice",
-      "category": "5",
-      "details": [
-        {
-          "detail_name": "",
-          "detail_value": ""
-        }
-      ]
-    },
-    {
-      "id": "116",
-      "name": "Bread",
       "category": "5",
       "details": [
         {
@@ -1055,17 +974,6 @@
           "detail_name": "",
           "detail_value": ""
         },
-        {
-          "detail_name": "",
-          "detail_value": ""
-        }
-      ]
-    },
-    {
-      "id": "121",
-      "name": "Duct Tape",
-      "category": "23",
-      "details": [
         {
           "detail_name": "",
           "detail_value": ""
@@ -1302,17 +1210,6 @@
       ]
     },
     {
-      "id": "143",
-      "name": "Dust Mask",
-      "category": "35",
-      "details": [
-        {
-          "detail_name": "1",
-          "detail_value": ""
-        }
-      ]
-    },
-    {
       "id": "144",
       "name": "Can Opener",
       "category": "23",
@@ -1364,17 +1261,6 @@
         {
           "detail_name": "weight",
           "detail_value": "100"
-        }
-      ]
-    },
-    {
-      "id": "154",
-      "name": "Painkillers",
-      "category": "35",
-      "details": [
-        {
-          "detail_name": "Potency",
-          "detail_value": "High"
         }
       ]
     },

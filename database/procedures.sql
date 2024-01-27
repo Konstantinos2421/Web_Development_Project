@@ -313,27 +313,28 @@ BEGIN
 
 CREATE TEMPORARY TABLE `temp1` AS
 SELECT `product`.`id` AS `product_id`, `product`.`product_name` AS `product_name`, IFNULL(`base_inventory`.`quantity`, 0) AS `base_quantity`
-FROM `product`
+FROM `has_product`
+	JOIN `product` ON `has_product`.`product`=`product`.`id` AND `has_product`.`base`=base
 	LEFT JOIN `base_inventory` ON `product`.`id`=`base_inventory`.`product_id` AND `base_inventory`.`base`=base
 WHERE `product`.`category`=cat
 ORDER BY `product`.`id` ASC;
 
 CREATE TEMPORARY TABLE `temp2` AS
 SELECT `product`.`id` AS `product_id`, `product`.`product_name` AS `product_name`, IFNULL(SUM(`cargo`.`quantity`),0) AS `rescuers_quantity`
-FROM `product`
+FROM `has_product`
+	JOIN `product` ON `has_product`.`product`=`product`.`id` AND `has_product`.`base`=base
 	LEFT JOIN `cargo` ON `cargo`.`product_id`=`product`.`id`
     LEFT JOIN `rescuer` ON `rescuer`.`vehicle`=`cargo`.`vehicle_name` AND `rescuer`.`base`=base
 WHERE `product`.`category`=cat
 GROUP BY `product`.`id`
 ORDER BY `product`.`id` ASC;
 
-SELECT `temp1`.`product_id` AS product_id, `temp1`.`product_name` AS product_name, (`temp1`.`base_quantity` + `temp2`.`rescuers_quantity`) AS quantity
+SELECT `temp1`.`product_id` AS product_id, `temp1`.`product_name` AS product_name, `temp1`.`base_quantity` AS base_quantity,  `temp2`.`rescuers_quantity` AS rescuers_quantity, (`temp1`.`base_quantity` + `temp2`.`rescuers_quantity`) AS total_quantity
 FROM `temp1`
 	JOIN `temp2` ON `temp1`.`product_id`=`temp2`.`product_id`
 ORDER BY `temp1`.`product_id` ASC;
 
 DROP TABLE `temp1`, `temp2`;
-
 
 END $$
 DELIMITER ;
@@ -461,7 +462,7 @@ BEGIN
             (base, id);
         ELSE
             SIGNAL SQLSTATE '45000'
-                SET MESSAGE_TEXT = 'Category already exists';
+                SET MESSAGE_TEXT = 'Product already exists';
         END IF;
     END IF;
 
