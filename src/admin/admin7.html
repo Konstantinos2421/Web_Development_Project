@@ -58,11 +58,7 @@
           </div>
       </div>
 
-      <div class="container">
-          <div class="row mt-3"></div>
-      </div>
-
-      <div class="container">
+      <div class="container mt-4 mb-2">
           <div class="row">
               <div class="col-lg-3"></div>
               <div class="col-lg-6 rounded" style="background-color:rgb(115, 133, 115)">
@@ -129,25 +125,25 @@
               let admin = localStorage.getItem('username');
 
               if(username == '' || password == '' || firstname == '' || lastname == '' || phone == '' || vehicle == '') {
-                  alert('All fields are required!');
-                  return;
+                alert('All fields are required!');
+                return;
               }
 
               fetch('http://localhost:3000/signup/rescuer/' + admin + '/' + username + '/' + password + '/' + firstname + '/' + lastname + '/' + phone + '/' + vehicle , {method:'POST'})
               .then(response => response.text())
               .then(data => {
-                  if (data == 'success') {
-                      alert('The account was created successfully!');
-                      document.getElementById('username_field').value = '';
-                      document.getElementById('password_field').value = '';
-                      document.getElementById('first_name_field').value = '';
-                      document.getElementById('last_name_field').value = '';
-                      document.getElementById('phone_num_field').value = '';
-                      document.getElementById('vehicle_field').value = '';
-                  }
-                  else {
-                      alert('Username already exists!');
-                  }
+                if (data == 'success') {
+                  alert('The account was created successfully!');
+                  document.getElementById('username_field').value = '';
+                  document.getElementById('password_field').value = '';
+                  document.getElementById('first_name_field').value = '';
+                  document.getElementById('last_name_field').value = '';
+                  document.getElementById('phone_num_field').value = '';
+                  document.getElementById('vehicle_field').value = '';
+                }
+                else {
+                  alert('Username already exists!');
+                }
               })
               .catch(error => console.error('Error fetching data:', error));
 

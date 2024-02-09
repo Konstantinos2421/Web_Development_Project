@@ -84,7 +84,7 @@
     <div class="tab-content">
       <div class="tab-pane container active mt-4" id="new_announcement">
 
-        <div class="container text-white mt-5" id="test">
+        <div class="container text-white mt-5 mb-2" id="test">
           <div class="row">
             <div class="col-lg-3"></div>
             
@@ -106,7 +106,7 @@
                 </div>
     
                 <div class="mb-3 mt-3 text-center">
-                  <button type="button" class="btn btn-primary btn-default mt-3" id="add_announcement_btn">Add Anouncement</button>
+                  <button type="button" class="btn btn-primary btn-default mt-3" id="add_announcement_btn">Add Announcement</button>
                 </div>
               </form>
             </div>
@@ -246,7 +246,7 @@
       .catch(error => console.error('Error fetching data:', error));
     }
     
-    function buttonsInitializations(){
+    function newAnnouncement(){
       fetch('http://localhost:3000/base_inventory/admin/' + admin)
       .then(response => response.json())
       .then(data => {
@@ -364,7 +364,7 @@
                 </div>
               </div>
             `;
-            buttonsInitializations();
+            newAnnouncement();
             document.getElementById('announcements').innerHTML = '';
             announcements();
           }
@@ -373,7 +373,7 @@
       });
     }
 
-    buttonsInitializations();
+    newAnnouncement();
     announcements();
     
   </script>

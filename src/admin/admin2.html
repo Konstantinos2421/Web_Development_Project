@@ -116,7 +116,7 @@
 
       </div>
 
-      <div class="tab-pane container fade mt-4" id="new_product">
+      <div class="tab-pane container fade mt-4 mb-2" id="new_product">
 
         <div class="row">
           <div class="col-lg-3"></div>
@@ -277,13 +277,12 @@
               let item = listItems[i];
               let quantity = item.getElementsByTagName('input')[0].value;
               let id = item.id;
-              if (quantity > 0) {
-                data.push({
-                  product_name: item.textContent,
-                  quantity: quantity,
-                  product_id: id
-                });
-              }
+              
+              data.push({
+                product_name: item.textContent,
+                quantity: quantity,
+                product_id: id
+              });
             }
       
             fetch('http://localhost:3000/update_inventory/' + admin, {

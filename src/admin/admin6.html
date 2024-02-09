@@ -28,6 +28,14 @@
             border: 1px solid rgb(0, 0, 0);
             border-radius: 3px;
         }
+
+        .form-check-input{
+            border-color: #000;
+        }
+
+        .form-control{
+            border-color: #000;
+        }
     </style>
 
     <body>
@@ -75,7 +83,7 @@
             <div class="row">
                 
                 <div class="col-lg-3">
-                    <form class="border border-3 rounded-4 ps-4 pt-4 mt-4">
+                    <form class="border border-2 border-dark rounded-4 ps-4 pt-4 mt-3">
                         <p class="h3 text-center mb-4">Toggles</p>
 
                         <div class="form-check mb-3 d-flex">
@@ -104,15 +112,15 @@
                     </form>
 
 
-                    <form class="border border-3 rounded-4 ps-4 pt-4 mt-4">
+                    <form class="border border-2 border-dark rounded-4 ps-4 pt-4 mt-4">
                         <p class="h3 text-center mb-4">Time Period</p>
 
-                        <div class="mb-3">
+                        <div class="mb-3 me-3">
                             <label for="start_date" class="form-label">Start Date:</label>
                             <input type="date" class="form-control" id="start_date" name="start_date" lang="en">
                         </div>
 
-                        <div class="mb-3">
+                        <div class="mb-3 me-3">
                             <label for="end_date" class="form-label">End Date:</label>
                             <input type="date" class="form-control" id="end_date" name="end_date" lang="en">
                         </div>
@@ -124,8 +132,8 @@
                 </div>
 
                 <div class="col-lg-9 mt-2">
-                    <div style="overflow-x: auto;">
-                        <canvas id="chart" style="height: 550px; width: 1000px;"></canvas>
+                    <div class="chartWrapper">
+                        <canvas id="chart" style="height: 530px; width: 1000px;"></canvas>
                     </div>
                 </div>
             </div>
@@ -163,7 +171,7 @@
             options: {
                 legend: {display: false},
                 scales: {
-                    yAxes: [{ticks: {min: 0, max: 30}}],
+                    yAxes: [{ticks: {min: 0}}],
                 }
             }
         });

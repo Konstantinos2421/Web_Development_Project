@@ -28,6 +28,7 @@ CREATE TABLE`admin`(
     `base` VARCHAR(30) NOT NULL,
 
     PRIMARY KEY (`admin_username`),
+    FOREIGN KEY (`admin_username`) REFERENCES `user` (`username`) ON DELETE CASCADE ON UPDATE CASCADE,
     FOREIGN KEY (`base`) REFERENCES `base` (`base_name`) ON DELETE CASCADE ON UPDATE CASCADE
 ) Engine = InnoDB;
 

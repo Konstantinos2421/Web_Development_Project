@@ -14,7 +14,7 @@
         <div class="container">
             <div class="row">
                 <div class="col-lg-6 col-sm-4 rounded" style="background-color:rgb(80, 102, 80)">
-                    <img src="../../imgs/logo.png" class="img-thumbnail mb-5" width="150" height="95" style="position:relative; left:50%; top:10%; transform:translate(-50%, -50%);">
+                    <img src="../../imgs/logo.png" class="img-thumbnail" width="150" height="95" style="position:relative; left:50%; top:5%; transform:translate(-50%, -50%);">
                     <form class="p-3 text-white">
                         <div class="mb-3 mt-5">
                             <label for="username" class="form-label">Username:</label>
@@ -52,7 +52,7 @@
         </div>
 
         <script>
-            var map = L.map('map').setView([38.2904, 21.7957], 14);
+            let map = L.map('map').setView([38.2904, 21.7957], 6);
           
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
               attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'

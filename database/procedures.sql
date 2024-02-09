@@ -64,7 +64,7 @@ CREATE PROCEDURE rescuerLoadCargoFromBase(resc VARCHAR(30), prod INT, quant INT)
 BEGIN
 
 DECLARE base_quantity INT;
-DECLARE products_in_base INT;
+DECLARE product_exists INT;
 DECLARE vehicle VARCHAR(20);
 DECLARE base VARCHAR(30);
 DECLARE new_quantity INT;
@@ -103,11 +103,11 @@ FROM `rescuer`
 WHERE `rescuer`.`rescuer_username`=resc;
 
 SELECT COUNT(*)
-INTO products_in_base
+INTO product_exists
 FROM `cargo`
 WHERE `product_id`=prod AND `cargo`.`vehicle_name`=vehicle;
 
-IF products_in_base=0 THEN
+IF product_exists=0 THEN
     INSERT INTO `cargo` VALUES (vehicle, prod, quant);
 ELSE
     UPDATE `cargo`
