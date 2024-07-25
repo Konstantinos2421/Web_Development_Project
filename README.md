@@ -13,8 +13,8 @@ ___
 ___
 ### Project Folders:
 - **bootstrap-5.3.2-dist:** It contains the Bootstrap CSS files that are used for HTML pages styling.
-- **database:** It contains SQL code for the creation of the database, the procedures and the inserts. It also contains the ER diagaram of the database.
+- **database:** It contains SQL code for the creation of the database, as well as for its procedures and inserts. It also contains the ER diagaram of the database.
 - **imgs:** It contains images that are used in the HTML pages.
-- **initial_data:** It contains a JSON file with some emergency items and categories to insert into the database.
+- **initial_data:** It contains a JSON file with some emergency items and categories which are inserted in the database and are used for testing.
 - **server:** It contains the back-end NodeJS code.
 - **src:** It contains all the HTML files of the web pages.
