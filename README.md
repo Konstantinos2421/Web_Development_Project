@@ -18,3 +18,8 @@ ___
 - **initial_data:** It contains a JSON file with some emergency items and categories which are inserted in the database and are used for testing.
 - **server:** It contains the back-end NodeJS code.
 - **src:** It contains all the HTML files of the web pages.
+___
+### Execution Info:
+- The database is not hosted in a public server and it must be created locally in order to see the data flow results in the web pages.
+- In order to login as admin or rescuer you have to see their credentials from the database inserts or insert new accounts in database.
+- You first have to execute server.js file in order to run the NodeJS code and activate the server.
