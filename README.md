@@ -1,6 +1,6 @@
 # Web Development Project
 A project on full-stack web development. The project implements a system for the registration of requests(emergency items) and the servicing of these needs in a community that affected by a natural disaster. Through the platform, a citizen can declare that they have specific needs for various items(e.g. water, food, medicine) or declare that they have a surplus and can donate specific items.
-
+___
 The technologies that were used are the following:
 - **front-end:** HTML, Bootstrap(CSS), Javascript
 - **back-end:** NodeJS
