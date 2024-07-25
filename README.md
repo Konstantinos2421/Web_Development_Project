@@ -6,12 +6,12 @@ ___
 - **back-end:** NodeJS
 - **database:** MySQL
 ___
-The user types of the system are the following:
+### System User Types:
 - **admin:** This user is responsible for managing the warehouse of a base. He is also responsible for creating announcements about emergency items and he can create new rescuers accounts
 - **rescuer:** This user owns a vehicle and he is responsible for gathering and distributing the emergency items to the citizens
 - **citizen:** This user can donate or request emergency items
 ___
-The folders of the project are the following:
+### Project Folders:
 - **bootstrap-5.3.2-dist:** It contains the Bootstrap CSS files that are used for HTML pages styling.
 - **database:** It contains SQL code for the creation of the database, the procedures and the inserts. It also contains the ER diagaram of the database.
 - **imgs:** It contains images that are used in the HTML pages.
