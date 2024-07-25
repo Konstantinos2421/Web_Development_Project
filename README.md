@@ -7,7 +7,7 @@ ___
 - **database:** MySQL
 ___
 ### System User Types:
-- **admin:** This user is responsible for managing the warehouse of a base. He is also responsible for creating announcements about emergency items and he can create new rescuers accounts
+- **admin:** This user is responsible for managing the warehouse of a base. He is also responsible for creating announcements about emergency items and he can create new rescuer accounts
 - **rescuer:** This user owns a vehicle and he is responsible for gathering and distributing the emergency items to the citizens
 - **citizen:** This user can donate or request emergency items
 ___
